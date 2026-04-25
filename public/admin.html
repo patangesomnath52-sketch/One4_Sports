@@ -49,7 +49,7 @@
         .kpi-value { font-size: 28px; font-weight: 700; color: var(--amz-text); }
 
         /* TABLE */
-        .table-card { background: #fff; border: 1px solid var(--amz-border); border-radius: 8px; overflow: hidden; }
+        .table-card { background: #fff; border: 1px solid var(--amz-border); border-radius: 8px; overflow: hidden; margin-top: 20px;}
         .table-header { padding: 15px 20px; background: #fbfbfb; border-bottom: 1px solid var(--amz-border); font-weight: 700; font-size: 16px; }
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; padding: 12px 20px; font-size: 13px; color: #565959; border-bottom: 1px solid var(--amz-border); }
@@ -61,20 +61,18 @@
         .status.Delivered { background-color: #e6f4ea; color: #007600; border: 1px solid #a3d9b1; }
         .status.Cancelled { background-color: #fce8e8; color: #cc0000; border: 1px solid #ffb3b3; }
 
-        .btn-action { background: var(--amz-btn); border: 1px solid #FCD200; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; width: 100%; transition: 0.2s; }
+        .btn-action { background: var(--amz-btn); border: 1px solid #FCD200; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.2s; }
         .btn-action:hover:not(:disabled) { background: var(--amz-btn-hover); }
 
-        /* MODAL FOR STATUS UPDATE */
+        /* MODAL */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: #fff; padding: 25px; border-radius: 8px; width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .modal-header { font-size: 18px; font-weight: 700; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .close-modal { cursor: pointer; font-size: 20px; color: #878787; }
-        .close-modal:hover { color: red; }
         .form-control { width: 100%; padding: 10px; border: 1px solid var(--amz-border); border-radius: 4px; font-size: 14px; outline: none; margin-bottom: 15px; }
 
         /* UPLOAD FORM */
         .upload-form { background: #fff; padding: 25px; border-radius: 8px; border: 1px solid var(--amz-border); max-width: 600px; }
+        .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
     </style>
 </head>
@@ -89,41 +87,26 @@
         <aside class="sidebar">
             <div class="nav-item active" onclick="switchTab('dashboard', this)"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
             <div class="nav-item" onclick="switchTab('upload', this)"><i class="fas fa-upload"></i> Add Product</div>
+            <div class="nav-item" onclick="switchTab('manage', this)"><i class="fas fa-boxes"></i> Manage Inventory</div>
             <a href="index.html" class="nav-item" target="_blank"><i class="fas fa-store"></i> View Store</a>
         </aside>
 
         <main class="content">
             <div id="sec-dashboard" class="admin-section active">
                 <h1 class="page-title">Store Dashboard</h1>
-                
                 <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-title">Total Revenue</div>
-                        <div class="kpi-value" id="kpi-revenue">₹0</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">Total Orders</div>
-                        <div class="kpi-value" id="kpi-orders">0</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">Live Products</div>
-                        <div class="kpi-value" id="kpi-products">0</div>
-                    </div>
+                    <div class="kpi-card"><div class="kpi-title">Total Revenue</div><div class="kpi-value" id="kpi-revenue">₹0</div></div>
+                    <div class="kpi-card"><div class="kpi-title">Total Orders</div><div class="kpi-value" id="kpi-orders">0</div></div>
+                    <div class="kpi-card"><div class="kpi-title">Live Products</div><div class="kpi-value" id="kpi-products">0</div></div>
                 </div>
 
                 <div class="table-card">
                     <div class="table-header">Recent Orders</div>
                     <table>
                         <thead>
-                            <tr>
-                                <th>Order ID & Date</th>
-                                <th>Customer Details</th>
-                                <th>Total Amount</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
+                            <tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Action</th></tr>
                         </thead>
-                        <tbody id="table-body">
+                        <tbody id="order-table-body">
                             <tr><td colspan="5" style="text-align:center;">Loading orders...</td></tr>
                         </tbody>
                     </table>
@@ -134,32 +117,30 @@
                 <h1 class="page-title">Add New Product</h1>
                 <div class="upload-form">
                     <form id="uploadForm">
-                        <div class="form-group">
-                            <label>Product ID (Unique)</label>
-                            <input type="text" id="p-id" class="form-control" placeholder="e.g. RJ001" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Product Name</label>
-                            <input type="text" id="p-name" class="form-control" placeholder="e.g. RJ Pro Cricket Bat" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Price (₹)</label>
-                            <input type="number" id="p-price" class="form-control" placeholder="e.g. 2500" required>
-                        </div>
+                        <div class="form-group"><label>Product ID</label><input type="text" id="p-id" class="form-control" placeholder="e.g. RJ001" required></div>
+                        <div class="form-group"><label>Product Name</label><input type="text" id="p-name" class="form-control" placeholder="e.g. RJ Pro Cricket Bat" required></div>
+                        <div class="form-group"><label>Price (₹)</label><input type="number" id="p-price" class="form-control" placeholder="2500" required></div>
                         <div class="form-group">
                             <label>Category</label>
                             <select id="p-category" class="form-control">
-                                <option value="Shoes">Shoes</option>
-                                <option value="Cricket">Cricket Equipment</option>
-                                <option value="Accessories">Accessories</option>
+                                <option value="Shoes">Shoes</option><option value="Cricket">Cricket Equipment</option><option value="Accessories">Accessories</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Upload Images (Max 3)</label>
-                            <input type="file" id="p-images" class="form-control" name="productImages" multiple accept="image/*" required>
-                        </div>
-                        <button type="submit" id="uploadBtn" class="btn-action" style="padding:12px;">Upload to Store</button>
+                        <div class="form-group"><label>Images (Max 3)</label><input type="file" id="p-images" class="form-control" multiple accept="image/*" required></div>
+                        <button type="submit" id="uploadBtn" class="btn-action" style="width:100%;">Upload to Cloudinary</button>
                     </form>
+                </div>
+            </div>
+
+            <div id="sec-manage" class="admin-section">
+                <h1 class="page-title">Manage Inventory</h1>
+                <div class="table-card">
+                    <table>
+                        <thead>
+                            <tr><th>Product</th><th>Category</th><th>Stock Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="inventory-table-body"></tbody>
+                    </table>
                 </div>
             </div>
         </main>
@@ -167,129 +148,126 @@
 
     <div id="statusModal" class="modal-overlay">
         <div class="modal-content">
-            <div class="modal-header">
-                Update Order Status
-                <i class="fas fa-times close-modal" onclick="closeModal()"></i>
-            </div>
-            <p style="font-size:13px; color:#565959; margin-bottom:10px;">Order ID: <strong id="modalOrderId" style="color:var(--amz-link);"></strong></p>
-            
+            <h3 style="margin-bottom:15px;">Update Order Status</h3>
+            <p style="font-size:13px; margin-bottom:10px;">Order: <strong id="modalOrderId"></strong></p>
             <select id="newStatus" class="form-control">
-                <option value="Processing">Processing (पेंडिंग)</option>
-                <option value="Shipped">Shipped (पाठवली)</option>
-                <option value="Delivered">Delivered (पोहोचली)</option>
-                <option value="Cancelled">Cancelled (रद्द)</option>
+                <option value="Processing">Processing</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Cancelled">Cancelled</option>
             </select>
-            
-            <button class="btn-action" style="padding:10px;" id="saveStatusBtn" onclick="saveStatus()">Save Changes</button>
+            <button class="btn-action" style="width:100%;" onclick="saveStatus()">Save Changes</button>
+            <button onclick="closeModal()" style="width:100%; margin-top:10px; background:none; border:none; color:grey; cursor:pointer;">Cancel</button>
         </div>
     </div>
 
     <script>
-        // 1. Tab Switching
+        // Tab Navigation
         function switchTab(tabId, element) {
             document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             document.getElementById(`sec-${tabId}`).classList.add('active');
             element.classList.add('active');
+            if(tabId === 'manage') fetchInventory();
         }
 
-        // 2. Fetch Orders & Dashboard Data
+        // Fetch Orders and Stats
         async function fetchDashboardData() {
             try {
-                const orderRes = await fetch('/api/orders');
+                const [orderRes, prodRes] = await Promise.all([fetch('/api/orders'), fetch('/api/products')]);
                 const orderData = await orderRes.json();
-                const prodRes = await fetch('/api/products');
                 const prodData = await prodRes.json();
 
                 if(orderData.success) {
                     let totalRevenue = 0;
-                    let html = '';
-                    
-                    document.getElementById('kpi-orders').innerText = orderData.orders.length;
-
-                    orderData.orders.forEach(order => {
-                        // फक्त Cancelled नसलेल्या ऑर्डर्सचे पैसे मोजा
+                    let html = orderData.orders.map(order => {
                         if(order.status !== 'Cancelled') totalRevenue += order.total || 0;
-                        
-                        const date = new Date(order.date).toLocaleDateString('en-IN');
-                        
-                        html += `
+                        return `
                             <tr>
-                                <td>
-                                    <strong style="color:var(--amz-link);">#${order.orderId}</strong><br>
-                                    <small>${date}</small>
-                                </td>
-                                <td>
-                                    <strong>${order.customer}</strong><br>
-                                    <small>${order.phone}</small>
-                                </td>
-                                <td><strong>₹${(order.total || 0).toLocaleString()}</strong></td>
+                                <td><strong>#${order.orderId}</strong><br><small>${new Date(order.date).toLocaleDateString()}</small></td>
+                                <td>${order.customer}<br><small>${order.phone}</small></td>
+                                <td>₹${order.total.toLocaleString()}</td>
                                 <td><span class="status ${order.status}">${order.status}</span></td>
-                                <td>
-                                    <button class="btn-action" style="width:auto; padding:5px 15px;" onclick="openModal('${order.orderId}', '${order.status}')">Update</button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    document.getElementById('table-body').innerHTML = html || '<tr><td colspan="5" style="text-align:center;">No orders yet.</td></tr>';
+                                <td><button class="btn-action" onclick="openModal('${order.orderId}', '${order.status}')">Update</button></td>
+                            </tr>`;
+                    }).join('');
+                    document.getElementById('order-table-body').innerHTML = html || '<tr><td colspan="5">No orders found.</td></tr>';
+                    document.getElementById('kpi-orders').innerText = orderData.orders.length;
                     document.getElementById('kpi-revenue').innerText = `₹${totalRevenue.toLocaleString()}`;
                 }
 
                 if(prodData.success) {
                     document.getElementById('kpi-products').innerText = prodData.products.length;
                 }
-            } catch (err) {
-                console.error("Dashboard Error:", err);
+            } catch (err) { console.error("Error:", err); }
+        }
+
+        // Inventory Management
+        async function fetchInventory() {
+            const res = await fetch('/api/products');
+            const data = await res.json();
+            if(data.success) {
+                let html = data.products.map(p => `
+                    <tr>
+                        <td><strong>${p.name}</strong><br><small>${p.productId}</small></td>
+                        <td>${p.category}</td>
+                        <td>${p.isOutOfStock ? '<span style="color:red">Out of Stock</span>' : '<span style="color:green">In Stock</span>'}</td>
+                        <td>
+                            <button class="btn-action" onclick="toggleStock('${p.productId}', ${!p.isOutOfStock})">
+                                ${p.isOutOfStock ? 'Mark In Stock' : 'Mark Out of Stock'}
+                            </button>
+                            <button class="btn-action" style="background:#ff4d4d; color:white; border:none;" onclick="deleteProduct('${p.productId}')">Delete</button>
+                        </td>
+                    </tr>`).join('');
+                document.getElementById('inventory-table-body').innerHTML = html;
             }
         }
 
-        // 3. 🟢 MODAL LOGIC (STATUS UPDATE) 🟢
-        let currentUpdatingOrderId = null;
+        async function toggleStock(id, status) {
+            await fetch('/api/stock/update', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ productId: id, isOutOfStock: status })
+            });
+            fetchInventory();
+        }
 
-        function openModal(orderId, currentStatus) {
-            currentUpdatingOrderId = orderId;
-            document.getElementById('modalOrderId').innerText = '#' + orderId;
-            document.getElementById('newStatus').value = currentStatus;
+        async function deleteProduct(id) {
+            if(confirm("Are you sure? This cannot be undone.")) {
+                await fetch(`/api/products/${id}`, { method: 'DELETE' });
+                fetchInventory();
+                fetchDashboardData();
+            }
+        }
+
+        // Modal Logic
+        let currentUpdateId = null;
+        function openModal(id, status) {
+            currentUpdateId = id;
+            document.getElementById('modalOrderId').innerText = '#' + id;
+            document.getElementById('newStatus').value = status;
             document.getElementById('statusModal').classList.add('active');
         }
-
-        function closeModal() {
-            document.getElementById('statusModal').classList.remove('active');
-        }
+        function closeModal() { document.getElementById('statusModal').classList.remove('active'); }
 
         async function saveStatus() {
-            const newStatus = document.getElementById('newStatus').value;
-            const btn = document.getElementById('saveStatusBtn');
-            btn.innerText = "Saving... ⏳";
-            btn.disabled = true;
-            
-            try {
-                const res = await fetch('/api/orders/update-status', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orderId: currentUpdatingOrderId, status: newStatus })
-                });
-                
-                const data = await res.json();
-                if(data.success) {
-                    closeModal();
-                    fetchDashboardData(); // टेबल लगेच रिफ्रेश करा
-                } else {
-                    alert("❌ Error: " + data.message);
-                }
-            } catch (error) {
-                alert("❌ Connection Error.");
-            } finally {
-                btn.innerText = "Save Changes";
-                btn.disabled = false;
+            const status = document.getElementById('newStatus').value;
+            const res = await fetch('/api/orders/update-status', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ orderId: currentUpdateId, status })
+            });
+            if((await res.json()).success) {
+                closeModal();
+                fetchDashboardData();
             }
         }
 
-        // 4. Product Upload 
+        // Product Upload
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('uploadBtn');
-            btn.innerText = "Uploading... ⏳";
+            btn.innerText = "Uploading to Cloudinary... ⏳";
             btn.disabled = true;
 
             const formData = new FormData();
@@ -298,25 +276,21 @@
             formData.append('price', document.getElementById('p-price').value);
             formData.append('category', document.getElementById('p-category').value);
             
-            const fileInput = document.getElementById('p-images');
-            for(let i=0; i<fileInput.files.length; i++) {
-                formData.append('productImages', fileInput.files[i]);
-            }
+            const files = document.getElementById('p-images').files;
+            for(let i=0; i<files.length; i++) formData.append('productImages', files[i]);
 
             try {
-                const response = await fetch('/api/products/add', { method: 'POST', body: formData });
-                const data = await response.json();
-                
+                const res = await fetch('/api/products/add', { method: 'POST', body: formData });
+                const data = await res.json();
                 if(data.success) {
-                    alert("✅ Product Uploaded!");
+                    alert("✅ Product Uploaded Successfully!");
                     e.target.reset();
-                    fetchDashboardData(); 
+                    fetchDashboardData();
                 } else { alert("❌ Error: " + data.message); }
-            } catch (error) { alert("❌ Server Error."); } 
-            finally { btn.innerText = "Upload to Store"; btn.disabled = false; }
+            } catch (err) { alert("❌ Server Connection Failed"); }
+            finally { btn.innerText = "Upload to Cloudinary"; btn.disabled = false; }
         });
 
-        // Start
         document.addEventListener('DOMContentLoaded', fetchDashboardData);
     </script>
 </body>
