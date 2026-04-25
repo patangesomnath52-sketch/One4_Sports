@@ -263,33 +263,30 @@
             }
         }
 
-        // Product Upload
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('uploadBtn');
-            btn.innerText = "Uploading to Cloudinary... ⏳";
-            btn.disabled = true;
+      app.post('/api/products/add', upload.array('productImages', 3), async (req, res) => {
+    try {
+        const imagePaths = req.files.map(file => file.path);
+        
+        // Use findOneAndUpdate with upsert: true
+        await Product.findOneAndUpdate(
+            { productId: req.body.productId }, // Look for this ID
+            { 
+                $set: {
+                    name: req.body.name,
+                    price: req.body.price,
+                    category: req.body.category,
+                    images: imagePaths.length > 0 ? imagePaths : undefined // Only update images if new ones uploaded
+                }
+            },
+            { upsert: true, new: true } // If not found, create it; if found, update it
+        );
 
-            const formData = new FormData();
-            formData.append('productId', document.getElementById('p-id').value);
-            formData.append('name', document.getElementById('p-name').value);
-            formData.append('price', document.getElementById('p-price').value);
-            formData.append('category', document.getElementById('p-category').value);
-            
-            const files = document.getElementById('p-images').files;
-            for(let i=0; i<files.length; i++) formData.append('productImages', files[i]);
-
-            try {
-                const res = await fetch('/api/products/add', { method: 'POST', body: formData });
-                const data = await res.json();
-                if(data.success) {
-                    alert("✅ Product Uploaded Successfully!");
-                    e.target.reset();
-                    fetchDashboardData();
-                } else { alert("❌ Error: " + data.message); }
-            } catch (err) { alert("❌ Server Connection Failed"); }
-            finally { btn.innerText = "Upload to Cloudinary"; btn.disabled = false; }
-        });
+        res.json({ success: true, message: "Product saved successfully!" });
+    } catch (err) {
+        console.error("Detailed Server Error:", err); // This prints the error in your terminal
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
 
         document.addEventListener('DOMContentLoaded', fetchDashboardData);
     </script>
