@@ -78,13 +78,22 @@ app.post('/api/products/add', upload.array('productImages', 3), async (req, res)
 });
 
 // GET ALL PRODUCTS
-app.get('/api/products', async (req, res) => {
+// GET SINGLE PRODUCT DETAILS
+app.get('/api/products/:id', async (req, res) => {
     try {
-        const products = await Product.find();
-        res.json({ success: true, products });
-    } catch (err) { res.status(500).json({ success: false }); }
+        // We use req.params.id to catch the "s2" from the URL
+        const product = await Product.findOne({ productId: req.params.id });
+        
+        if (product) {
+            res.json({ success: true, product });
+        } else {
+            // If the ID "s2" doesn't exist in MongoDB, it returns 404
+            res.status(404).json({ success: false, message: "Product not found in database" });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
 });
-
 // GET ALL ORDERS
 app.get('/api/orders', async (req, res) => {
     try {
