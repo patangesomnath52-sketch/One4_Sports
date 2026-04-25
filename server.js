@@ -10,9 +10,9 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static('public'));
 
-// 1. Cloudinary Configuration
+// 1. Cloudinary Setup
 cloudinary.config({
-    cloud_name: 'dcxsebtas',
+    cloud_name: 'dcxsebtas', 
     api_key: '872585929966168',
     api_secret: 't490x7y5jzQhZrJ8juEhNmjmLwI'
 });
@@ -30,52 +30,74 @@ const upload = multer({ storage: storage });
 const MONGO_URI = "mongodb+srv://Ram_Jadhav:Ram%401234@cluster0.5ii6lfb.mongodb.net/rjsports?retryWrites=true&w=majority"; 
 mongoose.connect(MONGO_URI).then(() => console.log("✅ MongoDB Connected!"));
 
-// 3. Models
+// 3. Database Schemas
 const Product = mongoose.model('Product', new mongoose.Schema({
     productId: { type: String, unique: true, required: true },
-    name: String, price: Number, category: String, images: [String], isOutOfStock: Boolean
+    name: String,
+    price: Number,
+    category: String,
+    images: [String],
+    isOutOfStock: { type: Boolean, default: false }
 }));
 
 const Order = mongoose.model('Order', new mongoose.Schema({
-    orderId: String, customer: String, phone: String, total: Number, status: String, date: { type: Date, default: Date.now }
+    orderId: String,
+    customer: String,
+    phone: String,
+    total: Number,
+    status: { type: String, default: 'Processing' },
+    date: { type: Date, default: Date.now }
 }));
 
 // 4. API Routes
+// ADD/UPDATE PRODUCT (With Upsert to prevent duplicate errors)
 app.post('/api/products/add', upload.array('productImages', 3), async (req, res) => {
     try {
         const imagePaths = req.files.map(file => file.path);
-        // UPSERT LOGIC: Update if exists, Create if new
+        const { productId, name, price, category } = req.body;
+
+        const updateData = {
+            name,
+            price: parseFloat(price),
+            category,
+            isOutOfStock: false // Ensure it's not hidden by "Sold Out" filter
+        };
+
+        if (imagePaths.length > 0) updateData.images = imagePaths;
+
         await Product.findOneAndUpdate(
-            { productId: req.body.productId },
-            { 
-                $set: {
-                    name: req.body.name,
-                    price: req.body.price,
-                    category: req.body.category,
-                    images: imagePaths.length > 0 ? imagePaths : undefined,
-                    isOutOfStock: false
-                }
-            },
+            { productId },
+            { $set: updateData },
             { upsert: true, new: true }
         );
-        res.json({ success: true, message: "Product saved!" });
-    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+
+        res.json({ success: true, message: "✅ Product Saved/Updated Successfully!" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
 });
 
+// GET ALL PRODUCTS
+app.get('/api/products', async (req, res) => {
+    try {
+        const products = await Product.find();
+        res.json({ success: true, products });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+// GET ALL ORDERS
 app.get('/api/orders', async (req, res) => {
-    const orders = await Order.find().sort({ date: -1 });
-    res.json({ success: true, orders });
+    try {
+        const orders = await Order.find().sort({ date: -1 });
+        res.json({ success: true, orders });
+    } catch (err) { res.status(500).json({ success: false }); }
 });
 
-app.post('/api/orders/update-status', async (req, res) => {
-    await Order.findOneAndUpdate({ orderId: req.body.orderId }, { status: req.body.status });
+// DELETE PRODUCT
+app.delete('/api/products/:id', async (req, res) => {
+    await Product.findOneAndDelete({ productId: req.params.id });
     res.json({ success: true });
 });
 
-app.get('/api/products', async (req, res) => {
-    const products = await Product.find();
-    res.json({ success: true, products });
-});
-
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));

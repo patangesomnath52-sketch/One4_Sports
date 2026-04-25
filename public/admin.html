@@ -3,30 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RJ Sports Admin</title>
+    <title>RJ Sports Admin | Seller Central</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --amz-dark: #232f3e; --amz-orange: #f90; --amz-btn: #FFD814; --amz-border: #d5d9d9; }
-        body { font-family: sans-serif; background: #f2f4f8; display: flex; flex-direction: column; }
-        .top-navbar { background: var(--amz-dark); color: white; padding: 15px; display: flex; justify-content: space-between; }
+        body { font-family: 'Open Sans', sans-serif; background: #f2f4f8; margin: 0; display: flex; flex-direction: column; }
+        .top-navbar { background: var(--amz-dark); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
         .main-container { display: flex; flex: 1; }
         .sidebar { width: 250px; background: white; border-right: 1px solid var(--amz-border); min-height: 100vh; }
-        .nav-item { padding: 15px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .nav-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #eee; font-weight: 600; }
         .nav-item.active { background: #f7fafa; color: #007185; border-left: 4px solid #007185; }
-        .content { flex: 1; padding: 20px; }
+        .content { flex: 1; padding: 30px; }
         .admin-section { display: none; }
         .admin-section.active { display: block; }
-        .kpi-card { background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--amz-border); margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        .form-control { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn-action { background: var(--amz-btn); border: 1px solid #FCD200; padding: 10px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .card { background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--amz-border); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .form-control { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn-action { background: var(--amz-btn); border: 1px solid #FCD200; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; width: 100%; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
+
     <header class="top-navbar">
-        <div class="logo">RJ SPORTS Admin</div>
-        <div>Welcome, Admin</div>
+        <div style="font-size: 20px; font-weight: bold;">RJ SPORTS Admin</div>
+        <div>Seller Dashboard</div>
     </header>
 
     <div class="main-container">
@@ -37,26 +38,42 @@
 
         <main class="content">
             <div id="sec-dashboard" class="admin-section active">
-                <h2>Dashboard</h2>
-                <div class="kpi-card">Total Orders: <span id="kpi-orders">0</span></div>
-                <table>
-                    <thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
-                    <tbody id="order-table-body"></tbody>
-                </table>
+                <h2>Store Overview</h2>
+                <div class="card">
+                    <p>Total Orders: <strong id="kpi-orders">0</strong></p>
+                    <table>
+                        <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
+                        <tbody id="order-table-body"></tbody>
+                    </table>
+                </div>
             </div>
 
             <div id="sec-upload" class="admin-section">
-                <h2>Add Product</h2>
-                <form id="uploadForm" class="kpi-card">
-                    <input type="text" id="p-id" class="form-control" placeholder="Product ID" required>
-                    <input type="text" id="p-name" class="form-control" placeholder="Product Name" required>
-                    <input type="number" id="p-price" class="form-control" placeholder="Price" required>
-                    <select id="p-category" class="form-control">
-                        <option>Shoes</option><option>Cricket</option>
-                    </select>
-                    <input type="file" id="p-images" class="form-control" multiple required>
-                    <button type="submit" id="uploadBtn" class="btn-action">Upload to Cloudinary</button>
-                </form>
+                <h2>Upload Product</h2>
+                <div class="card">
+                    <form id="uploadForm">
+                        <label>Product ID (Unique)</label>
+                        <input type="text" id="p-id" class="form-control" placeholder="e.g. SHOE-001" required>
+                        
+                        <label>Product Name</label>
+                        <input type="text" id="p-name" class="form-control" placeholder="e.g. RJ Pro Running Shoes" required>
+                        
+                        <label>Price (₹)</label>
+                        <input type="number" id="p-price" class="form-control" placeholder="2999" required>
+                        
+                        <label>Category</label>
+                        <select id="p-category" class="form-control">
+                            <option value="Footwear">Footwear (Shoes)</option>
+                            <option value="Cricket">Cricket Equipment</option>
+                            <option value="Accessories">Accessories</option>
+                        </select>
+                        
+                        <label>Product Images</label>
+                        <input type="file" id="p-images" class="form-control" multiple accept="image/*" required>
+                        
+                        <button type="submit" id="uploadBtn" class="btn-action">Upload to Cloudinary</button>
+                    </form>
+                </div>
             </div>
         </main>
     </div>
@@ -70,39 +87,40 @@
         }
 
         async function fetchDashboardData() {
-            const res = await fetch('/api/orders');
-            const data = await res.json();
-            if(data.success) {
-                document.getElementById('kpi-orders').innerText = data.orders.length;
-                document.getElementById('order-table-body').innerHTML = data.orders.map(o => `
-                    <tr>
-                        <td>#${o.orderId}</td>
-                        <td>${o.customer}</td>
-                        <td>₹${o.total}</td>
-                        <td>${o.status}</td>
-                        <td><button class="btn-action">Update</button></td>
-                    </tr>
-                `).join('');
-            }
+            try {
+                const res = await fetch('/api/orders');
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('kpi-orders').innerText = data.orders.length;
+                    document.getElementById('order-table-body').innerHTML = data.orders.map(o => `
+                        <tr><td>#${o.orderId}</td><td>${o.customer}</td><td>₹${o.total}</td><td>${o.status}</td></tr>
+                    `).join('');
+                }
+            } catch (err) { console.log("Fetch error"); }
         }
 
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('uploadBtn');
-            btn.innerText = "Uploading...";
+            btn.innerText = "Processing... Please wait ⏳";
+            btn.disabled = true;
+
             const formData = new FormData();
             formData.append('productId', document.getElementById('p-id').value);
             formData.append('name', document.getElementById('p-name').value);
             formData.append('price', document.getElementById('p-price').value);
             formData.append('category', document.getElementById('p-category').value);
+            
             const files = document.getElementById('p-images').files;
             for(let i=0; i<files.length; i++) formData.append('productImages', files[i]);
 
-            const res = await fetch('/api/products/add', { method: 'POST', body: formData });
-            const result = await res.json();
-            alert(result.message);
-            btn.innerText = "Upload to Cloudinary";
-            if(result.success) e.target.reset();
+            try {
+                const res = await fetch('/api/products/add', { method: 'POST', body: formData });
+                const result = await res.json();
+                alert(result.message);
+                if(result.success) e.target.reset();
+            } catch (err) { alert("Server error"); }
+            finally { btn.innerText = "Upload to Cloudinary"; btn.disabled = false; }
         });
 
         document.addEventListener('DOMContentLoaded', fetchDashboardData);
