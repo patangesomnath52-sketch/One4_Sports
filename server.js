@@ -50,6 +50,7 @@ const Order = mongoose.model('Order', new mongoose.Schema({
 }));
 
 // 4. API Routes
+
 // ADD/UPDATE PRODUCT (With Upsert to prevent duplicate errors)
 app.post('/api/products/add', upload.array('productImages', 3), async (req, res) => {
     try {
@@ -77,7 +78,17 @@ app.post('/api/products/add', upload.array('productImages', 3), async (req, res)
     }
 });
 
-// GET ALL PRODUCTS
+// GET ALL PRODUCTS (This must be separate and come before the /:id route)
+app.get('/api/products', async (req, res) => {
+    try {
+        // This finds all products in your MongoDB database
+        const products = await Product.find(); 
+        res.json({ success: true, products });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Failed to fetch products" });
+    }
+});
+
 // GET SINGLE PRODUCT DETAILS
 app.get('/api/products/:id', async (req, res) => {
     try {
@@ -87,25 +98,32 @@ app.get('/api/products/:id', async (req, res) => {
         if (product) {
             res.json({ success: true, product });
         } else {
-            // If the ID "s2" doesn't exist in MongoDB, it returns 404
+            // If the ID doesn't exist in MongoDB, it returns 404
             res.status(404).json({ success: false, message: "Product not found in database" });
         }
     } catch (err) {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 });
+
 // GET ALL ORDERS
 app.get('/api/orders', async (req, res) => {
     try {
         const orders = await Order.find().sort({ date: -1 });
         res.json({ success: true, orders });
-    } catch (err) { res.status(500).json({ success: false }); }
+    } catch (err) { 
+        res.status(500).json({ success: false }); 
+    }
 });
 
 // DELETE PRODUCT
 app.delete('/api/products/:id', async (req, res) => {
-    await Product.findOneAndDelete({ productId: req.params.id });
-    res.json({ success: true });
+    try {
+        await Product.findOneAndDelete({ productId: req.params.id });
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Failed to delete" });
+    }
 });
 
 const PORT = process.env.PORT || 3000;
