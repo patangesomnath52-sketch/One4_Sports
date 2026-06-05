@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Checkout | RJ Sports</title>
+    <title>Secure Checkout | one4sports</title>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -11,7 +11,7 @@
         :root {
             --bg-color: #f5f5f5;
             --text-color: #121212;
-            --accent: #E10600; /* RJ Sports Red */
+            --accent: #E10600; /* one4sports Red */
             --border-color: #e5e7eb;
             --card-bg: #fff;
             --green: #03a685;
@@ -73,7 +73,7 @@
 <body>
 
 <header class="header">
-    <a href="index.html" class="logo">RJ <span>SPORTS</span></a>
+    <a href="index.html" class="rj-logo">one4<span>spoorts</span></a>
     <div style="font-size: 12px; font-weight: 800; color: var(--green);"><i class="fas fa-lock"></i> 100% SECURE</div>
 </header>
 
@@ -289,7 +289,7 @@
         const orderId = 'RJ' + Math.floor(Math.random() * 1000000);
         
         const itemsSummary = cartItems.map(i => `${i.name} (UK${i.size}) x${i.quantity}`).join(', ');
-        const waMsg = encodeURIComponent(`🔥 *नवीन ऑर्डर (RJ Sports)*\n\n🆔 ID: #${orderId}\n👤 ग्राहक: ${name}\n📞 फोन: ${phone}\n📍 पत्ता: ${address}, ${city}, ${state} - ${pin}\n🛒 वस्तू: ${itemsSummary}\n💰 एकूण: ₹${finalTotal.toLocaleString()}\n💳 पेमेंट: Cash on Delivery\n\n_कृपया ऑर्डर कन्फर्म करा!_`);
+        const waMsg = encodeURIComponent(`🔥 *नवीन ऑर्डर (one4sports)*\n\n🆔 ID: #${orderId}\n👤 ग्राहक: ${name}\n📞 फोन: ${phone}\n📍 पत्ता: ${address}, ${city}, ${state} - ${pin}\n🛒 वस्तू: ${itemsSummary}\n💰 एकूण: ₹${finalTotal.toLocaleString()}\n💳 पेमेंट: Cash on Delivery\n\n_कृपया ऑर्डर कन्फर्म करा!_`);
         
         window.location.href = `https://wa.me/918055475552?text=${waMsg}`;
         localStorage.removeItem('rj_cart');
