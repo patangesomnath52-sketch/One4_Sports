@@ -1,7 +1,7 @@
 {
   "name": "rj-sports-server",
   "version": "1.0.0",
-  "description": "one4sports E-commerce Backend",
+  "description": "One4Sports E-commerce Backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
