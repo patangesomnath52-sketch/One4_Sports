@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Accessories | RJ Sports</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        // Check for dark mode preference before page loads
+        if (localStorage.getItem('rj_theme') === 'dark') {
+            document.documentElement.classList.add('dark-mode'); 
+        }
+    </script>
+    <style>
+        /* --- UNIVERSAL DARK/LIGHT MODE STYLES --- */
+        :root {
+            --bg-color: #f4f6f8;
+            --text-color: #1f2937;
+            --header-bg: #fff;
+            --card-bg: #fff;
+            --border-color: #e5e7eb;
+            --accent: #ff3f6c;
+        }
+
+        html.dark-mode, body.dark-mode {
+            --bg-color: #121212;
+            --text-color: #e5e7eb;
+            --header-bg: #1f2937;
+            --card-bg: #1e293b;
+            --border-color: #374151;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background 0.3s, color 0.3s;
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Assistant', sans-serif;
+            min-height: 100vh;
+        }
+        
+        * { box-sizing: inherit; margin: 0; padding: 0; }
+
+        /* HEADER CSS */
+        .rj-header-wrapper { background: var(--header-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; position: sticky; top: 0; z-index: 9999; }
+        .rj-navbar { display: flex; align-items: center; justify-content: space-between; padding: 15px 5%; max-width: 1200px; margin: 0 auto; position: relative; }
+        .rj-logo { font-size: 24px; font-weight: 900; text-decoration: none; color: var(--text-color); }
+        .rj-logo span { color: var(--accent); }
+        
+        .rj-links { display: flex; gap: 25px; align-items: center; }
+        .rj-links a { text-decoration: none; color: var(--text-color); font-weight: 800; font-size: 15px; text-transform: uppercase; transition: 0.3s; }
+        .rj-links a:hover { color: var(--accent); }
+
+        /* Mobile Menu Button */
+        .rj-menu-toggle { 
+            display: none; 
+            background: none; 
+            border: none; 
+            font-size: 22px; 
+            color: var(--text-color); 
+            cursor: pointer; 
+            order: -1; 
+            margin-right: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .rj-menu-toggle { display: block; }
+            
+            .rj-links { 
+                display: none; 
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--header-bg);
+                padding: 15px 0; 
+                gap: 0; 
+                box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+                align-items: flex-start; 
+            }
+
+            .rj-links a {
+                width: 100%; 
+                padding: 12px 25px; 
+                text-align: left; 
+                border-bottom: 1px solid var(--border-color); 
+            }
+
+            .rj-links a:last-child {
+                border-bottom: none; 
+            }
+
+            .rj-links.active { display: flex; }
+        }
+
+        /* GRID & CARDS */
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .loading-text { text-align: center; grid-column: 1 / -1; padding: 40px; color: gray; font-weight: 600; }
+        
+        .product-card { 
+            background: var(--card-bg); 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            overflow: hidden; 
+            transition: transform 0.3s, box-shadow 0.3s; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+<header class="rj-header-wrapper">
+    <div class="rj-navbar">
+        <button class="rj-menu-toggle" id="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <a href="index.html" class="rj-logo">RJ <span>SPORTS</span></a>
+       
+        <nav class="rj-links" id="nav-links">
+            <a href="index.html">HOME</a>
+            <a href="cricket.html">CRICKET</a>
+            <a href="footwear.html">FOOTWEAR</a>
+            <a href="accessories.html" style="color:var(--accent)">ACCESSORIES</a>
+        </nav>
+
+        <div>
+            <a href="cart.html" style="position:relative; text-decoration:none; font-size: 22px;">🛒
+                <span id="cart-count" style="position:absolute; top:-8px; right:-12px; background:var(--accent); color:white; font-size:11px; height:18px; min-width:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">0</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <h2 style="margin-bottom: 25px; font-weight: 800; color: var(--text-color);">Premium Sports Accessories</h2>
+    <div class="grid" id="accessories-grid">
+        <div class="loading-text">अॅक्सेसरीज लोड होत आहेत... कृपया थांबा. ⏳</div>
+    </div>
+</div>
+
+<script>
+    // 1. Mobile Menu Toggle Logic
+    function setupMobileMenu() {
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const navLinks = document.getElementById('nav-links');
+
+        if (menuBtn && navLinks) {
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                navLinks.classList.toggle('active');
+                
+                const icon = menuBtn.querySelector('i');
+                if (navLinks.classList.contains('active')) {
+                    icon.classList.replace('fa-bars', 'fa-times');
+                } else {
+                    icon.classList.replace('fa-times', 'fa-bars');
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!navLinks.contains(e.target) && !menuBtn.contains(e.target)) {
+                    navLinks.classList.remove('active');
+                    menuBtn.querySelector('i').classList.replace('fa-times', 'fa-bars');
+                }
+            });
+        }
+    }
+
+    // 2. Data Fetching and Rendering for Accessories
+    async function fetchAndRenderAccessories() {
+        const grid = document.getElementById('accessories-grid');
+        grid.innerHTML = "<div class='loading-text'>अॅक्सेसरीज लोड होत आहेत... कृपया थांबा. ⏳</div>";
+
+        try {
+            const response = await fetch('/api/products'); 
+            const data = await response.json();
+
+            if (data.success) {
+                // Filter to ONLY show products where the category is "Accessories"
+                const accessoriesProducts = data.products.filter(p => p.category === 'Accessories');
+
+                if (accessoriesProducts.length === 0) {
+                    grid.innerHTML = "<div class='loading-text'>सध्या अॅक्सेसरीज कॅटेगरीमध्ये कोणतेही प्रॉडक्ट्स उपलब्ध नाहीत.</div>";
+                    return;
+                }
+
+                grid.innerHTML = accessoriesProducts.map(p => {
+                    const imgUrl = p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/300x300?text=No+Image';
+                    const mrp = Math.round(p.price * 1.4); 
+
+                    return `
+                        <div class="product-card">
+                            <img src="${imgUrl}" alt="${p.name}" style="width: 100%; height: 250px; object-fit: cover;">
+                            <div style="padding: 15px; display: flex; flex-direction: column; flex-grow: 1;">
+                                <div style="font-size: 12px; color: gray; margin-bottom: 5px; text-transform: uppercase; font-weight: bold;">${p.category}</div>
+                                <h3 style="font-size: 16px; margin-bottom: 10px; color: var(--text-color);">${p.name}</h3>
+                                <div style="margin-bottom: 15px; flex-grow: 1;">
+                                    <span style="font-size: 20px; font-weight: 800; color: var(--text-color);">₹${p.price.toLocaleString()}</span>
+                                    <span style="text-decoration: line-through; color: gray; font-size: 14px; margin-left: 10px;">₹${mrp.toLocaleString()}</span>
+                                </div>
+                                <a href="product.html?id=${p.productId}" style="display: block; text-align: center; background: var(--accent); color: white; text-decoration: none; padding: 10px; border-radius: 4px; font-weight: bold; transition: background 0.3s;">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                grid.innerHTML = "<div class='loading-text'>माहिती मिळवण्यात अडचण आली. (Server returned an error)</div>";
+            }
+        } catch (error) {
+            console.error("Database connection error:", error);
+            grid.innerHTML = "<div class='loading-text'>सर्व्हरशी संपर्क होत नाहीये. कृपया तुमचे सर्व्हर (Node.js) सुरु असल्याची खात्री करा.</div>";
+        }
+    }
+
+    // 3. Cart Count Initialization
+    function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem('rj_cart')) || [];
+        document.getElementById('cart-count').innerText = cart.length;
+    }
+
+    // 4. Execute on Load
+    window.addEventListener('DOMContentLoaded', () => {
+        setupMobileMenu();
+        updateCartCount();
+        fetchAndRenderAccessories();
+    });
+</script>
+</body>
+</html>
