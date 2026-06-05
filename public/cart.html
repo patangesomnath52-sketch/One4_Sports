@@ -6,12 +6,6 @@
     <title>Your Shopping Bag | One4Sports</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        // Check for dark mode preference
-        if (localStorage.getItem('rj_theme') === 'dark') {
-            document.documentElement.classList.add('dark-mode'); 
-        }
-    </script>
     <style>
         :root {
             --bg-color: #f8fafc;
@@ -22,29 +16,16 @@
             --border-color: #e2e8f0;
             --success: #059669;
         }
-
-        html.dark-mode, body.dark-mode {
-            --bg-color: #121212;
-            --text-color: #e5e7eb;
-            --light-text: #9ca3af;
-            --card-bg: #1e293b;
-            --border-color: #374151;
-        }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; }
         body { background: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* Header */
         .header { background: var(--card-bg); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
         .logo { font-size: 24px; font-weight: 900; text-decoration: none; color: var(--text-color); }
         .logo span { color: var(--accent); }
         .back-btn { text-decoration: none; color: var(--text-color); font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px; }
         .back-btn:hover { color: var(--accent); }
 
-        /* Cart Layout */
         .cart-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: flex; gap: 30px; flex: 1; width: 100%; }
-        
-        /* Left: Cart Items */
         .cart-items-section { flex: 2; }
         .cart-header { font-size: 24px; font-weight: 800; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; }
         
@@ -63,7 +44,6 @@
         .remove-btn { background: none; border: none; color: var(--light-text); cursor: pointer; font-size: 18px; transition: 0.2s; padding: 10px; }
         .remove-btn:hover { color: var(--accent); }
 
-        /* Right: Order Summary */
         .summary-section { flex: 1; }
         .summary-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; position: sticky; top: 100px; }
         .summary-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
@@ -93,37 +73,25 @@
 
 <header class="header">
     <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Continue Shopping</a>
-   <a href="index.html" class="one4-logo">One4<span>Sports</span></a>
-    <div style="width: 140px;"></div> </header>
+    <a href="index.html" class="logo">One4<span>Sports</span></a>
+    <div style="width: 140px;"></div>
+</header>
 
 <div class="cart-container">
     <div class="cart-items-section">
         <div class="cart-header">Your Bag (<span id="item-count">0</span>)</div>
-        <div id="cart-list">
-            </div>
+        <div id="cart-list"></div>
     </div>
 
     <div class="summary-section" id="summary-container" style="display: none;">
         <div class="summary-card">
             <div class="summary-title">Order Summary</div>
-            
-            <div class="summary-row">
-                <span>Subtotal</span>
-                <span id="subtotal">₹0</span>
-            </div>
-            <div class="summary-row">
-                <span>Shipping</span>
-                <span style="color: var(--success);">FREE</span>
-            </div>
-            <div class="summary-row total">
-                <span>Total Amount</span>
-                <span id="total">₹0</span>
-            </div>
-            
+            <div class="summary-row"><span>Subtotal</span><span id="subtotal">₹0</span></div>
+            <div class="summary-row"><span>Shipping</span><span style="color: var(--success);">FREE</span></div>
+            <div class="summary-row total"><span>Total Amount</span><span id="total">₹0</span></div>
             <button class="checkout-btn" onclick="proceedToCheckout()">
                 PROCEED TO CHECKOUT <i class="fas fa-arrow-right"></i>
             </button>
-            
             <div style="text-align: center; margin-top: 15px; font-size: 12px; font-weight: 700; color: var(--light-text);">
                 <i class="fas fa-lock"></i> 100% Secure Checkout
             </div>
@@ -132,8 +100,7 @@
 </div>
 
 <script>
-    // 1. Load data from local storage
-    let cart = JSON.parse(localStorage.getItem('rj_cart')) || [];
+    let cart = JSON.parse(localStorage.getItem('rj_cart')) || []; // Left as is so users don't lose current items
 
     function renderCart() {
         const cartList = document.getElementById('cart-list');
@@ -153,10 +120,7 @@
             return;
         }
 
-        // Show Summary
         summaryContainer.style.display = 'block';
-
-        // Render Items
         cartList.innerHTML = cart.map((item, index) => {
             const imgUrl = item.image || 'https://via.placeholder.com/150';
             return `
@@ -166,65 +130,39 @@
                         <div class="item-name">${item.name}</div>
                         <div class="item-meta">Variant/Size: ${item.size}</div>
                         <div class="item-price">₹${item.price.toLocaleString()}</div>
-                        
                         <div class="quantity-controls">
                             <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
                             <span class="qty-num">${item.quantity}</span>
                             <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
                         </div>
                     </div>
-                    <button class="remove-btn" onclick="removeItem(${index})" title="Remove Item">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <button class="remove-btn" onclick="removeItem(${index})" title="Remove Item"><i class="fas fa-trash"></i></button>
                 </div>
             `;
         }).join('');
-
         updateSummary();
     }
 
-    // 2. Change Quantity
     function updateQty(index, change) {
         if (cart[index].quantity + change > 0) {
             cart[index].quantity += change;
             saveAndRender();
-        } else {
-            removeItem(index); // Remove if quantity drops to 0
-        }
+        } else { removeItem(index); }
     }
 
-    // 3. Remove Item
-    function removeItem(index) {
-        cart.splice(index, 1);
-        saveAndRender();
-    }
+    function removeItem(index) { cart.splice(index, 1); saveAndRender(); }
 
-    // 4. Update Prices
     function updateSummary() {
         let subtotal = 0;
-        cart.forEach(item => {
-            subtotal += (item.price * item.quantity);
-        });
-
+        cart.forEach(item => { subtotal += (item.price * item.quantity); });
         document.getElementById('subtotal').innerText = `₹${subtotal.toLocaleString()}`;
         document.getElementById('total').innerText = `₹${subtotal.toLocaleString()}`;
     }
 
-    // 5. Utility: Save and Re-render
-    function saveAndRender() {
-        localStorage.setItem('rj_cart', JSON.stringify(cart));
-        renderCart();
-    }
+    function saveAndRender() { localStorage.setItem('rj_cart', JSON.stringify(cart)); renderCart(); }
+    function proceedToCheckout() { window.location.href = 'checkout.html'; }
 
-    // 6. Proceed to Checkout Route
-    function proceedToCheckout() {
-        // We will send them to the secure checkout page you built earlier
-        window.location.href = 'checkout.html';
-    }
-
-    // Initialize on load
     window.addEventListener('DOMContentLoaded', renderCart);
 </script>
-
 </body>
 </html>
