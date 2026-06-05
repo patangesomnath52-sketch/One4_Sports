@@ -3,207 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Bag | RJ Sports</title>
+    <title>Your Shopping Bag | RJ Sports</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        // Check for dark mode preference
+        if (localStorage.getItem('rj_theme') === 'dark') {
+            document.documentElement.classList.add('dark-mode'); 
+        }
+    </script>
     <style>
         :root {
-            --bg: #f4f6f8;
-            --text: #1f2937;
-            --header-bg: #fff;
-            --card-bg: #fff;
-            --border: #e5e7eb;
-            --accent: #E10600; /* RJ Sports Red */
+            --bg-color: #f8fafc;
+            --text-color: #0f172a;
+            --light-text: #64748b;
+            --accent: #E10600;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --success: #059669;
+        }
+
+        html.dark-mode, body.dark-mode {
+            --bg-color: #121212;
+            --text-color: #e5e7eb;
+            --light-text: #9ca3af;
+            --card-bg: #1e293b;
+            --border-color: #374151;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; }
-        body { background-color: var(--bg); color: var(--text); }
+        body { background: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* HEADER */
-        .header { background: var(--header-bg); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .logo { font-size: 24px; font-weight: 900; text-decoration: none; color: var(--text); text-transform: uppercase; }
+        /* Header */
+        .header { background: var(--card-bg); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 24px; font-weight: 900; text-decoration: none; color: var(--text-color); }
         .logo span { color: var(--accent); }
-        .cart-icon { position: relative; text-decoration: none; font-size: 22px; color: var(--text); }
-        .cart-count { position: absolute; top: -8px; right: -12px; background: var(--accent); color: white; font-size: 11px; font-weight: bold; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .back-btn { text-decoration: none; color: var(--text-color); font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { color: var(--accent); }
 
-        /* CART LAYOUT */
-        .cart-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: flex; gap: 40px; align-items: flex-start; }
-        .cart-items { flex: 1; }
-        .cart-summary { width: 380px; background: var(--card-bg); padding: 25px; border-radius: 8px; border: 1px solid var(--border); position: sticky; top: 90px; }
-
-        .page-title { font-size: 28px; font-weight: 800; margin-bottom: 25px; text-transform: uppercase; }
-
-        /* CART ITEM */
-        .cart-item { display: flex; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--border); position: relative; }
-        .item-img { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; background: #f9fafb; border: 1px solid var(--border); }
-        .item-details { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        /* Cart Layout */
+        .cart-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: flex; gap: 30px; flex: 1; width: 100%; }
         
-        .item-brand { font-size: 12px; font-weight: 800; color: #878787; text-transform: uppercase; }
-        .item-name { font-size: 18px; font-weight: 700; margin-bottom: 5px; color: var(--text); }
-        .item-size { font-size: 14px; color: #535665; margin-bottom: 15px; font-weight: 600; }
-        .item-price { font-size: 18px; font-weight: 800; }
-
-        /* QUANTITY & ACTIONS */
-        .action-row { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
-        .qty-control { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
-        .qty-btn { background: #f9fafb; border: none; width: 35px; height: 35px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.2s; }
-        .qty-btn:hover { background: #e5e7eb; }
-        .qty-input { width: 40px; text-align: center; border: none; font-weight: 700; font-size: 15px; background: transparent; outline: none; }
+        /* Left: Cart Items */
+        .cart-items-section { flex: 2; }
+        .cart-header { font-size: 24px; font-weight: 800; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; }
         
-        .remove-btn { color: #878787; background: none; border: none; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; text-decoration: underline; }
+        .cart-item { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 15px; display: flex; gap: 20px; align-items: center; }
+        .item-img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); }
+        .item-details { flex: 1; }
+        .item-name { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
+        .item-meta { color: var(--light-text); font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+        .item-price { font-size: 18px; font-weight: 800; color: var(--text-color); }
+
+        .quantity-controls { display: flex; align-items: center; gap: 15px; background: var(--bg-color); padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border-color); width: fit-content; }
+        .qty-btn { background: none; border: none; font-size: 16px; font-weight: 800; cursor: pointer; color: var(--text-color); padding: 5px; }
+        .qty-btn:hover { color: var(--accent); }
+        .qty-num { font-weight: 800; font-size: 16px; width: 20px; text-align: center; }
+        
+        .remove-btn { background: none; border: none; color: var(--light-text); cursor: pointer; font-size: 18px; transition: 0.2s; padding: 10px; }
         .remove-btn:hover { color: var(--accent); }
 
-        /* SUMMARY */
-        .summary-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 15px; color: #535665; font-weight: 600; }
-        .summary-total { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 20px; font-weight: 800; color: var(--text); }
+        /* Right: Order Summary */
+        .summary-section { flex: 1; }
+        .summary-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; position: sticky; top: 100px; }
+        .summary-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
         
-        .checkout-btn { width: 100%; padding: 18px; margin-top: 25px; background: var(--text); color: white; border: none; font-weight: 800; font-size: 16px; border-radius: 4px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .checkout-btn:hover { background: var(--accent); }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 600; color: var(--light-text); }
+        .summary-row.total { font-size: 22px; font-weight: 900; color: var(--text-color); border-top: 1px dashed var(--border-color); padding-top: 15px; margin-top: 15px; }
+        
+        .checkout-btn { width: 100%; background: var(--accent); color: white; border: none; padding: 18px; border-radius: 8px; font-size: 18px; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .checkout-btn:hover { background: #c10500; transform: translateY(-2px); }
 
-        /* EMPTY STATE */
-        .empty-cart { text-align: center; padding: 60px 20px; }
-        .empty-cart i { font-size: 60px; color: #d1d5db; margin-bottom: 20px; }
-        .empty-cart h2 { font-size: 24px; font-weight: 800; margin-bottom: 15px; }
-        .empty-cart p { color: #6b7280; margin-bottom: 30px; }
-        .shop-btn { display: inline-block; padding: 15px 30px; background: var(--accent); color: white; text-decoration: none; font-weight: 800; border-radius: 4px; transition: 0.3s; }
-        .shop-btn:hover { background: #b90500; }
+        .empty-cart { text-align: center; padding: 50px 20px; }
+        .empty-cart i { font-size: 60px; color: var(--border-color); margin-bottom: 20px; }
+        .empty-cart h2 { font-size: 24px; margin-bottom: 15px; }
+        .empty-cart .btn { display: inline-block; background: var(--text-color); color: var(--card-bg); padding: 12px 25px; border-radius: 6px; text-decoration: none; font-weight: 700; margin-top: 15px; transition: 0.2s; }
+        .empty-cart .btn:hover { background: var(--accent); color: white; }
 
         @media (max-width: 768px) {
-            .cart-container { flex-direction: column; gap: 30px; margin: 20px auto; }
-            .cart-summary { width: 100%; position: static; }
-            .item-img { width: 90px; height: 90px; }
-            .item-name { font-size: 16px; }
+            .cart-container { flex-direction: column; }
+            .cart-item { flex-direction: column; align-items: flex-start; position: relative; }
+            .remove-btn { position: absolute; top: 15px; right: 15px; }
+            .item-img { width: 100%; height: 200px; }
+            .quantity-controls { margin-top: 15px; }
         }
     </style>
 </head>
 <body>
 
 <header class="header">
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Continue Shopping</a>
     <a href="index.html" class="logo">RJ <span>SPORTS</span></a>
-    <a href="cart.html" class="cart-icon">
-        <i class="fas fa-shopping-bag"></i>
-        <span class="cart-count" id="cart-count">0</span>
-    </a>
-</header>
+    <div style="width: 140px;"></div> </header>
 
 <div class="cart-container">
-    <div class="cart-items" id="cart-items-container">
-        <h1 class="page-title">Your Bag</h1>
+    <div class="cart-items-section">
+        <div class="cart-header">Your Bag (<span id="item-count">0</span>)</div>
         <div id="cart-list">
             </div>
     </div>
 
-    <div class="cart-summary" id="cart-summary" style="display: none;">
-        <h2 class="summary-title">Order Summary</h2>
-        <div class="summary-row">
-            <span>Subtotal</span>
-            <span id="subtotal">₹ 0</span>
+    <div class="summary-section" id="summary-container" style="display: none;">
+        <div class="summary-card">
+            <div class="summary-title">Order Summary</div>
+            
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotal">₹0</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span style="color: var(--success);">FREE</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total Amount</span>
+                <span id="total">₹0</span>
+            </div>
+            
+            <button class="checkout-btn" onclick="proceedToCheckout()">
+                PROCEED TO CHECKOUT <i class="fas fa-arrow-right"></i>
+            </button>
+            
+            <div style="text-align: center; margin-top: 15px; font-size: 12px; font-weight: 700; color: var(--light-text);">
+                <i class="fas fa-lock"></i> 100% Secure Checkout
+            </div>
         </div>
-        <div class="summary-row">
-            <span>Estimated Delivery</span>
-            <span style="color: #388e3c;">FREE</span>
-        </div>
-        <div class="summary-total">
-            <span>Total</span>
-            <span id="total">₹ 0</span>
-        </div>
-        <button class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout</button>
     </div>
 </div>
 
 <script>
-    // कार्ट डेटा लोड करणे
-    function loadCart() {
-        const cart = JSON.parse(localStorage.getItem('rj_cart')) || [];
-        const container = document.getElementById('cart-list');
-        const summary = document.getElementById('cart-summary');
-        
-        // कार्ट काउंट अपडेट करणे
-        document.getElementById('cart-count').innerText = cart.length;
+    // 1. Load data from local storage
+    let cart = JSON.parse(localStorage.getItem('rj_cart')) || [];
 
-        // कार्ट रिकामी असल्यास
+    function renderCart() {
+        const cartList = document.getElementById('cart-list');
+        const summaryContainer = document.getElementById('summary-container');
+        document.getElementById('item-count').innerText = cart.length;
+
         if (cart.length === 0) {
-            container.innerHTML = `
+            cartList.innerHTML = `
                 <div class="empty-cart">
                     <i class="fas fa-shopping-bag"></i>
-                    <h2>Your bag is empty</h2>
-                    <p>Once you add something to your bag, it will appear here.</p>
-                    <a href="index.html" class="shop-btn">START SHOPPING</a>
+                    <h2>Your bag is currently empty!</h2>
+                    <p style="color: var(--light-text); font-weight: 600;">Looks like you haven't added any gear yet.</p>
+                    <a href="index.html" class="btn">Explore Store</a>
                 </div>
             `;
-            summary.style.display = 'none';
+            summaryContainer.style.display = 'none';
             return;
         }
 
-        // कार्टमध्ये आयटम्स असल्यास
-        summary.style.display = 'block';
-        let subtotal = 0;
-        
-        container.innerHTML = cart.map((item, index) => {
-            const itemPrice = parseFloat(item.price) || 0;
-            const itemTotal = itemPrice * item.quantity;
-            subtotal += itemTotal;
+        // Show Summary
+        summaryContainer.style.display = 'block';
 
-            const imgSrc = item.image ? (item.image.startsWith('http') ? item.image : '/'+item.image) : 'https://via.placeholder.com/150';
-
+        // Render Items
+        cartList.innerHTML = cart.map((item, index) => {
+            const imgUrl = item.image || 'https://via.placeholder.com/150';
             return `
-            <div class="cart-item">
-                <img src="${imgSrc}" alt="${item.name}" class="item-img">
-                <div class="item-details">
-                    <div class="item-brand">RJ GEAR</div>
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-size">Size: ${item.size || 'N/A'}</div>
-                    <div class="item-price">₹ ${itemPrice.toLocaleString()}</div>
-                    
-                    <div class="action-row">
-                        <div class="qty-control">
+                <div class="cart-item">
+                    <img src="${imgUrl}" alt="${item.name}" class="item-img">
+                    <div class="item-details">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-meta">Variant/Size: ${item.size}</div>
+                        <div class="item-price">₹${item.price.toLocaleString()}</div>
+                        
+                        <div class="quantity-controls">
                             <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
-                            <input type="text" class="qty-input" value="${item.quantity}" readonly>
+                            <span class="qty-num">${item.quantity}</span>
                             <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
                         </div>
-                        <button class="remove-btn" onclick="removeItem(${index})"><i class="fas fa-trash-alt"></i> Remove</button>
                     </div>
+                    <button class="remove-btn" onclick="removeItem(${index})" title="Remove Item">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
-            </div>`;
+            `;
         }).join('');
 
-        // टोटल अपडेट करणे
-        document.getElementById('subtotal').innerText = `₹ ${subtotal.toLocaleString()}`;
-        document.getElementById('total').innerText = `₹ ${subtotal.toLocaleString()}`;
+        updateSummary();
     }
 
-    // क्वांटिटी (Quantity) बदलणे
+    // 2. Change Quantity
     function updateQty(index, change) {
-        let cart = JSON.parse(localStorage.getItem('rj_cart')) || [];
-        if (cart[index]) {
+        if (cart[index].quantity + change > 0) {
             cart[index].quantity += change;
-            // जर संख्या ० पेक्षा कमी झाली, तर आयटम काढून टाका
-            if (cart[index].quantity <= 0) {
-                removeItem(index);
-                return;
-            }
-            localStorage.setItem('rj_cart', JSON.stringify(cart));
-            loadCart();
+            saveAndRender();
+        } else {
+            removeItem(index); // Remove if quantity drops to 0
         }
     }
 
-    // आयटम काढून टाकणे
+    // 3. Remove Item
     function removeItem(index) {
-        let cart = JSON.parse(localStorage.getItem('rj_cart')) || [];
         cart.splice(index, 1);
-        localStorage.setItem('rj_cart', JSON.stringify(cart));
-        loadCart();
+        saveAndRender();
     }
 
-    // चेकआउट (पुढील पानावर जाणे)
+    // 4. Update Prices
+    function updateSummary() {
+        let subtotal = 0;
+        cart.forEach(item => {
+            subtotal += (item.price * item.quantity);
+        });
+
+        document.getElementById('subtotal').innerText = `₹${subtotal.toLocaleString()}`;
+        document.getElementById('total').innerText = `₹${subtotal.toLocaleString()}`;
+    }
+
+    // 5. Utility: Save and Re-render
+    function saveAndRender() {
+        localStorage.setItem('rj_cart', JSON.stringify(cart));
+        renderCart();
+    }
+
+    // 6. Proceed to Checkout Route
     function proceedToCheckout() {
-        // येथे तुम्ही WhatsApp ऑर्डर लिंक किंवा checkout.html वर पाठवू शकता
+        // We will send them to the secure checkout page you built earlier
         window.location.href = 'checkout.html';
     }
 
-    // पेज लोड झाल्यावर रन करा
-    window.onload = loadCart;
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', renderCart);
 </script>
+
 </body>
 </html>
