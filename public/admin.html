@@ -3,89 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RJ Sports Admin | Seller Central</title>
+    <title>RJ Sports | Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --amz-dark: #232f3e; --amz-orange: #f90; --amz-btn: #FFD814; --amz-border: #d5d9d9; }
-        body { font-family: 'Open Sans', sans-serif; background: #f2f4f8; margin: 0; display: flex; flex-direction: column; }
-        .top-navbar { background: var(--amz-dark); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .main-container { display: flex; flex: 1; }
-        .sidebar { width: 250px; background: white; border-right: 1px solid var(--amz-border); min-height: 100vh; }
-        .nav-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #eee; font-weight: 600; }
-        .nav-item.active { background: #f7fafa; color: #007185; border-left: 4px solid #007185; }
-        .content { flex: 1; padding: 30px; }
-        .admin-section { display: none; }
+        :root { 
+            --dark: #1e293b; 
+            --accent: #E10600; /* RJ Sports Red */
+            --bg: #f8fafc; 
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --success: #10b981;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; }
+        body { background: var(--bg); color: #334155; display: flex; flex-direction: column; height: 100vh; }
+        
+        /* Navbar */
+        .top-navbar { background: var(--dark); color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); z-index: 10; }
+        .logo { font-size: 24px; font-weight: 800; letter-spacing: 1px; }
+        .logo span { color: var(--accent); }
+        .user-profile { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+        
+        /* Layout */
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Sidebar */
+        .sidebar { width: 260px; background: var(--card-bg); border-right: 1px solid var(--border); padding-top: 20px; }
+        .nav-item { padding: 18px 25px; cursor: pointer; border-left: 4px solid transparent; font-weight: 700; font-size: 16px; color: #64748b; transition: all 0.3s; display: flex; align-items: center; gap: 15px; }
+        .nav-item:hover { background: #f1f5f9; color: var(--dark); }
+        .nav-item.active { background: #fee2e2; color: var(--accent); border-left-color: var(--accent); }
+        .nav-item i { font-size: 18px; width: 20px; text-align: center; }
+        
+        /* Content Area */
+        .content { flex: 1; padding: 40px; overflow-y: auto; }
+        .admin-section { display: none; animation: fadeIn 0.4s ease; }
         .admin-section.active { display: block; }
-        .card { background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--amz-border); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .form-control { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .btn-action { background: var(--amz-btn); border: 1px solid #FCD200; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; width: 100%; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .section-header { margin-bottom: 30px; }
+        .section-header h2 { font-size: 28px; color: var(--dark); margin-bottom: 5px; font-weight: 800; }
+        .section-header p { color: #64748b; }
+        
+        /* Cards & Forms */
+        .card { background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group.full-width { grid-column: span 2; }
+        label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--dark); }
+        .form-control { width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 15px; outline: none; transition: 0.3s; font-weight: 600;}
+        .form-control:focus { border-color: var(--accent); }
+        
+        /* Buttons */
+        .btn-action { background: var(--dark); color: white; border: none; padding: 15px 25px; cursor: pointer; border-radius: 8px; font-weight: 800; font-size: 16px; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
+        .btn-action:hover { background: var(--accent); transform: translateY(-2px); }
+        .btn-action:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
+        
+        /* Image Preview Box */
+        .image-preview-container { display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
+        .img-preview { width: 100px; height: 100px; border-radius: 8px; object-fit: cover; border: 2px dashed #cbd5e1; }
+        
+        /* Manage Products Grid */
+        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; margin-top: 20px; }
+        .product-card { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.3s; }
+        .product-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .product-img { width: 100%; height: 200px; object-fit: cover; background: #f1f5f9; }
+        .product-info { padding: 15px; }
+        .p-title { font-weight: 800; font-size: 16px; color: var(--dark); margin-bottom: 5px; }
+        .p-price { color: var(--success); font-weight: 800; font-size: 18px; margin-bottom: 15px; }
+        .btn-delete { background: #fee2e2; color: var(--accent); border: none; padding: 10px; border-radius: 6px; width: 100%; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-delete:hover { background: var(--accent); color: white; }
+        
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #f8fafc; padding: 15px; text-align: left; font-weight: 800; color: #64748b; border-bottom: 2px solid var(--border); }
+        td { padding: 15px; border-bottom: 1px solid var(--border); font-weight: 600; }
+        .status-badge { background: #dcfce7; color: #166534; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; }
+
+        /* Toast Notification */
+        #toast { visibility: hidden; min-width: 300px; background: var(--dark); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: 700; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        #toast.success { background: var(--success); }
+        #toast.error { background: var(--accent); }
+
     </style>
 </head>
 <body>
 
     <header class="top-navbar">
-        <div style="font-size: 20px; font-weight: bold;">RJ SPORTS Admin</div>
-        <div>Seller Dashboard</div>
+        <div class="logo">RJ <span>SPORTS</span></div>
+        <div class="user-profile">
+            <i class="fas fa-user-circle" style="font-size: 24px;"></i>
+            Admin Panel
+        </div>
     </header>
 
     <div class="main-container">
         <aside class="sidebar">
-            <div class="nav-item active" onclick="switchTab('dashboard', this)">Dashboard</div>
-            <div class="nav-item" onclick="switchTab('upload', this)">Add Product</div>
+            <div class="nav-item active" onclick="switchTab('dashboard', this)">
+                <i class="fas fa-chart-line"></i> Orders Dashboard
+            </div>
+            <div class="nav-item" onclick="switchTab('inventory', this)">
+                <i class="fas fa-box-open"></i> Manage Inventory
+            </div>
+            <div class="nav-item" onclick="switchTab('upload', this)">
+                <i class="fas fa-cloud-upload-alt"></i> Add New Product
+            </div>
         </aside>
 
         <main class="content">
             <div id="sec-dashboard" class="admin-section active">
-                <h2>Store Overview</h2>
+                <div class="section-header">
+                    <h2>Orders Overview</h2>
+                    <p>Track and manage your recent customer orders.</p>
+                </div>
                 <div class="card">
-                    <p>Total Orders: <strong id="kpi-orders">0</strong></p>
+                    <h3 style="margin-bottom: 15px;">Recent Orders (<span id="kpi-orders">0</span> Total)</h3>
                     <table>
                         <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
-                        <tbody id="order-table-body"></tbody>
+                        <tbody id="order-table-body">
+                            </tbody>
                     </table>
                 </div>
             </div>
 
+            <div id="sec-inventory" class="admin-section">
+                <div class="section-header">
+                    <h2>Manage Inventory</h2>
+                    <p>View, edit, or remove currently active products on your store.</p>
+                </div>
+                <div class="inventory-grid" id="inventory-list">
+                    </div>
+            </div>
+
             <div id="sec-upload" class="admin-section">
-                <h2>Upload Product</h2>
+                <div class="section-header">
+                    <h2>Add New Product</h2>
+                    <p>Upload a new item to your store catalog.</p>
+                </div>
                 <div class="card">
                     <form id="uploadForm">
-                        <label>Product ID (Unique)</label>
-                        <input type="text" id="p-id" class="form-control" placeholder="e.g. SHOE-001" required>
-                        
-                        <label>Product Name</label>
-                        <input type="text" id="p-name" class="form-control" placeholder="e.g. RJ Pro Running Shoes" required>
-                        
-                        <label>Price (₹)</label>
-                        <input type="number" id="p-price" class="form-control" placeholder="2999" required>
-                        
-                        <label>Category</label>
-                        <select id="p-category" class="form-control">
-                            <option value="Footwear">Footwear (Shoes)</option>
-                            <option value="Cricket">Cricket Equipment</option>
-                            <option value="Accessories">Accessories</option>
-                        </select>
-                        
-                        <label>Product Images</label>
-                        <input type="file" id="p-images" class="form-control" multiple accept="image/*" required>
-                        
-                        <button type="submit" id="uploadBtn" class="btn-action">Upload to Cloudinary</button>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Product ID (Must be unique)</label>
+                                <input type="text" id="p-id" class="form-control" placeholder="e.g. BAT-001" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="p-category" class="form-control">
+                                    <option value="Cricket">Cricket Equipment</option>
+                                    <option value="Footwear">Sports Footwear</option>
+                                    <option value="Clothing">Jerseys & Apparel</option>
+                                    <option value="Accessories">Accessories</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Product Title</label>
+                                <input type="text" id="p-name" class="form-control" placeholder="e.g. English Willow Grade 1 Bat" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Selling Price (₹)</label>
+                                <input type="number" id="p-price" class="form-control" placeholder="e.g. 2999" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Product Images (Max 3)</label>
+                                <input type="file" id="p-images" class="form-control" multiple accept="image/*" required onchange="previewImages()">
+                                <div class="image-preview-container" id="image-preview-box">
+                                    </div>
+                            </div>
+                        </div>
+                        <button type="submit" id="uploadBtn" class="btn-action">
+                            <i class="fas fa-upload"></i> Publish to Store
+                        </button>
                     </form>
                 </div>
             </div>
         </main>
     </div>
 
+    <div id="toast">Notification Message</div>
+
     <script>
+        // Tab Switcher Logic
         function switchTab(id, el) {
             document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('sec-'+id).classList.add('active');
             el.classList.add('active');
+            
+            // Refresh data when tabs are clicked
+            if(id === 'dashboard') fetchDashboardData();
+            if(id === 'inventory') fetchInventory();
         }
 
+        // Custom Toast Notification System
+        function showToast(message, type = 'normal') {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "show";
+            if (type === 'success') toast.classList.add('success');
+            if (type === 'error') toast.classList.add('error');
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        // Image Preview Before Upload
+        function previewImages() {
+            const previewBox = document.getElementById('image-preview-box');
+            previewBox.innerHTML = ''; // Clear old previews
+            const files = document.getElementById('p-images').files;
+            
+            if (files.length > 3) {
+                showToast("Please select a maximum of 3 images", "error");
+                document.getElementById('p-images').value = ''; // Reset
+                return;
+            }
+
+            for (const file of files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.classList.add('img-preview');
+                    previewBox.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // FETCH: Orders
         async function fetchDashboardData() {
             try {
                 const res = await fetch('/api/orders');
@@ -93,16 +239,78 @@
                 if(data.success) {
                     document.getElementById('kpi-orders').innerText = data.orders.length;
                     document.getElementById('order-table-body').innerHTML = data.orders.map(o => `
-                        <tr><td>#${o.orderId}</td><td>${o.customer}</td><td>₹${o.total}</td><td>${o.status}</td></tr>
+                        <tr>
+                            <td>#${o.orderId}</td>
+                            <td>${o.customer}</td>
+                            <td>₹${o.total.toLocaleString()}</td>
+                            <td><span class="status-badge">${o.status}</span></td>
+                        </tr>
                     `).join('');
                 }
             } catch (err) { console.log("Fetch error"); }
         }
 
+        // FETCH: Inventory (Products)
+        async function fetchInventory() {
+            const inventoryBox = document.getElementById('inventory-list');
+            inventoryBox.innerHTML = '<p>Loading products...</p>';
+            try {
+                const res = await fetch('/api/products');
+                const data = await res.json();
+                
+                if(data.success && data.products.length > 0) {
+                    inventoryBox.innerHTML = data.products.map(p => {
+                        // Use a placeholder if image doesn't exist
+                        const imgUrl = p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/250x200?text=No+Image';
+                        return `
+                            <div class="product-card">
+                                <img src="${imgUrl}" class="product-img" alt="${p.name}">
+                                <div class="product-info">
+                                    <div style="font-size: 12px; color: #64748b; font-weight: 700; margin-bottom: 5px;">ID: ${p.productId}</div>
+                                    <div class="p-title">${p.name}</div>
+                                    <div class="p-price">₹${p.price.toLocaleString()}</div>
+                                    <button class="btn-delete" onclick="deleteProduct('${p.productId}', '${p.name}')">
+                                        <i class="fas fa-trash"></i> Remove Item
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    inventoryBox.innerHTML = '<p style="grid-column: span 3;">Your store is currently empty.</p>';
+                }
+            } catch (err) { 
+                inventoryBox.innerHTML = '<p style="color: red;">Failed to load inventory.</p>';
+            }
+        }
+
+        // DELETE: Product
+        async function deleteProduct(productId, productName) {
+            // Confirmation dialog to prevent accidental clicks
+            if(!confirm(`Are you sure you want to delete "${productName}"? This cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/products/${productId}`, { method: 'DELETE' });
+                const data = await res.json();
+                
+                if(data.success) {
+                    showToast(`${productName} removed successfully!`, "success");
+                    fetchInventory(); // Reload the grid
+                } else {
+                    showToast("Failed to remove product.", "error");
+                }
+            } catch (err) {
+                showToast("Server connection error.", "error");
+            }
+        }
+
+        // UPLOAD: Add New Product
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('uploadBtn');
-            btn.innerText = "Processing... Please wait ⏳";
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading to Server...';
             btn.disabled = true;
 
             const formData = new FormData();
@@ -112,17 +320,30 @@
             formData.append('category', document.getElementById('p-category').value);
             
             const files = document.getElementById('p-images').files;
-            for(let i=0; i<files.length; i++) formData.append('productImages', files[i]);
+            for(let i=0; i<files.length; i++) {
+                formData.append('productImages', files[i]);
+            }
 
             try {
                 const res = await fetch('/api/products/add', { method: 'POST', body: formData });
                 const result = await res.json();
-                alert(result.message);
-                if(result.success) e.target.reset();
-            } catch (err) { alert("Server error"); }
-            finally { btn.innerText = "Upload to Cloudinary"; btn.disabled = false; }
+                
+                if(result.success) {
+                    showToast("Product Published Successfully!", "success");
+                    e.target.reset(); // Clear the form
+                    document.getElementById('image-preview-box').innerHTML = ''; // Clear previews
+                } else {
+                    showToast("Error: " + result.message, "error");
+                }
+            } catch (err) { 
+                showToast("Upload failed. Check your connection.", "error"); 
+            } finally { 
+                btn.innerHTML = '<i class="fas fa-upload"></i> Publish to Store'; 
+                btn.disabled = false; 
+            }
         });
 
+        // Initial Data Load
         document.addEventListener('DOMContentLoaded', fetchDashboardData);
     </script>
 </body>
