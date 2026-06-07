@@ -3,48 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One4Sports | Command Center</title>
-    <style>
-        :root { --dark: #0f172a; --accent: #E10600; --bg: #f8fafc; }
-        body { font-family: 'Assistant', sans-serif; background: var(--bg); margin: 0; display: flex; }
-        #sidebar { width: 250px; background: var(--dark); color: white; height: 100vh; padding: 20px; position: fixed; }
-        #content { margin-left: 250px; padding: 20px; width: calc(100% - 250px); }
-        .tab { display: none; } .active { display: block; }
-        .card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; }
-        table { width: 100%; border-collapse: collapse; }
-        td, th { padding: 12px; border-bottom: 1px solid #e2e8f0; }
-        @media (max-width: 768px) { #sidebar { width: 100%; height: auto; position: relative; } #content { margin-left: 0; } }
-    </style>
+    <title>Admin Dashboard</title>
 </head>
 <body>
 
-<div id="login-view" style="display:flex; justify-content:center; align-items:center; height:100vh;">
-    <button id="auth-btn" style="padding:20px 40px; font-size:18px;">Login with Google</button>
+<div id="login-screen" style="display:flex; justify-content:center; align-items:center; height:100vh;">
+    <button id="auth-btn" style="padding:20px; cursor:pointer;">Login as Admin</button>
 </div>
 
-<div id="app-view" style="display:none;">
-    <div id="sidebar">
-        <h2>CMD CENTER</h2>
-        <div onclick="switchTab('orders')" style="cursor:pointer; padding:10px;">📦 Orders</div>
-        <div onclick="switchTab('inventory')" style="cursor:pointer; padding:10px;">👟 Inventory</div>
-    </div>
-    <div id="content">
-        <div id="orders" class="tab active">
-            <div class="card">
-                <h3>Live Orders</h3>
-                <table id="order-table"><thead><tr><th>ID</th><th>Customer</th><th>Status</th><th>Action</th></tr></thead><tbody id="order-body"></tbody></table>
-            </div>
-        </div>
-        <div id="inventory" class="tab">
-            <div class="card">
-                <h3>Add/Update Inventory</h3>
-                <input type="text" id="p-name" placeholder="Product Name">
-                <input type="text" id="p-sizes" placeholder="Sizes (e.g., 7,8,9,10)">
-                <select id="p-status"><option value="available">Available</option><option value="out-of-stock">Out of Stock</option></select>
-                <button onclick="saveProduct()" style="background:var(--accent); color:white; border:none; padding:10px;">Update Inventory</button>
-            </div>
-        </div>
+<div id="app-content" style="display:none;">
+    <div id="orders-panel" class="panel">
+        <table id="order-table">
+            <thead><tr><th>ID</th><th>Customer</th><th>Status</th></tr></thead>
+            <tbody id="order-body"></tbody>
+        </table>
     </div>
 </div>
 
@@ -52,8 +24,8 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-    // REPLACE WITH YOUR FIREBASE CONFIG FROM CONSOLE
-  const firebaseConfig = {
+    // --- PASTE YOUR CONFIG HERE ---
+    const firebaseConfig = {
   apiKey: "AIzaSyBxyUiyy0L_hDuWul8SrntOtYgI48IiUPQ",
   authDomain: "rj-sports-24dae.firebaseapp.com",
   projectId: "rj-sports-24dae",
@@ -61,35 +33,50 @@
   messagingSenderId: "952774877656",
   appId: "1:952774877656:web:aee2f70e14daeb07e912ad"
 };
+
+    const auth = getAuth(initializeApp(firebaseConfig));
+    const provider = new GoogleAuthProvider();
     const adminEmails = ["Viratjadhav03@gmail.com", "patangesomnath52@gmail.com"];
 
-    document.getElementById('auth-btn').onclick = async () => {
-        const res = await signInWithPopup(auth, new GoogleAuthProvider());
-        if(adminEmails.includes(res.user.email)) {
-            sessionStorage.setItem('admin', 'true');
-            window.location.reload();
-        } else { alert("Unauthorized"); auth.signOut(); }
-    };
+    // --- FIX: Event Listener inside the module ---
+    document.getElementById('auth-btn').addEventListener('click', async () => {
+        try {
+            const res = await signInWithPopup(auth, provider);
+            if(adminEmails.includes(res.user.email)) {
+                sessionStorage.setItem('admin_logged_in', 'true');
+                window.location.reload();
+            } else { 
+                alert("Unauthorized"); 
+                auth.signOut(); 
+            }
+        } catch(e) { 
+            alert("Auth Error: " + e.message); 
+        }
+    });
 
-    window.switchTab = (id) => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    };
-
-    // Load Orders
-    async function loadOrders() {
-        const res = await fetch('/api/orders');
-        const data = await res.json();
-        document.getElementById('order-body').innerHTML = data.orders.map(o => `
-            <tr><td>${o.orderId}</td><td>${o.customer}</td><td>${o.status}</td>
-            <td><button onclick="updateOrder('${o.orderId}', 'Shipped')">Mark Shipped</button></td></tr>
-        `).join('');
+    // --- ORDER FETCHING ---
+    window.fetchOrders = async () => {
+        const body = document.getElementById('order-body');
+        try {
+            const res = await fetch('/api/orders');
+            const data = await res.json();
+            body.innerHTML = data.orders.map(o => `
+                <tr>
+                    <td>${o.orderId}</td>
+                    <td>${o.customer}</td>
+                    <td>${o.status}</td>
+                </tr>
+            `).join('');
+        } catch(err) {
+            console.error("Fetch failed (Check your backend routes):", err);
+        }
     }
 
-    if(sessionStorage.getItem('admin')) {
-        document.getElementById('login-view').style.display = 'none';
-        document.getElementById('app-view').style.display = 'block';
-        loadOrders();
+    // --- INITIALIZATION ---
+    if(sessionStorage.getItem('admin_logged_in')) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
+        fetchOrders();
     }
 </script>
 </body>
