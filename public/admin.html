@@ -2,142 +2,81 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Admin Dashboard | One4Sports</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { --dark: #0f172a; --accent: #E10600; --bg: #f8fafc; --success: #10b981; }
-        * { box-sizing: border-box; font-family: 'Assistant', sans-serif; }
-        body { background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; }
-
-        /* Navigation */
-        .navbar { background: var(--dark); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Mobile Dashboard Layout */
-        .admin-layout { display: flex; height: calc(100vh - 60px); overflow: hidden; }
-        .sidebar { width: 250px; background: white; border-right: 1px solid #e2e8f0; padding: 20px; }
-        .nav-link { display: block; padding: 15px; margin-bottom: 10px; cursor: pointer; font-weight: 700; border-radius: 8px; }
-        .nav-link.active { background: #fee2e2; color: var(--accent); }
-        
-        /* Content */
-        .content { flex: 1; padding: 20px; overflow-y: auto; }
-        .panel { display: none; }
-        .panel.active { display: block; }
-        
-        /* Responsive Table */
-        .scroll-wrapper { overflow-x: auto; background: white; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        td, th { padding: 12px; border-bottom: 1px solid #e2e8f0; }
-        
-        @media (max-width: 768px) {
-            .sidebar { display: none; position: fixed; height: 100%; z-index: 100; }
-            .sidebar.active { display: block; width: 80%; }
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
 </head>
 <body>
 
-<header class="navbar">
-    <div style="display:flex; align-items:center; gap:15px;">
-        <button onclick="toggleSidebar()" style="background:none; border:none; color:white; font-size:20px;"><i class="fas fa-bars"></i></button>
-        <strong>One4Sports Admin</strong>
+<div id="login-screen" style="display:flex; justify-content:center; align-items:center; height:100vh;">
+    <button id="auth-btn" style="padding:20px; cursor:pointer;">Login as Admin</button>
+</div>
+
+<div id="app-content" style="display:none;">
+    <div id="orders-panel" class="panel">
+        <table id="order-table">
+            <thead><tr><th>ID</th><th>Customer</th><th>Status</th></tr></thead>
+            <tbody id="order-body"></tbody> </table>
     </div>
-    <button onclick="logout()" style="background:transparent; color:white; border:none; cursor:pointer;">Logout</button>
-</header>
-
-<div class="admin-layout">
-    <aside class="sidebar" id="sidebar">
-        <div class="nav-link active" onclick="showPanel('orders', this)">Orders</div>
-        <div class="nav-link" onclick="showPanel('products', this)">Products</div>
-    </aside>
-
-    <main class="content">
-        <div id="orders-panel" class="panel active">
-            <h2>Live Orders</h2>
-            <div class="scroll-wrapper">
-                <table id="order-table">
-                    <thead><tr><th>ID</th><th>Customer</th><th>Status</th><th>Action</th></tr></thead>
-                    <tbody id="order-body"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div id="products-panel" class="panel">
-            <h2>Inventory</h2>
-            <div id="product-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;"></div>
-        </div>
-    </main>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    
-    // --- 1. DIRECT ADMIN LOGIN ---
+
+    // --- FIX 1: REPLACE WITH REAL KEYS ---
+const firebaseConfig = {
+  apiKey: "AIzaSyBxyUiyy0L_hDuWul8SrntOtYgI48IiUPQ",
+  authDomain: "rj-sports-24dae.firebaseapp.com",
+  projectId: "rj-sports-24dae",
+  storageBucket: "rj-sports-24dae.firebasestorage.app",
+  messagingSenderId: "952774877656",
+  appId: "1:952774877656:web:aee2f70e14daeb07e912ad"
+};
+
+    const auth = getAuth(initializeApp(firebaseConfig));
+    const provider = new GoogleAuthProvider();
     const adminEmails = ["Viratjadhav03@gmail.com", "patangesomnath52@gmail.com"];
-    
-    // Check if session exists
-    if(!sessionStorage.getItem('admin_logged_in')) {
-        document.body.innerHTML = `
-            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh;">
-                <h1>One4Sports Admin</h1>
-                <button id="auth-btn" style="padding:15px 30px; margin-top:20px;">Login as Admin</button>
-            </div>
-        `;
-        document.getElementById('auth-btn').onclick = async () => {
-            const auth = getAuth(initializeApp({ /* YOUR CONFIG */ }));
-            try {
-                const res = await signInWithPopup(auth, new GoogleAuthProvider());
-                if(adminEmails.includes(res.user.email)) {
-                    sessionStorage.setItem('admin_logged_in', 'true');
-                    window.location.reload();
-                } else { alert("Unauthorized"); auth.signOut(); }
-            } catch(e) { alert(e.message); }
-        };
-    }
 
-    // --- 2. ORDER FUNCTIONALITY ---
+    document.getElementById('auth-btn').onclick = async () => {
+        try {
+            const res = await signInWithPopup(auth, provider);
+            if(adminEmails.includes(res.user.email)) {
+                sessionStorage.setItem('admin_logged_in', 'true');
+                window.location.reload();
+            } else { alert("Unauthorized"); auth.signOut(); }
+        } catch(e) { alert(e.message); }
+    };
+
+    // --- FIX 2: SAFETY CHECK FOR DOM ELEMENTS ---
     window.fetchOrders = async () => {
-        const res = await fetch('/api/orders');
-        const data = await res.json();
         const body = document.getElementById('order-body');
-        body.innerHTML = data.orders.map(o => `
-            <tr>
-                <td>${o.orderId}</td>
-                <td>${o.customer}</td>
-                <td>${o.status}</td>
-                <td>
-                    <select onchange="updateStatus('${o.orderId}', this.value)">
-                        <option value="Pending" ${o.status==='Pending'?'selected':''}>Pending</option>
-                        <option value="Shipped" ${o.status==='Shipped'?'selected':''}>Shipped</option>
-                    </select>
-                </td>
-            </tr>
-        `).join('');
+        
+        // This stops the crash if the table doesn't exist
+        if (!body) {
+            console.error("Critical Error: 'order-body' element not found.");
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/orders');
+            const data = await res.json();
+            body.innerHTML = data.orders.map(o => `
+                <tr>
+                    <td>${o.orderId}</td>
+                    <td>${o.customer}</td>
+                    <td>${o.status}</td>
+                </tr>
+            `).join('');
+        } catch(err) {
+            console.error("Fetch failed:", err);
+        }
     }
 
-    window.updateStatus = async (id, status) => {
-        await fetch(`/api/orders/${id}/status`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ status })
-        });
-        fetchOrders(); // Refresh table immediately
+    if(sessionStorage.getItem('admin_logged_in')) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
+        fetchOrders();
     }
-
-    window.showPanel = (id, el) => {
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-        document.getElementById(id + '-panel').classList.add('active');
-        el.classList.add('active');
-        if(id === 'orders') fetchOrders();
-    }
-
-    window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('active');
-    window.logout = () => { sessionStorage.removeItem('admin_logged_in'); window.location.reload(); }
-    
-    // Auto load orders on start
-    fetchOrders();
 </script>
 </body>
 </html>
