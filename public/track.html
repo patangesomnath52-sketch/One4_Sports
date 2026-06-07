@@ -6,54 +6,63 @@
     <title>Track Order | One4Sports</title>
     <style>
         body { font-family: 'Assistant', sans-serif; background: #f4f6f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .track-card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; margin-bottom: 15px; font-size: 16px; }
-        button { background: #E10600; color: white; border: none; padding: 12px 25px; border-radius: 6px; font-weight: 800; cursor: pointer; width: 100%; }
-        #result-box { display: none; margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; }
+        .track-card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px; font-size: 16px; text-align: center; }
+        button { background: #E10600; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; }
+        #result-box { display: none; margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; text-align: left; }
+        #error-msg { color:#E10600; display:none; margin-top:15px; font-weight:700; }
     </style>
 </head>
 <body>
-    <div class="track-card">
-        <h2>Track Your Order</h2>
-        <input type="text" id="orderId" placeholder="Enter Order ID (e.g. RJ521460)">
-        <button onclick="fetchTracking()">Track Order</button>
-        
-        <div id="result-box">
-            <p><strong>Status:</strong> <span id="status"></span></p>
-            <p><strong>Customer:</strong> <span id="customer-name"></span></p>
-        </div>
-        <div id="error-msg" style="color:#E10600; display:none; margin-top:10px;">Order not found.</div>
+
+<div class="track-card">
+    <h2>Track Your Order</h2>
+    <input type="text" id="orderId" placeholder="Enter Order ID (e.g. RJ99243)">
+    <button onclick="fetchTracking()">Track Order</button>
+    
+    <div id="result-box">
+        <p><strong>Status:</strong> <span id="status"></span></p>
+        <p><strong>Customer:</strong> <span id="customer-name"></span></p>
     </div>
+    <div id="error-msg">Order not found. Check the ID.</div>
+</div>
 
-    <script>
-        async function fetchTracking() {
-            let rawId = document.getElementById('orderId').value;
-            // CLEANING: Strip out ID:, #, and spaces so the server gets exactly "RJ521460"
-            let cleanId = rawId.replace(/ID:|#|\s/gi, '').trim(); 
-            
-            if(!cleanId) { alert("Please enter an Order ID"); return; }
-
-            const resBox = document.getElementById('result-box');
-            const errBox = document.getElementById('error-msg');
-
-            try {
-                // The URL here matches the backend route /api/orders/:id
-                const response = await fetch(`/api/orders/${cleanId}`);
-                const data = await response.json();
-                
-                if(response.ok && data.success) {
-                    document.getElementById('status').innerText = data.order.status;
-                    document.getElementById('customer-name').innerText = data.order.customer;
-                    resBox.style.display = 'block';
-                    errBox.style.display = 'none';
-                } else {
-                    errBox.style.display = 'block';
-                    resBox.style.display = 'none';
-                }
-            } catch(e) {
-                alert("Server Error. Check Backend Logs.");
-            }
+<script>
+    async function fetchTracking() {
+        let rawId = document.getElementById('orderId').value;
+        
+        // THE FIX: Regex replaces anything that is NOT a letter or number with nothing.
+        // This removes the %EF%BF%BD garbage, spaces, #, or any hidden characters.
+        let cleanId = rawId.replace(/[^a-zA-Z0-9]/g, ''); 
+        
+        if(!cleanId) { 
+            alert("Please enter a valid Order ID"); 
+            return; 
         }
-    </script>
+
+        console.log("Fetching order:", cleanId); // Debugging: check the console (F12)
+
+        const resBox = document.getElementById('result-box');
+        const errBox = document.getElementById('error-msg');
+
+        try {
+            // Using relative path for the API
+            const response = await fetch(`/api/orders/${cleanId}`);
+            const data = await response.json();
+            
+            if(response.ok && data.success) {
+                document.getElementById('status').innerText = data.order.status;
+                document.getElementById('customer-name').innerText = data.order.customer;
+                resBox.style.display = 'block';
+                errBox.style.display = 'none';
+            } else {
+                errBox.style.display = 'block';
+                resBox.style.display = 'none';
+            }
+        } catch(e) {
+            alert("Server connection failed. Check your Backend logs on Render.");
+        }
+    }
+</script>
 </body>
 </html>
