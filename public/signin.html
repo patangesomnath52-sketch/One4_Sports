@@ -3,60 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Secure Login | One4Sports</title>
+    <title>Sign In | One4Sports</title>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <script>
-        // Professional Auth Check: If logged in, send them back to where they came from!
-        if(localStorage.getItem('rj_loggedInUser')) {
-            const urlParams = new URLSearchParams(window.location.search);
-            window.location.replace(urlParams.get('redirect') || 'index.html');
-        }
-    </script>
     <style>
-        :root { --bg-color: #f4f6f8; --text-color: #0f172a; --card-bg: #fff; --accent: #E10600; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        
-        .auth-container { background: var(--card-bg); padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; border: 1px solid #e2e8f0; }
-        
-        .logo { font-size: 32px; font-weight: 900; text-decoration: none; color: #0f172a; display: block; margin-bottom: 30px; letter-spacing: -0.5px; }
-        .logo span { color: var(--accent); }
-
-        .google-btn { background: #fff; color: #333; border: 2px solid #e2e8f0; padding: 15px; font-size: 16px; font-weight: 800; border-radius: 8px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .google-btn:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .google-btn img { width: 24px; }
-
-        #debug-error { color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 6px; font-size: 14px; margin-top: 20px; display: none; font-weight: 700; text-align: left; }
-        
-        /* Clean Mobile Responsive Rules for Auth Page */
-        @media (max-width: 480px) { 
-            .auth-container { padding: 30px 20px; } 
-            .logo { font-size: 28px; }
-        }
+        :root { --bg: #f4f6f8; --accent: #E10600; }
+        body { font-family: 'Assistant', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .auth-card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 90%; max-width: 400px; text-align: center; border: 1px solid #e2e8f0; }
+        .brand { font-size: 32px; font-weight: 900; margin-bottom: 20px; }
+        .brand span { color: var(--accent); }
+        .google-btn { background: #fff; border: 2px solid #e2e8f0; padding: 15px; width: 100%; font-weight: 800; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+        .google-btn:hover { border-color: var(--accent); background: #f8fafc; }
+        #loading { display: none; margin-top: 15px; font-weight: 700; color: var(--accent); }
     </style>
 </head>
 <body>
 
-<div class="auth-container">
-    <a href="index.html" class="logo">One4<span>Sports</span></a>
-    <h2 style="margin-bottom: 10px; color: #0f172a; font-weight: 800; font-size: 24px;">Welcome Back</h2>
-    <p style="color: #64748b; font-size: 15px; font-weight: 600; margin-bottom: 30px;">Sign in securely to checkout and track your premium gear.</p>
+<div class="auth-card">
+    <div class="brand">One4<span>Sports</span></div>
+    <h2>Welcome Back</h2>
+    <p style="color: #64748b; margin: 10px 0 20px;">Sign in to continue to your account</p>
     
     <button id="google-btn" class="google-btn">
-        <!-- Using a reliable CDN link for the Google Icon so it never breaks -->
-        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google">
-        Continue with Google
+        <i class="fab fa-google" style="margin-right:10px;"></i> Sign in with Google
     </button>
-
-    <div id="debug-error"></div>
+    <div id="loading">Authenticating...</div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-  const firebaseConfig = {
+    // 1. CONFIGURATION
+   const firebaseConfig = {
   apiKey: "AIzaSyBxyUiyy0L_hDuWul8SrntOtYgI48IiUPQ",
   authDomain: "rj-sports-24dae.firebaseapp.com",
   projectId: "rj-sports-24dae",
@@ -65,47 +43,36 @@
   appId: "1:952774877656:web:aee2f70e14daeb07e912ad"
 };
 
-    let app, auth, provider;
-    try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        provider = new GoogleAuthProvider();
-    } catch (e) {
-        showError("Firebase Setup Error: Check your internet connection.");
-    }
+    const auth = getAuth(initializeApp(firebaseConfig));
+    const provider = new GoogleAuthProvider();
+    const adminEmails = ["Viratjadhav03@gmail.com", "patangesomnath52@gmail.com"];
 
-    function showError(msg) {
-        const errDiv = document.getElementById('debug-error');
-        errDiv.innerText = msg;
-        errDiv.style.display = 'block';
-    }
-
-    document.getElementById('google-btn').addEventListener('click', async () => {
-        const btn = document.getElementById('google-btn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = "Connecting to Google... ⏳";
-        btn.disabled = true;
-        document.getElementById('debug-error').style.display = 'none';
-
+    // 2. LOGIN LOGIC
+    document.getElementById('google-btn').onclick = async () => {
+        document.getElementById('loading').style.display = 'block';
         try {
-            const result = await signInWithPopup(auth, provider);
-            
-            // Save user data securely in local storage
-            localStorage.setItem('rj_loggedInUser', result.user.displayName);
-            localStorage.setItem('rj_userEmail', result.user.email);
-            
-            // Seamless redirect back to cart (or homepage if they didn't come from cart)
-            const urlParams = new URLSearchParams(window.location.search);
-            const redirectUrl = urlParams.get('redirect') || 'index.html';
-            window.location.href = redirectUrl;
-            
-        } catch (error) {
-            console.error("Auth Error:", error);
-            showError(`Sign In Failed: ${error.message}`);
-            btn.innerHTML = originalText;
-            btn.disabled = false;
+            const res = await signInWithPopup(auth, provider);
+            const email = res.user.email;
+
+            // Save User Data
+            localStorage.setItem('rj_loggedInUser', res.user.displayName);
+            localStorage.setItem('rj_userEmail', email);
+
+            // 3. SMART ROUTING
+            if (adminEmails.includes(email)) {
+                // Direct Admin Access
+                window.location.href = 'admin.html';
+            } else {
+                // Customer Redirect
+                const params = new URLSearchParams(window.location.search);
+                const redirect = params.get('redirect') || 'index.html';
+                window.location.href = redirect;
+            }
+        } catch (e) {
+            alert("Error: " + e.message);
+            document.getElementById('loading').style.display = 'none';
         }
-    });
+    };
 </script>
 </body>
 </html>
