@@ -176,7 +176,17 @@
 </footer>
 
 <script>
+    function addToCart(event, productId, name, price, image) {
+    event.stopPropagation(); 
     
+    // THE GATEKEEPER
+    if (!localStorage.getItem('rj_loggedInUser')) {
+        window.location.href = 'signin.html?redirect=cart.html';
+        return; 
+    }
+
+    // ... your original add to cart logic here ...
+}
     let allProducts = [];
 
     function addToCart(event, productId, name, price, image) {
