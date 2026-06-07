@@ -48,7 +48,12 @@
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { background: #f8fafc; padding: 15px; text-align: left; font-weight: 800; border-bottom: 2px solid var(--border); }
-        td { padding: 15px; border-bottom: 1px solid var(--border); font-weight: 600; }
+        td { padding: 15px; border-bottom: 1px solid var(--border); font-weight: 600; vertical-align: middle; }
+        
+        /* Status Dropdown Style */
+        .status-select { padding: 8px; border-radius: 6px; border: 1px solid var(--border); font-weight: 700; cursor: pointer; outline: none; transition: 0.2s; }
+        .status-select:focus { border-color: var(--accent); }
+        
         .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; margin-top: 20px; }
         .product-card { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
         .product-img { width: 100%; height: 200px; object-fit: cover; }
@@ -90,7 +95,7 @@
                     <div class="card">
                         <h3>Recent Orders (<span id="kpi-orders">0</span> Total)</h3>
                         <table>
-                            <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
+                            <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Update Status</th></tr></thead>
                             <tbody id="order-table-body"></tbody>
                         </table>
                     </div>
@@ -182,11 +187,46 @@
                 const data = await res.json();
                 if(data.success) {
                     document.getElementById('kpi-orders').innerText = data.orders.length;
-                    document.getElementById('order-table-body').innerHTML = data.orders.map(o => `<tr><td>#${o.orderId}</td><td>${o.customer}</td><td>₹${o.total}</td><td>${o.status}</td></tr>`).join('');
+                    document.getElementById('order-table-body').innerHTML = data.orders.map(o => {
+                        return `
+                        <tr>
+                            <td>#${o.orderId}</td>
+                            <td>${o.customer}</td>
+                            <td>₹${o.total}</td>
+                            <td>
+                                <select class="status-select" onchange="updateOrderStatus('${o.orderId}', this.value)">
+                                    <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                                    <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                                    <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                                    <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                                </select>
+                            </td>
+                        </tr>`;
+                    }).join('');
                 }
             } catch (err) { console.log("Fetch error"); }
         }
 
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                const res = await fetch(`/api/orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    showToast(`Order #${orderId} marked as ${newStatus}`);
+                } else {
+                    showToast("Failed to update status.");
+                }
+            } catch(err) {
+                showToast("Error updating database.");
+            }
+        }
+
+        // [Inventory and Upload functions remain unchanged below]
         async function fetchInventory() {
             const inventoryBox = document.getElementById('inventory-list');
             inventoryBox.innerHTML = '<p>Loading products...</p>';
