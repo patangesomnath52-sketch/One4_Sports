@@ -332,39 +332,49 @@
 
     // WhatsApp logic (Untouched text)
     async function placeOrder() {
-        const name = document.getElementById('c-name').value.trim();
-        const phone = document.getElementById('c-phone').value.trim();
-        const address = document.getElementById('s-address').value.trim();
-        const city = document.getElementById('s-city').value.trim();
-        const state = document.getElementById('s-state').value.trim();
-        const pin = document.getElementById('s-pin').value.trim();
+    const name = document.getElementById('c-name').value.trim();
+    const phone = document.getElementById('c-phone').value.trim();
+    const address = document.getElementById('s-address').value.trim();
+    const city = document.getElementById('s-city').value.trim();
+    const state = document.getElementById('s-state').value.trim();
+    const pin = document.getElementById('s-pin').value.trim();
 
-        if (!name || phone.length !== 10 || !address || !city || !state || !pin) {
-            showToast("Please fill all contact and address details correctly!");
-            return;
-        }
+    // 1. Basic Validation
+    if (!name || phone.length !== 10 || !address || !city || !state || !pin) {
+        showToast("Please fill all contact and address details!");
+        return;
+    }
 
-        const orderId = 'RJ' + Math.floor(Math.random() * 1000000);
+    // 2. Prepare Data
+    const orderId = 'RJ' + Math.floor(Math.random() * 1000000);
+    const itemsSummary = cartItems.map(i => `${i.name} (UK${i.size}) x${i.quantity}`).join(', ');
+    
+    // 3. Create WhatsApp URL
+    const waMsg = encodeURIComponent(
+        `🔥 *नवीन ऑर्डर (One4Sports)*\n\n` +
+        `🆔 ID: #${orderId}\n` +
+        `👤 ग्राहक: ${name}\n` +
+        `📞 फोन: ${phone}\n` +
+        `📍 पत्ता: ${address}, ${city}, ${state} - ${pin}\n` +
+        `🛒 वस्तू: ${itemsSummary}\n` +
+        `💰 एकूण: ₹${finalTotal.toLocaleString()}\n` +
+        `💳 पेमेंट: Cash on Delivery\n\n` +
+        `_कृपया ऑर्डर कन्फर्म करा!_`
+    );
+
+    // 4. Trigger WhatsApp in a new tab
+    window.open(`https://wa.me/918055475552?text=${waMsg}`, '_blank');
+
+    // 5. Success Flow: Clear cart and redirect
+    showToast("Opening WhatsApp to confirm...");
+    
+    setTimeout(() => {
+        localStorage.removeItem('rj_cart');
+        window.location.href = 'order-success.html';
+    }, 1500); // Gives the user 1.5 seconds to see the toast before leaving
+}
         
-        const itemsSummary = cartItems.map(i => `${i.name} (${i.size || 'Standard'}) x${i.quantity}`).join(', ');
-       const waMsg = encodeURIComponent(
-    `👋 *Hey ${name}!* \n\n` + 
-    `🎉 *Thanks for your One4Sports order!* \n\n` + 
-    `🆔 *Order ID:* #${orderId}\n` + 
-    `📦 *Items:* ${itemsSummary}\n` + 
-    `💰 *Total:* ₹${finalTotal.toLocaleString()}\n\n` + 
-    `⚡ *We are prepping your gear now!* Our team will confirm the details with you via this chat shortly. Stay tuned!`
-);
-        
-     // ... existing code in placeOrder() ...
-window.location.href = `https://wa.me/918055475552?text=${waMsg}`;
-
-// CHANGE THIS: Instead of letting them stay on the checkout page, 
-// redirect them to the success page after a short delay
-setTimeout(() => {
-    localStorage.removeItem('rj_cart');
-    window.location.href = 'order-success.html';
-}, 1000);}
+  
 </script>
 </body>
 </html>
