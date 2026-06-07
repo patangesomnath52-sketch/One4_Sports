@@ -2,104 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Secure Login | One4Sports</title>
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script>
-        // Professional Auth Check: जर ग्राहक आधीच लॉगीन असेल, तर त्याला थेट होम पेजवर फेका!
+        // Professional Auth Check: If logged in, send them back to where they came from!
         if(localStorage.getItem('rj_loggedInUser')) {
-            window.location.replace('index.html');
+            const urlParams = new URLSearchParams(window.location.search);
+            window.location.replace(urlParams.get('redirect') || 'index.html');
         }
     </script>
     <style>
-        /* --- UNIVERSAL DARK/LIGHT MODE STYLES --- */
-        :root {
-            --bg-color: #f4f6f8;
-            --text-color: #1f2937;
-            --header-bg: #fff;
-            --card-bg: #fff; /* प्रॉडक्ट्स आणि कार्टच्या पांढऱ्या बॉक्ससाठी */
-            --border-color: #e5e7eb;
-            --accent: #ff3f6c;
-        }
-        body.dark-mode {
-            --bg-color: #121212;
-            --text-color: #e5e7eb;
-            --header-bg: #1f2937;
-            --card-bg: #1e293b; /* डार्क मोड मधील कार्ड्सचा रंग */
-            --border-color: #374151;
-        }
+        :root { --bg-color: #f4f6f8; --text-color: #0f172a; --card-bg: #fff; --accent: #E10600; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        body { background-color: var(--bg-color); color: var(--text-color); transition: background 0.3s, color 0.3s; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; }
-        body { background-color: #f4f6f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         
-        .auth-container { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); width: 100%; max-width: 400px; text-align: center; }
-        .logo { font-size: 28px; font-weight: 800; text-decoration: none; color: #282c3f; display: block; margin-bottom: 30px; }
-        .logo span { color: #ff3f6c; }
-
-        .google-btn { background: #fff; color: #333; border: 1px solid #d4d5d9; padding: 14px; font-size: 16px; font-weight: 600; border-radius: 6px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .google-btn:hover { background: #f9f9f9; border-color: #b0b0b0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .google-btn img { width: 22px; }
-
-        /* Error message styling */
-        #debug-error { color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 4px; font-size: 13px; margin-top: 20px; display: none; font-weight: 600; text-align: left; }
+        .auth-container { background: var(--card-bg); padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; border: 1px solid #e2e8f0; }
         
-        @media (max-width: 768px) { .auth-container { padding: 30px 20px; } }
-         /* 📱 MOBILE RESPONSIVE MASTER RULES */
-        @media (max-width: 768px) { 
-            
-            /* App-style sliding side menu */
-            .rj-menu-toggle { display: block; z-index: 10001; }
-            .rj-links { 
-                position: fixed; top: 0; right: -100%; width: 280px; height: 100vh; 
-                background: var(--header-bg); flex-direction: column; padding: 80px 30px 30px; 
-                box-shadow: -10px 0 30px rgba(0,0,0,0.1); transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-                z-index: 10000; align-items: flex-start; 
-            }
-            .rj-links.active { right: 0; }
-            .rj-links a { width: 100%; padding: 15px 0; border-bottom: 1px solid var(--border-color); font-size: 18px; }
-            .rj-links a:last-child { border-bottom: none; }
-            
-            /* Overlay when menu is open */
-            .menu-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; opacity: 0; transition: opacity 0.3s; }
-            .menu-overlay.active { display: block; opacity: 1; }
+        .logo { font-size: 32px; font-weight: 900; text-decoration: none; color: #0f172a; display: block; margin-bottom: 30px; letter-spacing: -0.5px; }
+        .logo span { color: var(--accent); }
 
-            /* Fix header order for mobile */
-            .rj-navbar { padding: 12px 5%; }
-            .brand-logo { order: 1; flex-grow: 1; }
-            .cart-container { order: 2; margin-right: 20px; }
+        .google-btn { background: #fff; color: #333; border: 2px solid #e2e8f0; padding: 15px; font-size: 16px; font-weight: 800; border-radius: 8px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .google-btn:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .google-btn img { width: 24px; }
 
-            /* Hero scaling for small screens */
-            .hero { height: 65vh; min-height: 450px; }
-            .hero-title { font-size: 38px; margin-bottom: 15px; }
-            .hero-subtitle { font-size: 16px; margin-bottom: 30px; padding: 0 10px; }
-            .hero-buttons { flex-direction: column; width: 100%; gap: 12px; }
-            .btn { width: 100%; padding: 18px; font-size: 16px; }
-
-            /* Grid scaling */
-            .section { padding: 50px 5%; }
-            .section-title { font-size: 28px; }
-            .category-card { height: 220px; margin-bottom: 10px; }
-            
-            /* Footer stacking */
-            .rj-footer-content { grid-template-columns: 1fr; gap: 30px; text-align: center; } 
-            .rj-footer-col { align-items: center; }
-            .rj-footer-col p { text-align: center; justify-content: center; }
-            .rj-footer { padding: 50px 20px 20px; }
+        #debug-error { color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 6px; font-size: 14px; margin-top: 20px; display: none; font-weight: 700; text-align: left; }
+        
+        /* Clean Mobile Responsive Rules for Auth Page */
+        @media (max-width: 480px) { 
+            .auth-container { padding: 30px 20px; } 
+            .logo { font-size: 28px; }
         }
     </style>
-    </style>
-
 </head>
 <body>
 
 <div class="auth-container">
-   <a href="index.html" class="one4-logo">One4<span>Sports</span></a>
-    <h2 style="margin-bottom: 10px; color: #333;">Welcome Back</h2>
-    <p style="color: #666; font-size: 14px; margin-bottom: 25px;">Sign in to access your orders and fast checkout.</p>
+    <a href="index.html" class="logo">One4<span>Sports</span></a>
+    <h2 style="margin-bottom: 10px; color: #0f172a; font-weight: 800; font-size: 24px;">Welcome Back</h2>
+    <p style="color: #64748b; font-size: 15px; font-weight: 600; margin-bottom: 30px;">Sign in securely to checkout and track your premium gear.</p>
     
     <button id="google-btn" class="google-btn">
-        <img src="logo.google.png" alt="Google">
+        <!-- Using a reliable CDN link for the Google Icon so it never breaks -->
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google">
         Continue with Google
     </button>
 
@@ -110,24 +56,22 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-    // 🔴 YOU MUST REPLACE THESE VALUES WITH YOUR REAL FIREBASE KEYS 🔴
     const firebaseConfig = {
         apiKey: "AIzaSyBxyUiyy0L_hDuWul8SrntOtYgI48IiUPQ",
-    authDomain: "rj-sports-24dae.firebaseapp.com",
-    projectId: "rj-sports-24dae",
-    storageBucket: "rj-sports-24dae.firebasestorage.app",
-    messagingSenderId: "952774877656",
-    appId: "1:952774877656:web:aee2f70e14daeb07e912ad"
+        authDomain: "rj-sports-24dae.firebaseapp.com",
+        projectId: "rj-sports-24dae",
+        storageBucket: "rj-sports-24dae.firebasestorage.app",
+        messagingSenderId: "952774877656",
+        appId: "1:952774877656:web:aee2f70e14daeb07e912ad"
     };
 
-    // Initialize Firebase
     let app, auth, provider;
     try {
         app = initializeApp(firebaseConfig);
         auth = getAuth(app);
         provider = new GoogleAuthProvider();
     } catch (e) {
-        showError("Firebase Setup Error: Check your firebaseConfig keys.");
+        showError("Firebase Setup Error: Check your internet connection.");
     }
 
     function showError(msg) {
@@ -139,21 +83,25 @@
     document.getElementById('google-btn').addEventListener('click', async () => {
         const btn = document.getElementById('google-btn');
         const originalText = btn.innerHTML;
-        btn.innerHTML = "Connecting to Google...";
+        btn.innerHTML = "Connecting to Google... ⏳";
         btn.disabled = true;
         document.getElementById('debug-error').style.display = 'none';
 
         try {
-            // Standard Popup Auth (Used by many top sites for cross-origin stability)
             const result = await signInWithPopup(auth, provider);
             
-            // Save user data & redirect seamlessly
+            // Save user data securely in local storage
             localStorage.setItem('rj_loggedInUser', result.user.displayName);
             localStorage.setItem('rj_userEmail', result.user.email);
-            window.location.href = 'index.html';
+            
+            // Seamless redirect back to cart (or homepage if they didn't come from cart)
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect') || 'index.html';
+            window.location.href = redirectUrl;
+            
         } catch (error) {
             console.error("Auth Error:", error);
-            showError(`Error Code: ${error.code} \nMessage: ${error.message}`);
+            showError(`Sign In Failed: ${error.message}`);
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
