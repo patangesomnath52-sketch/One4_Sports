@@ -77,22 +77,22 @@ app.post('/api/products/add', upload.array('productImages', 3), async (req, res)
         res.status(500).json({ success: false, message: err.message });
     }
 });
-// Add this route to your server.js
-app.get('/api/orders/:id', async (req, res) => {
+
+// Add these routes to your server.js
+app.get('/api/orders', async (req, res) => {
     try {
-        const orderId = req.params.id;
-        // Adjust 'Order' to match your database model name
-        const order = await Order.findOne({ orderId: orderId }); 
-        
-        if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found" });
-        }
-        res.json({ success: true, order: order });
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Database Error" });
-    }
+        const orders = await Order.find(); // Matches your Order DB model
+        res.json({ orders });
+    } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+app.post('/api/products/update', async (req, res) => {
+    try {
+        const { name, sizes, status } = req.body;
+        await Product.findOneAndUpdate({ name }, { availableSizes: sizes, stockStatus: status });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
 // GET ALL PRODUCTS (This must be separate and come before the /:id route)
 app.get('/api/products', async (req, res) => {
     try {
