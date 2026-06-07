@@ -356,6 +356,47 @@
         checkLoginStatus();
         loadProducts();
     });
+   
+    // 1. SMART HEADER AUTH
+    function checkLoginStatus() {
+        const userName = localStorage.getItem('rj_loggedInUser');
+        const authBtn = document.getElementById('auth-btn');
+        const authText = document.getElementById('auth-text');
+        
+        if (userName && authBtn && authText) {
+            authText.innerText = `Hi, ${userName.split(' ')[0]}`;
+            authBtn.href = "#";
+            authBtn.onclick = (e) => {
+                e.preventDefault();
+                if(confirm("Log out of One4Sports?")) {
+                    localStorage.removeItem('rj_loggedInUser');
+                    window.location.reload();
+                }
+            };
+        }
+    }
+
+    // 2. GATEKEEPER ADD TO CART
+    function addToCart(event, productId, name, price, image) {
+        event.stopPropagation(); 
+        if (!localStorage.getItem('rj_loggedInUser')) {
+            window.location.href = 'signin.html?redirect=cart.html';
+            return; 
+        }
+
+        let cart = JSON.parse(localStorage.getItem('rj_cart')) || [];
+        cart.push({ productId, name, price, image, quantity: 1 });
+        localStorage.setItem('rj_cart', JSON.stringify(cart));
+        alert("Added to Cart!");
+        updateCartCount();
+    }
+
+    // 3. RUN ON LOAD
+    window.addEventListener('DOMContentLoaded', () => {
+        checkLoginStatus();
+        updateCartCount();
+    });
+
 </script>
 </body>
 </html>
