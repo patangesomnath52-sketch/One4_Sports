@@ -4,110 +4,129 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Checkout | One4Sports</title>
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script>
-    // Instantly checks the saved theme from settings
-    if(localStorage.getItem('rj_theme') === 'light') {
-        document.documentElement.classList.add('light-mode');
-    }
-</script>
+        // Instantly checks the saved theme from settings
+        if(localStorage.getItem('rj_theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    
     <style>
-   /* BASE THEME (DARK MODE - Default) */
-:root { 
-    --bg-color: #050505; 
-    --text-main: #ffffff;
-    --text-muted: #a1a1aa;
-    --accent: #ff2a2a; 
-    --accent-glow: rgba(255, 42, 42, 0.5);
-    --card-bg: #111111;
-    --nav-bg: rgba(5, 5, 5, 0.7);
-    --border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* LIGHT MODE OVERRIDE */
-:root.light-mode {
-    --bg-color: #f8fafc;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --accent: #E10600;
-    --accent-glow: rgba(225, 6, 0, 0.3);
-    --card-bg: #ffffff;
-    --nav-bg: rgba(255, 255, 255, 0.8);
-    --border-color: #e2e8f0;
-}
-         :root.dark-mode {
-            --bg-color: #121212;
-            --text-color: #e5e7eb;
-            --header-bg: #1f2937;
-            --card-bg: #1e293b; 
-            --border-color: #374151;
+        /* BASE THEME (DARK MODE - Default) */
+        :root { 
+            --bg-color: #050505; 
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --accent: #ff2a2a; 
+            --accent-glow: rgba(255, 42, 42, 0.5);
+            --card-bg: #111111;
+            --nav-bg: rgba(5, 5, 5, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); padding-bottom: 100px; }
+        /* LIGHT MODE OVERRIDE */
+        :root.light-mode {
+            --bg-color: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #E10600;
+            --accent-glow: rgba(225, 6, 0, 0.3);
+            --card-bg: #ffffff;
+            --nav-bg: rgba(255, 255, 255, 0.8);
+            --border-color: #e2e8f0;
+            --success: #059669;
+            --success-bg: #dcfce7;
+        }
 
-        .header { background: #fff; padding: 15px 5%; box-shadow: 0 1px 4px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
-        .logo { font-size: 22px; font-weight: 900; text-decoration: none; color: #121212; text-transform: uppercase; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 100px; transition: background 0.3s, color 0.3s; }
+
+        /* GLASSMORPHIC HEADER */
+        .header { background: var(--nav-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: 15px 5%; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 24px; font-weight: 900; text-decoration: none; color: var(--text-main); text-transform: uppercase; letter-spacing: -1px; }
         .logo span { color: var(--accent); }
+        .secure-badge { font-size: 12px; font-weight: 800; color: var(--success); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 5px; }
 
-        .checkout-wrapper { max-width: 1100px; margin: 20px auto; display: flex; gap: 20px; padding: 0 15px; }
-        .left-column { flex: 1.5; display: flex; flex-direction: column; gap: 15px; }
-        .right-column { flex: 1; position: sticky; top: 80px; height: fit-content; }
+        .checkout-wrapper { max-width: 1200px; margin: 40px auto; display: flex; gap: 30px; padding: 0 5%; }
+        .left-column { flex: 1.5; display: flex; flex-direction: column; gap: 20px; }
+        .right-column { flex: 1; position: sticky; top: 100px; height: fit-content; }
 
-        .checkout-card { background: var(--card-bg); border-radius: 8px; padding: 20px; border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        .section-title { font-size: 16px; font-weight: 800; margin-bottom: 15px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
-        .section-title i { color: var(--accent); }
+        /* CARDS */
+        .checkout-card { background: var(--card-bg); border-radius: 16px; padding: 25px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .section-title { font-size: 18px; font-weight: 900; margin-bottom: 20px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; letter-spacing: 1px; }
+        .section-title i { color: var(--accent); font-size: 20px; }
 
+        /* FORMS */
         .form-group { margin-bottom: 15px; }
-        .form-group label { font-size: 13px; font-weight: 700; display: block; margin-bottom: 5px; color: #535665; }
-        .form-input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 4px; font-weight: 600; font-size: 14px; outline: none; transition: 0.3s; }
-        .form-input:focus { border-color: var(--accent); }
+        .form-group label { font-size: 13px; font-weight: 800; display: block; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .form-input { width: 100%; padding: 16px; background: transparent; color: var(--text-main); border: 2px solid var(--border-color); border-radius: 8px; font-weight: 700; font-size: 15px; outline: none; transition: 0.3s; }
+        .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255, 42, 42, 0.1); }
+        .form-input::placeholder { color: var(--text-muted); opacity: 0.5; }
 
-        .payment-option { border: 2px solid var(--accent); background: #fff5f5; padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
-        .opt-info { display: flex; align-items: center; gap: 10px; font-weight: 800; }
-        .opt-info i { color: var(--accent); font-size: 20px; }
+        /* PAYMENT OPTION */
+        .payment-option { border: 2px solid var(--accent); background: rgba(255, 42, 42, 0.05); padding: 18px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .opt-info { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 16px; }
+        .opt-info i { color: var(--accent); font-size: 24px; }
+        .payment-option > i { color: var(--accent); font-size: 20px; }
 
-        .summary-items { max-height: 250px; overflow-y: auto; padding-bottom: 15px; }
-        .s-item { display: flex; gap: 12px; margin-bottom: 12px; border-bottom: 1px solid #f0f0f0; padding-bottom: 12px; }
-        .s-img { width: 60px; height: 60px; border-radius: 4px; object-fit: cover; }
-        .s-name { font-weight: 800; font-size: 14px; margin-bottom: 3px; }
-        .price-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; font-weight: 600; }
-        .discount { color: var(--green); }
-        .total-row { border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px; font-size: 20px; font-weight: 900; display: flex; justify-content: space-between; }
-        .savings-alert { background: #e8f5e9; color: var(--green); padding: 10px; border-radius: 4px; text-align: center; font-size: 13px; font-weight: 800; margin-top: 15px; }
-
-        .mobile-footer { position: fixed; bottom: 0; width: 100%; background: #fff; padding: 15px 20px; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; z-index: 1001; }
-        .footer-price { display: flex; flex-direction: column; }
-        .footer-price span { font-size: 22px; font-weight: 900; }
-        .footer-price small { font-size: 11px; color: #878787; font-weight: 700; }
-        .btn-place-order { background: var(--accent); color: white; border: none; padding: 15px 25px; font-size: 16px; font-weight: 800; border-radius: 4px; cursor: pointer; transition: 0.3s; }
+        /* SUMMARY */
+        .summary-items { max-height: 300px; overflow-y: auto; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); margin-bottom: 15px; }
+        .s-item { display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .s-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .s-img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; background: #1a1a1a; border: 1px solid var(--border-color); }
+        .s-info { flex: 1; }
+        .s-name { font-weight: 800; font-size: 15px; margin-bottom: 5px; line-height: 1.2; text-transform: uppercase; }
         
-        .trust-badges { display: flex; justify-content: space-between; margin-top: 15px; }
-        .badge { font-size: 11px; font-weight: 700; text-align: center; color: #535665; flex: 1; }
-        .badge i { display: block; font-size: 18px; margin-bottom: 5px; color: var(--green); }
+        .price-row { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 12px; font-weight: 700; color: var(--text-muted); }
+        .discount { color: var(--success); }
+        .total-row { border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; font-size: 22px; font-weight: 900; display: flex; justify-content: space-between; color: var(--text-main); }
+        
+        .savings-alert { background: var(--success-bg); color: var(--success); padding: 12px; border-radius: 8px; text-align: center; font-size: 14px; font-weight: 800; margin-top: 20px; border: 1px solid rgba(16, 185, 129, 0.2); }
 
-        #toast { visibility: hidden; min-width: 250px; background: #333; color: #fff; text-align: center; border-radius: 4px; padding: 15px; position: fixed; z-index: 3000; left: 50%; top: 20px; transform: translateX(-50%); font-weight: bold; }
-        #toast.show { visibility: visible; }
+        /* TRUST BADGES */
+        .trust-badges { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        .badge { font-size: 11px; font-weight: 800; text-align: center; color: var(--text-muted); flex: 1; text-transform: uppercase; letter-spacing: 1px; }
+        .badge i { display: block; font-size: 20px; margin-bottom: 8px; color: var(--success); }
+
+        /* MOBILE FOOTER */
+        .mobile-footer { position: fixed; bottom: 0; width: 100%; background: var(--nav-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: 20px 5%; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; z-index: 1001; }
+        .footer-price { display: flex; flex-direction: column; }
+        .footer-price span { font-size: 24px; font-weight: 900; color: var(--text-main); }
+        .footer-price small { font-size: 12px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-place-order { background: var(--accent); color: white; border: none; padding: 16px 30px; font-size: 16px; font-weight: 900; border-radius: 8px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 20px var(--accent-glow); }
+        .btn-place-order:hover { transform: translateY(-2px); background: #e10600; box-shadow: 0 10px 30px var(--accent-glow); }
+
+        /* CUSTOM CHECKBOX */
+        .custom-checkbox { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; color: var(--text-main); cursor: pointer; margin-top: 10px; }
+        .custom-checkbox input { accent-color: var(--accent); width: 18px; height: 18px; cursor: pointer; }
+
+        /* TOAST */
+        #toast { visibility: hidden; min-width: 280px; background: var(--card-bg); color: var(--text-main); text-align: center; border-radius: 12px; padding: 16px; position: fixed; z-index: 3000; left: 50%; bottom: -50px; transform: translateX(-50%); font-weight: 800; border: 1px solid var(--accent); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; box-shadow: 0 10px 30px rgba(255, 42, 42, 0.2); }
+        #toast.show { visibility: visible; opacity: 1; bottom: 100px; } /* Above mobile footer */
 
         @media (max-width: 768px) {
-            .checkout-wrapper { flex-direction: column-reverse; }
+            .checkout-wrapper { flex-direction: column-reverse; margin-top: 20px; }
             .right-column { position: static; }
-            .desktop-only { display: none; }
+            .mobile-footer { padding: 15px 20px; }
         }
     </style>
 </head>
 <body>
 
 <header class="header">
-    <a href="index.html" class="one4-logo">One4<span>Sports</span></a>
-    <div style="font-size: 12px; font-weight: 800; color: var(--green);"><i class="fas fa-lock"></i> 100% SECURE</div>
+    <a href="index.html" class="logo">One4<span>Sports</span></a>
+    <div class="secure-badge"><i class="fas fa-lock"></i> 100% Secure</div>
 </header>
 
 <div class="checkout-wrapper">
     <div class="left-column">
         <section class="checkout-card">
-            <div class="section-title"><i class="fas fa-id-card"></i> 1. Contact Information</div>
+            <div class="section-title"><i class="fas fa-id-card"></i> 1. Contact Info</div>
             <div class="form-group">
                 <label>Full Name</label>
                 <input type="text" id="c-name" class="form-input" placeholder="Enter your full name">
@@ -116,8 +135,9 @@
                 <label>Phone Number</label>
                 <input type="tel" id="c-phone" class="form-input" placeholder="10-digit mobile number" maxlength="10">
             </div>
-            <label style="font-size: 13px; font-weight: 700; cursor: pointer;">
-                <input type="checkbox" checked id="c-whatsapp"> Get order updates on WhatsApp <i class="fab fa-whatsapp" style="color: #25D366;"></i>
+            <label class="custom-checkbox">
+                <input type="checkbox" checked id="c-whatsapp"> 
+                <span>Get updates on WhatsApp <i class="fab fa-whatsapp" style="color: #25D366; font-size: 16px; margin-left: 4px;"></i></span>
             </label>
         </section>
 
@@ -131,7 +151,7 @@
                 <label>Address (House No, Building, Area)</label>
                 <input type="text" id="s-address" class="form-input" placeholder="Enter full address">
             </div>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 15px;">
                 <div class="form-group" style="flex: 1;">
                     <label>City</label>
                     <input type="text" id="s-city" class="form-input" placeholder="City">
@@ -153,10 +173,10 @@
                 <i class="fas fa-check-circle"></i>
             </div>
             <div class="trust-badges">
-                <div class="badge"><i class="fas fa-shield-alt"></i> Secure</div>
+                <div class="badge"><i class="fas fa-shield-check"></i> Secure</div>
                 <div class="badge"><i class="fas fa-undo"></i> 7 Days</div>
-                <div class="badge"><i class="fas fa-truck"></i> Free</div>
-                <div class="badge"><i class="fas fa-check-double"></i> COD</div>
+                <div class="badge"><i class="fas fa-truck-fast"></i> Fast</div>
+                <div class="badge"><i class="fas fa-box-check"></i> COD</div>
             </div>
         </section>
     </div>
@@ -168,7 +188,7 @@
             <div class="price-breakdown">
                 <div class="price-row"><span>Subtotal</span><span id="sub-total">₹0</span></div>
                 <div class="price-row discount"><span>You Saved</span><span id="saved-amt">-₹0</span></div>
-                <div class="price-row"><span>Shipping</span><span style="color: var(--green);">FREE</span></div>
+                <div class="price-row"><span>Shipping</span><span style="color: var(--success);">FREE</span></div>
                 <div class="total-row">
                     <span>Total</span>
                     <span id="t-final">₹0</span>
@@ -184,10 +204,10 @@
         <span id="m-final">₹0</span>
         <small>Total Amount</small>
     </div>
-    <button class="btn-place-order" onclick="placeOrder()">PLACE ORDER <i class="fas fa-arrow-right"></i></button>
+    <button class="btn-place-order" onclick="placeOrder()">Place Order <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></button>
 </div>
 
-<div id="toast">Message</div>
+<div id="toast"><i class="fas fa-exclamation-circle" style="color: var(--accent); margin-right: 8px;"></i> <span id="toast-msg">Message</span></div>
 
 <script>
     let cartItems = [];
@@ -200,14 +220,21 @@
             window.location.href = 'index.html';
             return;
         }
+        
+        // Auto-fill logged in user info
+        const userName = localStorage.getItem('rj_loggedInUser');
+        if(userName) {
+            document.getElementById('c-name').value = userName;
+        }
+        
         renderSummary();
     });
 
     function showToast(msg) {
         const toast = document.getElementById("toast");
-        toast.innerText = msg;
+        document.getElementById("toast-msg").innerText = msg;
         toast.className = "show";
-        setTimeout(() => { toast.className = ""; }, 3000);
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3500);
     }
 
     function renderSummary() {
@@ -224,13 +251,16 @@
             actualTotal += (price * qty);
             mrpTotal += (mrp * qty);
             
+            // Fallback for dark mode images
+            const imgUrl = item.image || 'https://via.placeholder.com/300x300/111111/ffffff?text=Image';
+
             html += `
                 <div class="s-item">
-                    <img src="${item.image || ''}" class="s-img">
+                    <img src="${imgUrl}" class="s-img" onerror="this.src='https://via.placeholder.com/300x300/111111/ffffff?text=Image'">
                     <div class="s-info">
                         <div class="s-name">${item.name}</div>
-                        <div style="font-size:12px; font-weight: 700; color: #878787;">Size: UK ${item.size} | Qty: ${qty}</div>
-                        <div style="font-weight:900; margin-top:5px;">₹${price.toLocaleString()}</div>
+                        <div style="font-size:13px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px;">Variant: ${item.size || 'Standard'} | Qty: ${qty}</div>
+                        <div style="font-weight:900; color: var(--text-main);">₹${price.toLocaleString()}</div>
                     </div>
                 </div>`;
         });
@@ -246,7 +276,7 @@
         document.getElementById('savings-msg').innerText = `🔥 You saved ₹${savings.toLocaleString()} today!`;
     }
 
-    // 🔴 EXACT PINCODE API LOGIC
+    // 🔴 EXACT PINCODE API LOGIC (Untouched)
     async function autoDetectLocation() {
         const pinInput = document.getElementById('s-pin');
         const cityInput = document.getElementById('s-city');
@@ -274,9 +304,9 @@
                     cityInput.value = detectedCity;
                     stateInput.value = postOffice.State;
                     
-                    pinInput.style.borderColor = "var(--green)";
-                    cityInput.style.borderColor = "var(--green)";
-                    stateInput.style.borderColor = "var(--green)";
+                    pinInput.style.borderColor = "var(--success)";
+                    cityInput.style.borderColor = "var(--success)";
+                    stateInput.style.borderColor = "var(--success)";
                 } else {
                     throw new Error("Invalid Pincode");
                 }
@@ -286,7 +316,7 @@
                 stateInput.value = "";
                 cityInput.placeholder = "Enter City manually";
                 stateInput.placeholder = "Enter State manually";
-                pinInput.style.borderColor = "red";
+                pinInput.style.borderColor = "var(--accent)";
                 showToast("Pincode not found. Please type City manually.");
             }
         } else {
@@ -300,6 +330,7 @@
         }
     }
 
+    // WhatsApp logic (Untouched text)
     async function placeOrder() {
         const name = document.getElementById('c-name').value.trim();
         const phone = document.getElementById('c-phone').value.trim();
@@ -315,11 +346,15 @@
 
         const orderId = 'RJ' + Math.floor(Math.random() * 1000000);
         
-        const itemsSummary = cartItems.map(i => `${i.name} (UK${i.size}) x${i.quantity}`).join(', ');
+        const itemsSummary = cartItems.map(i => `${i.name} (${i.size || 'Standard'}) x${i.quantity}`).join(', ');
         const waMsg = encodeURIComponent(`🔥 *नवीन ऑर्डर (One4Sports)*\n\n🆔 ID: #${orderId}\n👤 ग्राहक: ${name}\n📞 फोन: ${phone}\n📍 पत्ता: ${address}, ${city}, ${state} - ${pin}\n🛒 वस्तू: ${itemsSummary}\n💰 एकूण: ₹${finalTotal.toLocaleString()}\n💳 पेमेंट: Cash on Delivery\n\n_कृपया ऑर्डर कन्फर्म करा!_`);
         
         window.location.href = `https://wa.me/918055475552?text=${waMsg}`;
-        localStorage.removeItem('rj_cart');
+        
+        // Clear cart after checkout redirect
+        setTimeout(() => {
+            localStorage.removeItem('rj_cart');
+        }, 2000);
     }
 </script>
 </body>
