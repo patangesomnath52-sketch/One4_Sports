@@ -7,47 +7,34 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #f4f6f8;
-            --text-color: #0f172a;
-            --header-bg: #ffffff;
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --accent: #E10600; 
-            --light-text: #64748b;
-        }
-
+        :root { --bg-color: #f4f6f8; --text-color: #0f172a; --header-bg: #ffffff; --card-bg: #ffffff; --border-color: #e2e8f0; --accent: #E10600; --light-text: #64748b; }
+        html.dark-mode, body.dark-mode { --bg-color: #0f172a; --text-color: #f8fafc; --header-bg: #1e293b; --card-bg: #1e293b; --border-color: #334155; --light-text: #94a3b8; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
         body { background: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
         /* HEADER */
         .rj-header-wrapper { background: var(--header-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; position: sticky; top: 0; z-index: 9999; }
         .rj-navbar { display: flex; align-items: center; justify-content: space-between; padding: 15px 5%; max-width: 1200px; margin: 0 auto; position: relative; }
-        
         .rj-links { display: flex; gap: 30px; align-items: center; }
         .rj-links a { text-decoration: none; color: var(--text-color); font-weight: 800; font-size: 15px; text-transform: uppercase; transition: 0.2s; }
         .rj-links a:hover { color: var(--accent); }
-
         .rj-menu-toggle { display: none; background: none; border: none; font-size: 24px; color: var(--text-color); cursor: pointer; order: 3; }
-        
         .brand-logo { text-decoration: none; font-size: 26px; font-weight: 900; color: var(--text-color); letter-spacing: -0.5px; z-index: 10000; position: relative; }
+        .brand-logo span { color: var(--accent); }
         
-        .cart-icon { position:relative; text-decoration:none; font-size: 22px; color: var(--text-color); margin-right: 15px; }
+        .header-actions { display: flex; align-items: center; gap: 20px; order: 2; margin-right: 15px; }
+        .auth-btn { text-decoration:none; color: var(--text-color); font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .auth-btn:hover { color: var(--accent); }
+        .cart-icon { position:relative; text-decoration:none; font-size: 22px; color: var(--text-color); margin-right: 0; }
         .cart-badge { position:absolute; top:-8px; right:-12px; background:var(--accent); color:white; font-size:11px; height:18px; min-width:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; }
 
         /* HERO SECTION */
         .hero { position: relative; width: 100%; height: 75vh; min-height: 500px; background: #000; display: flex; align-items: center; justify-content: center; text-align: center; }
-        .hero::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000&auto=format&fit=crop') center/cover;
-            z-index: 1;
-        }
+        .hero::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000&auto=format&fit=crop') center/cover; z-index: 1; }
         .hero-content { position: relative; z-index: 2; padding: 0 20px; color: white; max-width: 800px; width: 100%; }
         .hero-title { font-size: 64px; font-weight: 900; text-transform: uppercase; line-height: 1.1; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
         .hero-title span { color: var(--accent); }
         .hero-subtitle { font-size: 20px; font-weight: 600; margin-bottom: 35px; color: #e2e8f0; }
-        
         .hero-buttons { display: flex; gap: 15px; justify-content: center; }
         .btn { padding: 16px 32px; border-radius: 6px; font-weight: 800; font-size: 16px; text-decoration: none; text-transform: uppercase; transition: 0.3s; letter-spacing: 1px; display: inline-flex; align-items: center; justify-content: center; }
         .btn-primary { background: var(--accent); color: white; border: 2px solid var(--accent); box-shadow: 0 4px 15px rgba(225, 6, 0, 0.3); }
@@ -60,15 +47,12 @@
         .section-header { text-align: center; margin-bottom: 50px; }
         .section-title { font-size: 36px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; }
         .section-subtitle { color: var(--light-text); font-size: 18px; font-weight: 600; }
-
         .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
         .category-card { position: relative; border-radius: 12px; overflow: hidden; height: 350px; text-decoration: none; display: block; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .category-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
         .category-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.0) 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 30px; transition: 0.3s; }
-        
         .category-card:hover img { transform: scale(1.08); }
         .category-card:hover .category-overlay { background: linear-gradient(to top, rgba(225, 6, 0, 0.9) 0%, rgba(0,0,0,0.4) 100%); }
-        
         .cat-title { color: white; font-size: 28px; font-weight: 900; margin-bottom: 8px; text-transform: uppercase; transform: translateY(10px); transition: 0.3s; }
         .cat-link { color: white; font-size: 15px; font-weight: 700; opacity: 0; transform: translateY(10px); transition: 0.3s; display: flex; align-items: center; gap: 8px; }
         .category-card:hover .cat-title { transform: translateY(0); }
@@ -83,43 +67,27 @@
         .rj-footer-col a:hover { color: #E10600; }
         .rj-footer-bottom { text-align: center; padding-top: 25px; margin-top: 40px; border-top: 1px solid #334155; color: #64748b; font-size: 14px; font-weight: 600; width: 100%; max-width: 1200px; }
         
-        /* 📱 MOBILE RESPONSIVE MASTER RULES */
+        /* MOBILE RESPONSIVE */
         @media (max-width: 768px) { 
-            
-            /* App-style sliding side menu */
             .rj-menu-toggle { display: block; z-index: 10001; }
-            .rj-links { 
-                position: fixed; top: 0; right: -100%; width: 280px; height: 100vh; 
-                background: var(--header-bg); flex-direction: column; padding: 80px 30px 30px; 
-                box-shadow: -10px 0 30px rgba(0,0,0,0.1); transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-                z-index: 10000; align-items: flex-start; 
-            }
+            .rj-links { position: fixed; top: 0; right: -100%; width: 280px; height: 100vh; background: var(--header-bg); flex-direction: column; padding: 80px 30px 30px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10000; align-items: flex-start; }
             .rj-links.active { right: 0; }
             .rj-links a { width: 100%; padding: 15px 0; border-bottom: 1px solid var(--border-color); font-size: 18px; }
             .rj-links a:last-child { border-bottom: none; }
-            
-            /* Overlay when menu is open */
             .menu-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; opacity: 0; transition: opacity 0.3s; }
             .menu-overlay.active { display: block; opacity: 1; }
-
-            /* Fix header order for mobile */
             .rj-navbar { padding: 12px 5%; }
             .brand-logo { order: 1; flex-grow: 1; }
-            .cart-container { order: 2; margin-right: 20px; }
-
-            /* Hero scaling for small screens */
+            .header-actions { order: 2; margin-right: 20px; gap: 15px; }
+            #auth-text { display: none; /* Hide text on mobile to save space */ }
             .hero { height: 65vh; min-height: 450px; }
             .hero-title { font-size: 38px; margin-bottom: 15px; }
             .hero-subtitle { font-size: 16px; margin-bottom: 30px; padding: 0 10px; }
             .hero-buttons { flex-direction: column; width: 100%; gap: 12px; }
             .btn { width: 100%; padding: 18px; font-size: 16px; }
-
-            /* Grid scaling */
             .section { padding: 50px 5%; }
             .section-title { font-size: 28px; }
             .category-card { height: 220px; margin-bottom: 10px; }
-            
-            /* Footer stacking */
             .rj-footer-content { grid-template-columns: 1fr; gap: 30px; text-align: center; } 
             .rj-footer-col { align-items: center; }
             .rj-footer-col p { text-align: center; justify-content: center; }
@@ -129,7 +97,6 @@
 </head>
 <body>
 
-<!-- Dark overlay for when mobile menu is open -->
 <div class="menu-overlay" id="menu-overlay"></div>
 
 <header class="rj-header-wrapper">
@@ -143,7 +110,14 @@
             <a href="accessories.html">ACCESSORIES</a>
         </nav>
 
-        <div class="cart-container" style="order: 2;">
+        <div class="header-actions">
+            <!-- Smart Auth Button -->
+            <a href="signin.html" id="auth-btn" class="auth-btn">
+                <i class="fas fa-user-circle" style="font-size: 24px; color: var(--accent);"></i> 
+                <span id="auth-text" style="text-transform: uppercase;">Sign In</span>
+            </a>
+            
+            <!-- Cart Button -->
             <a href="cart.html" class="cart-icon">🛒
                 <span id="cart-count" class="cart-badge">0</span>
             </a>
@@ -180,7 +154,6 @@
                 <div class="cat-link">Explore Gear <i class="fas fa-arrow-right"></i></div>
             </div>
         </a>
-
         <a href="footwear.html" class="category-card">
             <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=800&auto=format&fit=crop" alt="Sports Footwear">
             <div class="category-overlay">
@@ -188,7 +161,6 @@
                 <div class="cat-link">Explore Shoes <i class="fas fa-arrow-right"></i></div>
             </div>
         </a>
-
         <a href="accessories.html" class="category-card">
             <img src="https://images.unsplash.com/photo-1515523110800-9415d13b84a8?q=80&w=800&auto=format&fit=crop" alt="Sports Accessories">
             <div class="category-overlay">
@@ -205,14 +177,12 @@
             <div style="font-size: 26px; font-weight: 900; color: white; letter-spacing: -0.5px; margin-bottom: 15px;">One4<span style="color: #E10600;">Sports</span></div>
             <p style="line-height: 1.6; text-align: left;">Equipping champions with premium, high-performance sports gear.</p>
         </div>
-        
         <div class="rj-footer-col">
             <h3>Quick Links</h3>
             <a href="cricket.html">Cricket Gear</a>
             <a href="footwear.html">Footwear</a>
             <a href="accessories.html">Accessories</a>
         </div>
-        
         <div class="rj-footer-col">
             <h3>Contact Us</h3>
             <p><i class="fas fa-map-marker-alt" style="color: #E10600;"></i> Shree Nagar, Nanded, Maharashtra</p>
@@ -223,14 +193,10 @@
             </a>
         </div>
     </div>
-    
-    <div class="rj-footer-bottom">
-        &copy; 2026 One4Sports. All rights reserved.
-    </div>
+    <div class="rj-footer-bottom">&copy; 2026 One4Sports. All rights reserved.</div>
 </footer>
 
 <script>
-    // Premium Mobile Menu Logic
     function setupMobileMenu() {
         const menuBtn = document.getElementById('mobile-menu-btn');
         const navLinks = document.getElementById('nav-links');
@@ -243,20 +209,15 @@
                     navLinks.classList.remove('active');
                     overlay.classList.remove('active');
                     menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                    document.body.style.overflow = 'auto'; // Re-enable scrolling
+                    document.body.style.overflow = 'auto'; 
                 } else {
                     navLinks.classList.add('active');
                     overlay.classList.add('active');
                     menuBtn.innerHTML = '<i class="fas fa-times"></i>';
-                    document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+                    document.body.style.overflow = 'hidden'; 
                 }
             }
-
-            menuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleMenu();
-            });
-
+            menuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
             overlay.addEventListener('click', toggleMenu);
         }
     }
@@ -266,11 +227,32 @@
         document.getElementById('cart-count').innerText = cart.length;
     }
 
+    function checkLoginStatus() {
+        const userName = localStorage.getItem('rj_loggedInUser');
+        const authBtn = document.getElementById('auth-btn');
+        const authText = document.getElementById('auth-text');
+        
+        if (userName && authBtn && authText) {
+            const firstName = userName.split(' ')[0]; 
+            authText.innerText = `Hi, ${firstName}`;
+            authBtn.href = "#"; 
+            
+            authBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if(confirm("Do you want to log out of One4Sports?")) {
+                    localStorage.removeItem('rj_loggedInUser');
+                    localStorage.removeItem('rj_userEmail');
+                    window.location.reload(); 
+                }
+            });
+        }
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
         setupMobileMenu();
         updateCartCount();
+        checkLoginStatus();
     });
 </script>
-
 </body>
 </html>
