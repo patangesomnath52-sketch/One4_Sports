@@ -7,179 +7,278 @@
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --dark: #0f172a; --accent: #E10600; --bg: #f4f6f8; --card-bg: #ffffff; --border: #e2e8f0; --success: #10b981; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: #334155; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        :root { 
+            --dark: #0f172a; 
+            --darker: #0b1120;
+            --accent: #ff2a2a; 
+            --accent-hover: #e10600;
+            --bg: #f8fafc; 
+            --card-bg: #ffffff; 
+            --border: #e2e8f0; 
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --success: #10b981; 
+            --warning: #f59e0b;
+        }
         
-        /* LOGIN SCREEN */
-        #login-screen { position: fixed; inset: 0; background: var(--dark); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
-        .login-box { background: white; padding: 40px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .login-logo { font-size: 32px; font-weight: 900; margin-bottom: 20px; color: var(--dark); letter-spacing: -0.5px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* SECURE LOGIN SCREEN */
+        #login-screen { position: fixed; inset: 0; background: var(--darker); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; 
+            background-image: radial-gradient(at 50% 0%, rgba(255, 42, 42, 0.1) 0px, transparent 50%);
+        }
+        .login-box { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .login-logo { font-size: 36px; font-weight: 900; margin-bottom: 5px; color: white; letter-spacing: -1px; }
         .login-logo span { color: var(--accent); }
-        .login-input { width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 8px; font-size: 18px; margin-bottom: 20px; text-align: center; font-weight: bold; letter-spacing: 2px; }
-        .login-input:focus { border-color: var(--accent); outline: none; }
-        .login-btn { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: 800; cursor: pointer; transition: 0.3s; }
-        .login-btn:hover { background: #c10500; }
-        .error-msg { color: var(--accent); font-weight: 700; font-size: 14px; margin-bottom: 15px; display: none; }
+        .login-subtitle { color: var(--text-muted); margin-bottom: 30px; font-weight: 600; }
+        .login-input { width: 100%; padding: 16px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 18px; margin-bottom: 20px; text-align: center; font-weight: bold; letter-spacing: 4px; color: white; transition: 0.3s; outline: none; }
+        .login-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255, 42, 42, 0.1); }
+        .login-btn { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        .login-btn:hover { background: var(--accent-hover); transform: translateY(-2px); }
+        .error-msg { color: #f87171; font-weight: 700; font-size: 14px; margin-bottom: 15px; display: none; background: rgba(248, 113, 113, 0.1); padding: 10px; border-radius: 8px; }
 
         /* APP LAYOUT */
         #app-content { display: none; flex-direction: column; height: 100vh; }
-        .top-navbar { background: var(--dark); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); z-index: 2000; }
         
+        .top-navbar { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; z-index: 2000; }
         .nav-brand { display: flex; align-items: center; gap: 15px; }
-        .mobile-menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; display: none; }
-        .logo { font-size: 24px; font-weight: 900; letter-spacing: -0.5px; }
+        .mobile-menu-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--dark); font-size: 20px; cursor: pointer; display: none; }
+        .logo { font-size: 24px; font-weight: 900; letter-spacing: -0.5px; color: var(--dark); }
         .logo span { color: var(--accent); }
-        
-        .logout-btn { font-weight: 700; cursor: pointer; padding: 8px 15px; background: rgba(255,255,255,0.1); border-radius: 6px; transition: 0.2s; }
-        .logout-btn:hover { background: var(--accent); }
+        .user-profile { display: flex; align-items: center; gap: 15px; font-weight: 700; }
+        .logout-btn { background: #fee2e2; color: var(--accent); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .logout-btn:hover { background: var(--accent); color: white; }
 
         .main-container { display: flex; flex: 1; overflow: hidden; position: relative; }
         
         /* SIDEBAR */
-        .sidebar { width: 260px; background: var(--card-bg); border-right: 1px solid var(--border); padding-top: 20px; z-index: 1000; transition: left 0.3s ease; }
-        .nav-item { padding: 18px 25px; cursor: pointer; border-left: 4px solid transparent; font-weight: 700; font-size: 16px; color: #64748b; transition: all 0.3s; display: flex; align-items: center; gap: 15px; }
-        .nav-item:hover { background: #f1f5f9; color: var(--dark); }
-        .nav-item.active { background: #fee2e2; color: var(--accent); border-left-color: var(--accent); }
+        .sidebar { width: 260px; background: var(--dark); color: white; padding-top: 20px; z-index: 1000; transition: left 0.3s ease; display: flex; flex-direction: column; }
+        .nav-item { padding: 16px 25px; cursor: pointer; border-left: 4px solid transparent; font-weight: 600; font-size: 15px; color: #94a3b8; transition: all 0.3s; display: flex; align-items: center; gap: 15px; }
+        .nav-item i { font-size: 18px; width: 20px; text-align: center; }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-item.active { background: rgba(255, 42, 42, 0.1); color: var(--accent); border-left-color: var(--accent); }
         
         /* CONTENT AREA */
-        .content { flex: 1; padding: 30px; overflow-y: auto; background: var(--bg); }
+        .content { flex: 1; padding: 30px; overflow-y: auto; }
         .admin-section { display: none; animation: fadeIn 0.4s ease; }
         .admin-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .section-header h2 { font-size: 28px; color: var(--dark); margin-bottom: 20px; font-weight: 900; }
-        .card { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .section-header h2 { font-size: 28px; color: var(--dark); font-weight: 900; letter-spacing: -0.5px; }
+        
+        /* DASHBOARD KPIs */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .kpi-card { background: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid var(--border); display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: 0.3s; }
+        .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .kpi-icon { background: rgba(255, 42, 42, 0.1); color: var(--accent); width: 60px; height: 60px; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 24px; }
+        .kpi-data h4 { color: var(--text-muted); font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+        .kpi-data h3 { font-size: 24px; color: var(--dark); font-weight: 900; }
+
+        .card { background: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         
         /* FORMS */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .form-group { margin-bottom: 20px; }
         .form-group.full-width { grid-column: span 2; }
-        label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--dark); }
-        .form-control { width: 100%; padding: 15px; border: 2px solid var(--border); border-radius: 8px; font-weight: 600; font-size: 15px; outline: none; transition: 0.2s; }
-        .form-control:focus { border-color: var(--dark); }
-        .btn-action { background: var(--dark); color: white; border: none; padding: 16px; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        .btn-action:hover { background: var(--accent); }
+        label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--dark); font-size: 14px; }
+        .form-control { width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: 10px; font-weight: 600; font-size: 15px; outline: none; transition: 0.2s; background: var(--bg); color: var(--text-main); }
+        .form-control:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 4px rgba(255, 42, 42, 0.1); }
+        textarea.form-control { resize: vertical; min-height: 100px; }
+        .btn-action { background: var(--dark); color: white; border: none; padding: 16px; border-radius: 10px; font-weight: 800; width: 100%; cursor: pointer; font-size: 16px; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn-action:hover { background: var(--accent); box-shadow: 0 10px 15px -3px rgba(255, 42, 42, 0.3); }
         
         /* TABLES */
-        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; margin-top: 10px; }
-        th { background: #f8fafc; padding: 15px; text-align: left; font-weight: 800; border-bottom: 2px solid var(--border); color: #64748b; text-transform: uppercase; font-size: 14px; }
-        td { padding: 15px; border-bottom: 1px solid var(--border); font-weight: 600; vertical-align: middle; }
+        .table-wrapper { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th { background: var(--bg); padding: 16px; text-align: left; font-weight: 800; border-bottom: 2px solid var(--border); color: var(--text-muted); text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
+        td { padding: 16px; border-bottom: 1px solid var(--border); font-weight: 600; vertical-align: middle; font-size: 15px; }
+        tr:hover td { background: #f8fafc; }
         
-        .status-select { padding: 10px; border-radius: 6px; border: 2px solid var(--border); font-weight: 700; cursor: pointer; outline: none; transition: 0.2s; background: white; width: 100%; max-width: 150px; }
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+        .status-select { padding: 8px 12px; border-radius: 8px; border: 2px solid var(--border); font-weight: 700; cursor: pointer; outline: none; transition: 0.2s; background: white; width: 100%; max-width: 140px; font-size: 14px; }
         .status-select:focus { border-color: var(--accent); }
         
         /* INVENTORY GRID */
-        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 20px; }
-        .product-card { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
-        .product-img { width: 100%; height: 200px; object-fit: cover; }
-        .btn-delete { background: #fee2e2; color: var(--accent); border: none; padding: 12px; border-radius: 6px; width: 100%; font-weight: 800; cursor: pointer; margin-top: auto; transition: 0.2s; }
+        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
+        .product-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; transition: 0.3s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        .product-img { width: 100%; height: 220px; object-fit: cover; border-bottom: 1px solid var(--border); }
+        .product-details { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+        .product-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .stock-badge { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+        .btn-delete { background: #fee2e2; color: var(--accent); border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: 800; cursor: pointer; margin-top: auto; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-delete:hover { background: var(--accent); color: white; }
         
         /* NOTIFICATIONS */
-        #toast { visibility: hidden; min-width: 280px; background: var(--dark); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 10000; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: 700; opacity: 0; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        #toast { visibility: hidden; min-width: 300px; background: var(--dark); color: #fff; text-align: center; border-radius: 12px; padding: 16px; position: fixed; z-index: 10000; left: 50%; bottom: -50px; transform: translateX(-50%); font-weight: 700; opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        #toast.show { visibility: visible; opacity: 1; bottom: 40px; }
 
-        /* OVERLAY FOR MOBILE */
-        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 900; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 900; }
 
-        /* 📱 MOBILE RESPONSIVE RULES */
+        /* 📱 MOBILE RESPONSIVE */
         @media (max-width: 768px) {
             .mobile-menu-btn { display: block; }
-            
-            /* Slide-out Sidebar */
-            .sidebar { position: absolute; left: -100%; top: 0; height: 100%; box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
+            .sidebar { position: absolute; left: -100%; top: 0; height: 100%; box-shadow: 10px 0 25px rgba(0,0,0,0.2); }
             .sidebar.active { left: 0; }
             .sidebar-overlay.active { display: block; }
-            
-            /* Layout Fixes */
             .content { padding: 15px; }
-            .card { padding: 15px; }
-            .section-header h2 { font-size: 24px; }
-            
-            /* Form Stacking */
-            .form-grid { grid-template-columns: 1fr; gap: 15px; }
+            .form-grid { grid-template-columns: 1fr; }
             .form-group.full-width { grid-column: span 1; }
-            .form-control { padding: 12px; }
-            
-            /* Inventory Scaling */
-            .inventory-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-            .product-img { height: 150px; }
+            .section-header h2 { font-size: 24px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- LOGIN SCREEN -->
     <div id="login-screen">
         <div class="login-box">
             <div class="login-logo">One4<span>Sports</span></div>
-            <h3 style="margin-bottom: 25px; color: #64748b;">Admin Portal</h3>
-            <div class="error-msg" id="login-error">Incorrect PIN. Please try again.</div>
-            <input type="password" id="admin-pin" class="login-input" placeholder="Enter Secure PIN">
-            <button class="login-btn" onclick="checkLogin()">Access Dashboard</button>
+            <p class="login-subtitle">Owner Management Portal</p>
+            <div class="error-msg" id="login-error"><i class="fas fa-exclamation-circle"></i> Incorrect Access PIN</div>
+            <input type="password" id="admin-pin" class="login-input" placeholder="••••••••" autocomplete="new-password">
+            <button class="login-btn" onclick="checkLogin()">Authorize Access <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></button>
         </div>
     </div>
 
+    <!-- MAIN DASHBOARD -->
     <div id="app-content">
         <header class="top-navbar">
             <div class="nav-brand">
                 <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
                 <div class="logo">One4<span>Sports</span></div>
             </div>
-            <div class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> <span style="display:inline-block; margin-left: 5px;">Logout</span>
+            <div class="user-profile">
+                <span style="color: var(--text-muted); display: none; sm:display: inline;">Admin Console</span>
+                <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </header>
 
         <div class="main-container">
             <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
             <aside class="sidebar" id="sidebar">
-                <div class="nav-item active" onclick="switchTab('dashboard', this)"><i class="fas fa-chart-line"></i> Orders Dashboard</div>
-                <div class="nav-item" onclick="switchTab('inventory', this)"><i class="fas fa-box-open"></i> Manage Inventory</div>
-                <div class="nav-item" onclick="switchTab('upload', this)"><i class="fas fa-cloud-upload-alt"></i> Add Product</div>
+                <div style="padding: 0 25px 20px; color: var(--text-muted); font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Menu</div>
+                <div class="nav-item active" onclick="switchTab('dashboard', this)"><i class="fas fa-chart-pie"></i> Overview</div>
+                <div class="nav-item" onclick="switchTab('inventory', this)"><i class="fas fa-box-open"></i> Inventory</div>
+                <div class="nav-item" onclick="switchTab('upload', this)"><i class="fas fa-plus-circle"></i> Add Product</div>
+                
+                <div style="margin-top: auto; padding: 25px;">
+                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; text-align: center;">
+                        <i class="fas fa-shield-alt" style="color: var(--success); font-size: 24px; margin-bottom: 10px;"></i>
+                        <p style="font-size: 12px; color: #94a3b8; font-weight: 600;">System Secure & Online</p>
+                    </div>
+                </div>
             </aside>
 
             <main class="content">
+                
+                <!-- SECTION: DASHBOARD -->
                 <div id="sec-dashboard" class="admin-section active">
-                    <div class="section-header"><h2>Orders Overview</h2></div>
+                    <div class="section-header">
+                        <h2>Business Overview</h2>
+                        <button class="btn-action" style="width: auto; padding: 10px 20px; font-size: 14px;" onclick="fetchDashboardData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    
+                    <!-- KPI Analytics -->
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="color: #10b981; background: #dcfce7;"><i class="fas fa-wallet"></i></div>
+                            <div class="kpi-data">
+                                <h4>Total Revenue</h4>
+                                <h3 id="kpi-revenue">₹0</h3>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="color: #3b82f6; background: #dbeafe;"><i class="fas fa-shopping-bag"></i></div>
+                            <div class="kpi-data">
+                                <h4>Total Orders</h4>
+                                <h3 id="kpi-orders">0</h3>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="color: #8b5cf6; background: #ede9fe;"><i class="fas fa-chart-line"></i></div>
+                            <div class="kpi-data">
+                                <h4>Avg. Order Value</h4>
+                                <h3 id="kpi-aov">₹0</h3>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="color: #f59e0b; background: #fef3c7;"><i class="fas fa-clock"></i></div>
+                            <div class="kpi-data">
+                                <h4>Pending Orders</h4>
+                                <h3 id="kpi-pending">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="card">
-                        <h3 style="margin-bottom: 15px; color: var(--dark);">Recent Orders (<span id="kpi-orders" style="color: var(--accent);">0</span>)</h3>
+                        <h3 style="margin-bottom: 20px; color: var(--dark); font-weight: 800;">Recent Transactions</h3>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status Control</th></tr></thead>
+                                <thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
                                 <tbody id="order-table-body">
-                                    </tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
+                <!-- SECTION: INVENTORY -->
                 <div id="sec-inventory" class="admin-section">
-                    <div class="section-header"><h2>Manage Inventory</h2></div>
+                    <div class="section-header"><h2>Inventory Management</h2></div>
                     <div class="inventory-grid" id="inventory-list">
-                        </div>
+                        <!-- Populated by JS -->
+                    </div>
                 </div>
 
+                <!-- SECTION: ADD PRODUCT -->
                 <div id="sec-upload" class="admin-section">
-                    <div class="section-header"><h2>Add New Product</h2></div>
-                    <div class="card">
+                    <div class="section-header"><h2>Publish New Product</h2></div>
+                    <div class="card" style="max-width: 800px;">
                         <form id="uploadForm">
                             <div class="form-grid">
-                                <div class="form-group"><label>Product ID (e.g. BAT-01)</label><input type="text" id="p-id" class="form-control" required></div>
+                                <div class="form-group">
+                                    <label>Product ID (SKU)</label>
+                                    <input type="text" id="p-id" class="form-control" placeholder="e.g. BAT-PRO-01" required>
+                                </div>
                                 <div class="form-group">
                                     <label>Category</label>
                                     <select id="p-category" class="form-control">
                                         <option value="Cricket">Cricket Equipment</option>
                                         <option value="Footwear">Sports Footwear</option>
+                                        <option value="Apparel">Team Apparel</option>
                                         <option value="Accessories">Accessories</option>
                                     </select>
                                 </div>
-                                <div class="form-group full-width"><label>Product Title</label><input type="text" id="p-name" class="form-control" placeholder="e.g. Pro English Willow Bat" required></div>
-                                <div class="form-group"><label>Selling Price (₹)</label><input type="number" id="p-price" class="form-control" placeholder="e.g. 4500" required></div>
-                                <div class="form-group"><label>Product Images (Upload Max 3)</label><input type="file" id="p-images" class="form-control" multiple accept="image/*" required></div>
+                                <div class="form-group full-width">
+                                    <label>Product Title</label>
+                                    <input type="text" id="p-name" class="form-control" placeholder="e.g. Premium English Willow Cricket Bat" required>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Product Description</label>
+                                    <textarea id="p-desc" class="form-control" placeholder="Describe the product details, materials, and benefits..." required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Selling Price (₹)</label>
+                                    <input type="number" id="p-price" class="form-control" placeholder="0.00" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Stock Quantity</label>
+                                    <input type="number" id="p-stock" class="form-control" placeholder="Total items available" required>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Product Images (Upload Max 3)</label>
+                                    <input type="file" id="p-images" class="form-control" style="padding: 10px;" multiple accept="image/*" required>
+                                </div>
                             </div>
-                            <button type="submit" id="uploadBtn" class="btn-action"><i class="fas fa-upload" style="margin-right: 8px;"></i> Publish to Store</button>
+                            <button type="submit" id="uploadBtn" class="btn-action" style="margin-top: 10px;">
+                                <i class="fas fa-cloud-upload-alt"></i> Publish to Store
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -187,9 +286,11 @@
         </div>
     </div>
 
-    <div id="toast">Notification Message</div>
+    <!-- Notification Toast -->
+    <div id="toast"><i class="fas fa-check-circle" style="margin-right: 8px;"></i> <span id="toast-msg">Success</span></div>
 
     <script>
+        // Use your existing PIN setup (Consider upgrading to Firebase Auth later for true security)
         const ADMIN_PIN = "ONE42024";
 
         // Auth Logic
@@ -197,13 +298,19 @@
 
         function checkLogin() {
             const input = document.getElementById('admin-pin').value;
-            if(input === ADMIN_PIN) {
-                sessionStorage.setItem('one4_admin_auth', 'true');
-                unlockDashboard();
-            } else {
-                document.getElementById('login-error').style.display = 'block';
-                document.getElementById('admin-pin').value = '';
-            }
+            const btn = document.querySelector('.login-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            setTimeout(() => {
+                if(input === ADMIN_PIN) {
+                    sessionStorage.setItem('one4_admin_auth', 'true');
+                    unlockDashboard();
+                } else {
+                    document.getElementById('login-error').style.display = 'block';
+                    document.getElementById('admin-pin').value = '';
+                    btn.innerHTML = 'Authorize Access <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>';
+                }
+            }, 600); // Fake delay for UX
         }
 
         document.getElementById('admin-pin').addEventListener('keypress', function (e) {
@@ -234,33 +341,60 @@
             document.getElementById('sec-'+id).classList.add('active');
             el.classList.add('active');
             
-            // Close sidebar on mobile after clicking
             if(window.innerWidth <= 768) toggleSidebar();
-
             if(id === 'dashboard') fetchDashboardData();
             if(id === 'inventory') fetchInventory();
         }
 
-        function showToast(message) {
+        function showToast(message, isError = false) {
             const toast = document.getElementById("toast");
-            toast.innerText = message;
+            toast.style.background = isError ? '#ef4444' : 'var(--dark)';
+            document.getElementById("toast-msg").innerText = message;
             toast.className = "show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3500);
         }
 
-        // Fetch Orders
+        // --- DASHBOARD ANALYTICS & ORDERS ---
         async function fetchDashboardData() {
+            document.getElementById('order-table-body').innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading orders...</td></tr>';
             try {
                 const res = await fetch('/api/orders');
                 const data = await res.json();
+                
                 if(data.success) {
-                    document.getElementById('kpi-orders').innerText = data.orders.length;
-                    document.getElementById('order-table-body').innerHTML = data.orders.map(o => {
+                    const orders = data.orders;
+                    
+                    // 1. Calculate Analytics
+                    let totalRev = 0;
+                    let pendingCount = 0;
+                    
+                    orders.forEach(o => {
+                        totalRev += Number(o.total);
+                        if(o.status === 'Pending' || o.status === 'Processing') pendingCount++;
+                    });
+                    
+                    let avgOrder = orders.length > 0 ? (totalRev / orders.length).toFixed(0) : 0;
+
+                    // 2. Update KPI UI
+                    document.getElementById('kpi-revenue').innerText = `₹${totalRev.toLocaleString()}`;
+                    document.getElementById('kpi-orders').innerText = orders.length;
+                    document.getElementById('kpi-aov').innerText = `₹${avgOrder}`;
+                    document.getElementById('kpi-pending').innerText = pendingCount;
+
+                    // 3. Render Table
+                    document.getElementById('order-table-body').innerHTML = orders.map(o => {
+                        // Formatting a mock date if backend doesn't provide one
+                        const orderDate = o.date ? new Date(o.date).toLocaleDateString() : 'Today';
+                        
                         return `
                         <tr>
                             <td style="font-weight: 800; color: var(--accent);">#${o.orderId}</td>
-                            <td>${o.customer}</td>
-                            <td style="font-weight: 800;">₹${o.total}</td>
+                            <td>
+                                <div style="font-weight: 700; color: var(--dark);">${o.customer}</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">${o.email || 'Customer'}</div>
+                            </td>
+                            <td style="color: var(--text-muted); font-size: 14px;">${orderDate}</td>
+                            <td style="font-weight: 800; color: var(--success);">₹${Number(o.total).toLocaleString()}</td>
                             <td>
                                 <select class="status-select" onchange="updateOrderStatus('${o.orderId}', this.value)">
                                     <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -273,10 +407,11 @@
                         </tr>`;
                     }).join('');
                 }
-            } catch (err) { console.log("Fetch error"); }
+            } catch (err) { 
+                document.getElementById('order-table-body').innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Failed to load data.</td></tr>';
+            }
         }
 
-        // Update Order Status
         async function updateOrderStatus(orderId, newStatus) {
             try {
                 const res = await fetch(`/api/orders/${orderId}/status`, {
@@ -287,62 +422,79 @@
                 const data = await res.json();
                 if(data.success) {
                     showToast(`Order #${orderId} marked as ${newStatus}`);
+                    fetchDashboardData(); // Refresh analytics
                 } else {
-                    showToast("Failed to update status.");
+                    showToast("Failed to update status.", true);
                 }
             } catch(err) {
-                showToast("Error connecting to server.");
+                showToast("Error connecting to server.", true);
             }
         }
 
-        // Fetch Inventory
+        // --- INVENTORY MANAGEMENT ---
         async function fetchInventory() {
             const inventoryBox = document.getElementById('inventory-list');
-            inventoryBox.innerHTML = '<p style="grid-column: 1/-1; color: var(--light-text); font-weight: 600;">Loading products... ⏳</p>';
+            inventoryBox.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top: 10px;">Loading inventory...</p></div>';
             try {
                 const res = await fetch('/api/products');
                 const data = await res.json();
                 if(data.success && data.products.length > 0) {
                     inventoryBox.innerHTML = data.products.map(p => {
-                        const imgUrl = p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/250x200';
+                        const imgUrl = p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/400x300?text=No+Image';
+                        const stock = p.stock || 0;
+                        const stockColor = stock > 5 ? '#166534' : '#991b1b';
+                        const stockBg = stock > 5 ? '#dcfce7' : '#fee2e2';
+
                         return `
                             <div class="product-card">
-                                <img src="${imgUrl}" class="product-img">
-                                <div style="padding: 15px; flex: 1; display: flex; flex-direction: column;">
-                                    <div style="font-weight: 800; font-size: 16px; margin-bottom: 5px;">${p.name}</div>
-                                    <div style="color: var(--success); font-weight: 900; margin-bottom: 15px; font-size: 18px;">₹${p.price}</div>
-                                    <button class="btn-delete" onclick="deleteProduct('${p.productId}')"><i class="fas fa-trash"></i> Remove</button>
+                                <img src="${imgUrl}" class="product-img" alt="${p.name}">
+                                <div class="product-details">
+                                    <div class="product-meta">
+                                        <span style="font-size: 12px; color: var(--text-muted); font-weight: 700;">${p.category || 'Gear'}</span>
+                                        <span class="stock-badge" style="color: ${stockColor}; background: ${stockBg};">${stock} in stock</span>
+                                    </div>
+                                    <div style="font-weight: 800; font-size: 18px; color: var(--dark); margin-bottom: 8px; line-height: 1.2;">${p.name}</div>
+                                    <div style="color: var(--accent); font-weight: 900; font-size: 20px; margin-bottom: 20px;">₹${Number(p.price).toLocaleString()}</div>
+                                    <button class="btn-delete" onclick="deleteProduct('${p.productId}')">
+                                        <i class="fas fa-trash-alt"></i> Remove Item
+                                    </button>
                                 </div>
                             </div>
                         `;
                     }).join('');
                 } else {
-                    inventoryBox.innerHTML = '<p style="grid-column: 1/-1; color: var(--light-text);">Your store is currently empty.</p>';
+                    inventoryBox.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; background: white; border-radius: 12px;"><i class="fas fa-box-open fa-3x" style="color: var(--border); margin-bottom: 15px;"></i><h3 style="color: var(--dark);">Store is empty</h3><p style="color: var(--text-muted);">Go to Add Product to publish your first item.</p></div>';
                 }
-            } catch (err) { inventoryBox.innerHTML = '<p style="grid-column: 1/-1; color: var(--accent);">Failed to load inventory.</p>'; }
+            } catch (err) { 
+                inventoryBox.innerHTML = '<p style="grid-column: 1/-1; color: #ef4444; text-align: center;">Failed to load inventory connection.</p>'; 
+            }
         }
 
-        // Delete Product
         async function deleteProduct(productId) {
             if(!confirm("Are you sure you want to permanently delete this product?")) return;
             try {
                 const res = await fetch(`/api/products/${productId}`, { method: 'DELETE' });
                 const data = await res.json();
-                if(data.success) { showToast("Product removed!"); fetchInventory(); }
-            } catch (err) { showToast("Error removing product."); }
+                if(data.success) { showToast("Product removed successfully!"); fetchInventory(); }
+            } catch (err) { showToast("Error removing product.", true); }
         }
 
-        // Upload Product
+        // --- PRODUCT UPLOAD ---
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('uploadBtn');
-            btn.innerHTML = 'Uploading... ⏳'; btn.disabled = true;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...'; 
+            btn.disabled = true;
 
             const formData = new FormData();
             formData.append('productId', document.getElementById('p-id').value);
             formData.append('name', document.getElementById('p-name').value);
+            formData.append('description', document.getElementById('p-desc').value); // New field
             formData.append('price', document.getElementById('p-price').value);
+            formData.append('stock', document.getElementById('p-stock').value); // New field
             formData.append('category', document.getElementById('p-category').value);
+            
             const files = document.getElementById('p-images').files;
             for(let i=0; i<files.length; i++) formData.append('productImages', files[i]);
 
@@ -352,12 +504,16 @@
                 if(result.success) { 
                     showToast("Product Published Successfully!"); 
                     e.target.reset(); 
-                    switchTab('inventory', document.querySelectorAll('.nav-item')[1]); // Switch to inventory tab to see the result
+                    switchTab('inventory', document.querySelectorAll('.nav-item')[1]); 
                 } else {
-                    showToast("Upload failed.");
+                    showToast("Upload failed on server.", true);
                 }
-            } catch (err) { showToast("Network error. Try again."); } 
-            finally { btn.innerHTML = '<i class="fas fa-upload" style="margin-right: 8px;"></i> Publish to Store'; btn.disabled = false; }
+            } catch (err) { 
+                showToast("Network error. Check backend connection.", true); 
+            } finally { 
+                btn.innerHTML = originalText; 
+                btn.disabled = false; 
+            }
         });
     </script>
 </body>
