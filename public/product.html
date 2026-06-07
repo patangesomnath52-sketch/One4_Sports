@@ -2,212 +2,285 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Product Details | One4Sports</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+    // Instantly checks the saved theme from settings
+    if(localStorage.getItem('rj_theme') === 'light') {
+        document.documentElement.classList.add('light-mode');
+    }
+</script>
     <style>
-        :root {
-            --bg-color: #f8fafc;
-            --text-color: #0f172a;
-            --light-text: #64748b;
-            --accent: #E10600; /* One4Sports Red */
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --success: #059669;
+      :root.light-mode {
+    --bg-color: #f8fafc;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --accent: #E10600;
+    --accent-glow: rgba(225, 6, 0, 0.3);
+    --card-bg: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.8);
+    --border-color: #e2e8f0;
+}
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-color); 
+            color: var(--text-main); 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow-x: hidden; 
+            background-image: radial-gradient(circle at top right, rgba(255, 42, 42, 0.05), transparent 40%);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; }
-        body { background: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; }
+        /* GLASSMORPHIC HEADER */
+        .rj-header-wrapper { background: var(--nav-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; width: 100%; z-index: 9999; }
+        .rj-navbar { display: flex; align-items: center; justify-content: space-between; padding: 15px 5%; max-width: 1400px; margin: 0 auto; position: relative; }
+        .brand-logo { text-decoration: none; font-size: 28px; font-weight: 900; color: var(--text-main); letter-spacing: -1px; text-transform: uppercase; }
+        .brand-logo span { color: var(--accent); }
+        .rj-links { display: flex; gap: 40px; align-items: center; }
+        .rj-links a { text-decoration: none; color: var(--text-main); font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; position: relative; }
+        .rj-links a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: var(--accent); transition: width 0.3s ease; }
+        .rj-links a:hover::after { width: 100%; }
+        .header-actions { display: flex; align-items: center; gap: 25px; }
+        .auth-btn { text-decoration:none; color: var(--text-main); font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.2s; background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 50px; border: 1px solid var(--border-color); }
+        .auth-btn:hover { background: var(--accent); border-color: var(--accent); }
+        .cart-icon { position:relative; text-decoration:none; font-size: 20px; color: var(--text-main); transition: 0.3s; }
+        .cart-icon:hover { color: var(--accent); transform: scale(1.1); }
+        .cart-badge { position:absolute; top:-10px; right:-12px; background:var(--accent); color:white; font-size:12px; height:20px; min-width:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; box-shadow: 0 0 10px var(--accent-glow); }
+        .rj-menu-toggle { display: none; background: none; border: none; font-size: 24px; color: var(--text-main); cursor: pointer; }
 
-        /* Header (Matching your site) */
-        .header { background: var(--card-bg); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
-        .logo { font-size: 24px; font-weight: 900; text-decoration: none; color: var(--text-color); }
-        .logo span { color: var(--accent); }
-        .back-btn { text-decoration: none; color: var(--text-color); font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { color: var(--accent); }
+        /* BACK BAR */
+        .back-bar { max-width: 1400px; margin: 0 auto; padding: 20px 5% 0; width: 100%; }
+        .btn-back { display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); text-decoration: none; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .btn-back:hover { color: var(--text-main); transform: translateX(-5px); }
 
-        /* Product Container */
-        .product-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: flex; gap: 50px; flex: 1; }
+        /* PRODUCT SHOWCASE */
+        .product-container { max-width: 1400px; margin: 20px auto 60px; padding: 0 5%; display: flex; gap: 60px; flex: 1; width: 100%; align-items: flex-start; }
         
-        /* Left Side: Images */
-        .image-gallery { flex: 1; display: flex; flex-direction: column; gap: 15px; }
-        .main-image { width: 100%; height: 500px; background: #fff; border-radius: 12px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .main-image img { width: 100%; height: 100%; object-fit: contain; }
+        /* Left: Images */
+        .image-gallery { flex: 1; display: flex; flex-direction: column; gap: 20px; position: sticky; top: 100px; }
+        .main-image { width: 100%; height: 600px; background: #111; border-radius: 24px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .main-image img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s ease; }
+        .main-image:hover img { transform: scale(1.05); }
         
-        .thumbnail-row { display: flex; gap: 15px; }
-        .thumb { width: 80px; height: 80px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; overflow: hidden; background: #fff; transition: 0.3s; }
+        .thumbnail-row { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .thumbnail-row::-webkit-scrollbar { display: none; }
+        .thumb { min-width: 100px; width: 100px; height: 100px; border-radius: 16px; border: 2px solid transparent; cursor: pointer; overflow: hidden; background: #111; transition: 0.3s; opacity: 0.6; }
         .thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .thumb.active { border-color: var(--accent); }
+        .thumb:hover { opacity: 1; }
+        .thumb.active { border-color: var(--accent); opacity: 1; }
 
-        /* Right Side: Details */
-        .product-info { flex: 1; display: flex; flex-direction: column; }
-        .p-category { color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-size: 14px; margin-bottom: 10px; }
-        .p-title { font-size: 32px; font-weight: 800; line-height: 1.2; margin-bottom: 15px; }
+        /* Right: Details */
+        .product-info { flex: 1.2; display: flex; flex-direction: column; }
+        .p-category { align-self: flex-start; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 50px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .p-title { font-size: clamp(32px, 4vw, 48px); font-weight: 900; line-height: 1.1; margin-bottom: 20px; text-transform: uppercase; letter-spacing: -1px; }
+        .p-desc { color: var(--text-muted); font-size: 16px; line-height: 1.6; margin-bottom: 30px; font-weight: 600; }
         
-        .price-section { display: flex; align-items: baseline; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
-        .current-price { font-size: 36px; font-weight: 900; color: var(--text-color); }
-        .mrp-price { font-size: 20px; color: var(--light-text); text-decoration: line-through; font-weight: 600; }
-        .discount-badge { background: #fee2e2; color: var(--accent); padding: 5px 10px; border-radius: 4px; font-weight: 800; font-size: 14px; }
+        .price-section { display: flex; align-items: baseline; gap: 15px; margin-bottom: 30px; padding-bottom: 30px; border-bottom: 1px solid var(--border-color); }
+        .current-price { font-size: 42px; font-weight: 900; color: var(--accent); }
+        .mrp-price { font-size: 20px; color: var(--text-muted); text-decoration: line-through; font-weight: 700; }
+        .discount-badge { background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 14px; border: 1px solid rgba(16, 185, 129, 0.3); }
 
         /* Size Selector */
-        .size-section { margin-bottom: 30px; }
-        .size-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .size-header h4 { font-size: 16px; font-weight: 700; }
-        .size-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-        .size-btn { background: var(--card-bg); border: 1px solid var(--border-color); padding: 12px 20px; border-radius: 6px; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .size-btn:hover { border-color: var(--text-color); }
-        .size-btn.selected { background: var(--text-color); color: white; border-color: var(--text-color); }
+        .size-section { margin-bottom: 40px; }
+        .size-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .size-header h4 { font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+        .size-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+        .size-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-main); padding: 14px 24px; border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        .size-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--text-muted); }
+        .size-btn.selected { background: white; color: black; border-color: white; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
 
         /* Action Buttons */
-        .action-buttons { display: flex; gap: 15px; margin-bottom: 30px; }
-        .btn-add-cart { flex: 1; background: var(--accent); color: white; border: none; padding: 18px; border-radius: 8px; font-size: 18px; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .btn-add-cart:hover { background: #c10500; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(225, 6, 0, 0.3); }
+        .btn-add-cart { width: 100%; background: var(--accent); color: white; border: none; padding: 20px; border-radius: 16px; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 12px; box-shadow: 0 0 20px var(--accent-glow); margin-bottom: 40px; }
+        .btn-add-cart:hover { background: #e10600; transform: translateY(-3px); box-shadow: 0 10px 30px var(--accent-glow); }
 
-        /* Features/Description */
-        .features-list { list-style: none; margin-top: 20px; }
-        .features-list li { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; color: var(--light-text); font-weight: 600; line-height: 1.5; }
-        .features-list i { color: var(--success); margin-top: 4px; }
+        /* Features */
+        .features-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; }
+        .features-box h4 { font-size: 16px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .features-list { list-style: none; }
+        .features-list li { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; color: var(--text-muted); font-weight: 600; line-height: 1.5; font-size: 15px; }
+        .features-list li:last-child { margin-bottom: 0; }
+        .features-list i { color: var(--success); font-size: 18px; margin-top: 2px; }
 
-        /* Toast Notification */
-        #toast { visibility: hidden; min-width: 250px; background: #333; color: #fff; text-align: center; border-radius: 4px; padding: 15px; position: fixed; z-index: 3000; left: 50%; top: 20px; transform: translateX(-50%); font-weight: bold; transition: opacity 0.3s; opacity: 0; }
-        #toast.show { visibility: visible; opacity: 1; }
+        /* Loading & Toast */
+        .loading-overlay { position: fixed; inset: 0; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; font-size: 20px; font-weight: 800; color: var(--text-main); letter-spacing: 2px; text-transform: uppercase; }
+        #toast { visibility: hidden; min-width: 250px; background: var(--card-bg); border: 1px solid var(--accent); color: white; text-align: center; border-radius: 12px; padding: 16px; position: fixed; z-index: 10000; left: 50%; bottom: -50px; transform: translateX(-50%); font-weight: 800; opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(255,42,42,0.2); }
+        #toast.show { visibility: visible; opacity: 1; bottom: 40px; }
 
-        /* Loading State */
-        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); display: flex; align-items: center; justify-content: center; z-index: 2000; font-size: 24px; font-weight: 800; color: var(--light-text); }
+        /* BRUTALIST FOOTER */
+        .rj-footer { border-top: 1px solid var(--border-color); padding: 80px 5% 40px; margin-top: auto; width: 100%; background: #000; }
+        .rj-footer-content { max-width: 1400px; width: 100%; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 60px; }
+        .huge-logo { font-size: clamp(40px, 6vw, 80px); font-weight: 900; letter-spacing: -2px; line-height: 1; margin-bottom: 20px; text-transform: uppercase; }
+        .huge-logo span { color: var(--accent); }
+        .rj-footer-col h3 { font-size: 16px; font-weight: 800; color: white; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px; }
+        .rj-footer-col a, .rj-footer-col p { color: var(--text-muted); font-size: 15px; font-weight: 600; text-decoration: none; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; transition: 0.3s; }
+        .rj-footer-col a:hover { color: white; transform: translateX(5px); }
+        .social-links { display: flex; gap: 15px; margin-top: 20px; }
+        .social-btn { width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; justify-content: center; align-items: center; color: white; text-decoration: none; font-size: 18px; transition: 0.3s; border: 1px solid var(--border-color); }
+        .social-btn:hover { background: var(--accent); border-color: var(--accent); transform: translateY(-3px); }
+        .rj-footer-bottom { text-align: center; padding-top: 40px; margin-top: 60px; border-top: 1px solid var(--border-color); color: #52525b; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
-        @media (max-width: 768px) {
-            .product-container { flex-direction: column; margin: 20px auto; gap: 30px; }
-            .main-image { height: 350px; }
-            .p-title { font-size: 24px; }
-            .current-price { font-size: 28px; }
+        @media (max-width: 992px) {
+            .product-container { flex-direction: column; gap: 40px; }
+            .image-gallery { position: relative; top: 0; width: 100%; }
+            .main-image { height: 500px; }
+            .rj-footer-content { grid-template-columns: 1fr; gap: 40px; }
         }
-         /* 📱 MOBILE RESPONSIVE MASTER RULES */
+
         @media (max-width: 768px) { 
-            
-            /* App-style sliding side menu */
             .rj-menu-toggle { display: block; z-index: 10001; }
-            .rj-links { 
-                position: fixed; top: 0; right: -100%; width: 280px; height: 100vh; 
-                background: var(--header-bg); flex-direction: column; padding: 80px 30px 30px; 
-                box-shadow: -10px 0 30px rgba(0,0,0,0.1); transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-                z-index: 10000; align-items: flex-start; 
-            }
+            .rj-links { position: fixed; top: 0; right: -100%; width: 100%; height: 100vh; background: rgba(5,5,5,0.95); backdrop-filter: blur(20px); flex-direction: column; justify-content: center; transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 10000; }
             .rj-links.active { right: 0; }
-            .rj-links a { width: 100%; padding: 15px 0; border-bottom: 1px solid var(--border-color); font-size: 18px; }
-            .rj-links a:last-child { border-bottom: none; }
+            .rj-links a { font-size: 28px; font-weight: 900; letter-spacing: 2px; }
+            .header-actions { margin-right: 20px; }
+            #auth-text { display: none; }
+            .auth-btn { padding: 8px; border-radius: 50%; }
             
-            /* Overlay when menu is open */
-            .menu-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; opacity: 0; transition: opacity 0.3s; }
-            .menu-overlay.active { display: block; opacity: 1; }
-
-            /* Fix header order for mobile */
-            .rj-navbar { padding: 12px 5%; }
-            .brand-logo { order: 1; flex-grow: 1; }
-            .cart-container { order: 2; margin-right: 20px; }
-
-            /* Hero scaling for small screens */
-            .hero { height: 65vh; min-height: 450px; }
-            .hero-title { font-size: 38px; margin-bottom: 15px; }
-            .hero-subtitle { font-size: 16px; margin-bottom: 30px; padding: 0 10px; }
-            .hero-buttons { flex-direction: column; width: 100%; gap: 12px; }
-            .btn { width: 100%; padding: 18px; font-size: 16px; }
-
-            /* Grid scaling */
-            .section { padding: 50px 5%; }
-            .section-title { font-size: 28px; }
-            .category-card { height: 220px; margin-bottom: 10px; }
+            .main-image { height: 350px; border-radius: 16px; }
+            .thumb { min-width: 80px; width: 80px; height: 80px; }
+            .current-price { font-size: 32px; }
+            .btn-add-cart { padding: 16px; font-size: 14px; }
             
-            /* Footer stacking */
-            .rj-footer-content { grid-template-columns: 1fr; gap: 30px; text-align: center; } 
+            .rj-footer-content { text-align: center; } 
             .rj-footer-col { align-items: center; }
             .rj-footer-col p { text-align: center; justify-content: center; }
             .rj-footer { padding: 50px 20px 20px; }
         }
     </style>
-    </style>
 </head>
 <body>
 
-<header class="header">
-    <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Store</a>
-   <a href="index.html" class="one4-logo">Oe4<span>Sports</span></a>
-    <a href="cart.html" style="position:relative; text-decoration:none; font-size: 22px; color: var(--text-color);">🛒
-        <span id="cart-count" style="position:absolute; top:-8px; right:-12px; background:var(--accent); color:white; font-size:11px; height:18px; min-width:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">0</span>
-    </a>
+<header class="rj-header-wrapper">
+    <div class="rj-navbar">
+        <a href="index.html" class="brand-logo">One4<span>Sports</span></a>
+        <nav class="rj-links" id="nav-links">
+            <a href="index.html">Home</a>
+            <a href="cricket.html">Cricket</a>
+            <a href="footwear.html">Footwear</a>
+            <a href="accessories.html">Accessories</a>
+        </nav>
+        <div class="header-actions">
+            <a href="signin.html" id="auth-btn" class="auth-btn">
+                <i class="fas fa-user"></i> 
+                <span id="auth-text">Sign In</span>
+            </a>
+            <a href="cart.html" class="cart-icon">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cart-count" class="cart-badge">0</span>
+            </a>
+            <button class="rj-menu-toggle" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </div>
 </header>
 
-<div id="loader" class="loading-overlay">Loading Product Details... ⏳</div>
+<div class="back-bar">
+    <a href="javascript:history.back()" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Store</a>
+</div>
+
+<div id="loader" class="loading-overlay">
+    <i class="fas fa-circle-notch fa-spin" style="font-size: 40px; color: var(--accent); margin-bottom: 20px;"></i>
+    <div>Accessing Database...</div>
+</div>
 
 <div class="product-container" id="product-content" style="display: none;">
-    <div class="image-gallery" id="image-gallery"></div>
+    <div class="image-gallery" id="image-gallery">
+        </div>
 
     <div class="product-info">
         <div class="p-category" id="p-category">Category</div>
         <h1 class="p-title" id="p-title">Product Name</h1>
+        <p class="p-desc" id="p-desc">Premium quality athletic gear designed for maximum performance and durability on the field.</p>
         
         <div class="price-section">
             <span class="current-price" id="p-price">₹0</span>
             <span class="mrp-price" id="p-mrp">₹0</span>
-            <span class="discount-badge" id="p-discount">40% OFF</span>
+            <span class="discount-badge" id="p-discount">SAVE 40%</span>
         </div>
 
-        <div class="size-section">
+        <div class="size-section" id="size-container">
             <div class="size-header">
-                <h4>Select Size / Variant</h4>
+                <h4>Select Variant</h4>
             </div>
             <div class="size-grid" id="size-grid">
                 <button class="size-btn selected" onclick="selectSize(this, 'Standard')">Standard</button>
-                <button class="size-btn" onclick="selectSize(this, 'Large')">Large</button>
             </div>
         </div>
 
-        <div class="action-buttons">
-            <button class="btn-add-cart" id="add-to-cart-btn">
-                <i class="fas fa-shopping-bag"></i> ADD TO CART
-            </button>
-        </div>
+        <button class="btn-add-cart" id="add-to-cart-btn">
+            <i class="fas fa-lock"></i> Secure Item in Cart
+        </button>
 
-        <div>
-            <h4 style="margin-bottom: 15px; font-size: 18px;">Product Highlights</h4>
+        <div class="features-box">
+            <h4>The Details</h4>
             <ul class="features-list">
-                <li><i class="fas fa-check-circle"></i> 100% Original One4Sports verified product.</li>
-                <li><i class="fas fa-check-circle"></i> Premium quality materials built for professional performance.</li>
-                <li><i class="fas fa-check-circle"></i> Secure Cash on Delivery available at checkout.</li>
-                <li><i class="fas fa-check-circle"></i> 7-Day easy return policy.</li>
+                <li><i class="fas fa-shield-check"></i> 100% Authentic One4Sports verified equipment.</li>
+                <li><i class="fas fa-bolt"></i> Engineered for high-stress professional performance.</li>
+                <li><i class="fas fa-box-open"></i> Secure Cash on Delivery available at checkout.</li>
+                <li><i class="fas fa-undo-alt"></i> 7-Day hassle-free return policy.</li>
             </ul>
         </div>
     </div>
 </div>
 
-<div id="toast">Item added to cart!</div>
+<footer class="rj-footer">
+    <div class="rj-footer-content">
+        <div class="rj-footer-col" style="grid-column: span 1;">
+            <div class="huge-logo">One4<span>Sports</span></div>
+            <p style="max-width: 300px; margin-bottom: 25px;">Equipping champions with premium, high-performance sports gear built for glory.</p>
+            <div class="social-links">
+                <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+                <a href="https://t.me/one4sports" target="_blank" class="social-btn"><i class="fab fa-telegram-plane"></i></a>
+            </div>
+        </div>
+        <div class="rj-footer-col">
+            <h3>Shop</h3>
+            <a href="cricket.html">Cricket Gear</a>
+            <a href="footwear.html">Performance Footwear</a>
+            <a href="accessories.html">Training Accessories</a>
+            <a href="#">New Arrivals</a>
+        </div>
+        <div class="rj-footer-col">
+            <h3>Support</h3>
+            <p><i class="fas fa-map-marker-alt" style="color: var(--accent); width: 20px;"></i> Shree Nagar, Nanded</p>
+            <p><i class="fas fa-phone-alt" style="color: var(--accent); width: 20px;"></i> +91 8055475552</p>
+            <p><i class="fas fa-envelope" style="color: var(--accent); width: 20px;"></i> support@one4sports.in</p>
+        </div>
+    </div>
+    <div class="rj-footer-bottom">&copy; 2026 One4Sports. Built for the next generation.</div>
+</footer>
+
+<div id="toast"><i class="fas fa-check-circle" style="color: #10b981; margin-right: 8px;"></i> Item added to cart</div>
 
 <script>
     let currentProduct = null;
     let selectedSize = 'Standard';
 
-    // 1. Get Product ID from URL (e.g., product.html?id=BAT-001)
+    // Get Product ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
 
-    // 2. Size Selection Logic
     function selectSize(element, size) {
         document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('selected'));
         element.classList.add('selected');
         selectedSize = size;
     }
 
-    // 3. Image Gallery Swap Logic
     function swapImage(src, element) {
         document.getElementById('main-img').src = src;
         document.querySelectorAll('.thumb').forEach(thumb => thumb.classList.remove('active'));
         element.classList.add('active');
     }
 
-    // 4. Fetch Product from Database
     async function loadProductDetails() {
         if (!productId) {
-            document.getElementById('loader').innerHTML = "Product not found. <br> <a href='index.html' style='color: var(--accent); margin-top: 15px; display: inline-block;'>Go Home</a>";
+            document.getElementById('loader').innerHTML = "<i class='fas fa-exclamation-triangle' style='color:var(--accent); font-size:40px; margin-bottom:20px;'></i><div>Product Not Found</div><a href='index.html' style='color: var(--accent); margin-top: 20px; font-size:14px; text-decoration:none;'>Return to Store</a>";
             return;
         }
 
@@ -219,27 +292,28 @@
                 currentProduct = data.product;
                 renderProduct(currentProduct);
             } else {
-                document.getElementById('loader').innerHTML = "Product unavailable.";
+                document.getElementById('loader').innerHTML = "<i class='fas fa-ghost' style='font-size:40px; margin-bottom:20px;'></i><div>Drop Unavailable</div>";
             }
         } catch (err) {
-            document.getElementById('loader').innerHTML = "Error connecting to server.";
-            console.error(err);
+            document.getElementById('loader').innerHTML = "<i class='fas fa-wifi' style='font-size:40px; margin-bottom:20px;'></i><div>Connection Failed</div>";
         }
     }
 
-    // 5. Render Data to Screen
     function renderProduct(p) {
-        // Calculate prices
         const price = p.price;
-        const mrp = Math.round(price * 1.4); // 40% markup for MRP
+        const mrp = Math.round(price * 1.4); 
 
-        // Populate Text
-        document.getElementById('p-category').innerText = p.category;
+        document.getElementById('p-category').innerText = p.category || 'Gear';
         document.getElementById('p-title').innerText = p.name;
         document.getElementById('p-price').innerText = `₹${price.toLocaleString()}`;
         document.getElementById('p-mrp').innerText = `₹${mrp.toLocaleString()}`;
+        
+        // Inject Dynamic Description if it exists in the database
+        if(p.description) {
+            document.getElementById('p-desc').innerText = p.description;
+        }
 
-        // Populate Images
+        // Image Gallery
         const gallery = document.getElementById('image-gallery');
         if (p.images && p.images.length > 0) {
             let thumbHtml = p.images.map((img, index) => `
@@ -259,35 +333,64 @@
         } else {
             gallery.innerHTML = `
                 <div class="main-image">
-                    <img src="https://via.placeholder.com/600x600?text=No+Image" id="main-img">
+                    <img src="https://via.placeholder.com/800x800/111111/ffffff?text=Image+Missing" id="main-img">
                 </div>
             `;
         }
 
-        // Setup generic sizes based on category
+        // Dynamic Sizing
         const sizeGrid = document.getElementById('size-grid');
+        const sizeContainer = document.getElementById('size-container');
+        
         if (p.category === 'Footwear') {
             sizeGrid.innerHTML = `
                 <button class="size-btn selected" onclick="selectSize(this, 'UK 7')">UK 7</button>
                 <button class="size-btn" onclick="selectSize(this, 'UK 8')">UK 8</button>
                 <button class="size-btn" onclick="selectSize(this, 'UK 9')">UK 9</button>
                 <button class="size-btn" onclick="selectSize(this, 'UK 10')">UK 10</button>
+                <button class="size-btn" onclick="selectSize(this, 'UK 11')">UK 11</button>
             `;
             selectedSize = 'UK 7';
+        } else if (p.category === 'Apparel') {
+             sizeGrid.innerHTML = `
+                <button class="size-btn" onclick="selectSize(this, 'S')">S</button>
+                <button class="size-btn selected" onclick="selectSize(this, 'M')">M</button>
+                <button class="size-btn" onclick="selectSize(this, 'L')">L</button>
+                <button class="size-btn" onclick="selectSize(this, 'XL')">XL</button>
+            `;
+            selectedSize = 'M';
+        } else {
+            sizeGrid.innerHTML = `<button class="size-btn selected" onclick="selectSize(this, 'Standard')">Standard Size</button>`;
+            selectedSize = 'Standard';
         }
 
-        // Hide loader, show content
+        // Out of stock handling
+        if (p.stock === 0 || p.isOutOfStock) {
+            const btn = document.getElementById('add-to-cart-btn');
+            btn.innerHTML = '<i class="fas fa-times-circle"></i> Sold Out';
+            btn.style.background = '#333';
+            btn.style.boxShadow = 'none';
+            btn.disabled = true;
+            btn.style.cursor = 'not-allowed';
+        }
+
         document.getElementById('loader').style.display = 'none';
         document.getElementById('product-content').style.display = 'flex';
     }
 
-    // 6. Add to Cart Logic
+    // Auth & Gatekeeper Logic
     document.getElementById('add-to-cart-btn').addEventListener('click', () => {
         if (!currentProduct) return;
 
+        // THE GATEKEEPER
+        if (!localStorage.getItem('rj_loggedInUser')) {
+            // Redirect to signin, but pass the current product URL so they can come right back
+            const currentUrl = encodeURIComponent(window.location.href);
+            window.location.href = `signin.html?redirect=${currentUrl}`;
+            return; 
+        }
+
         let cart = JSON.parse(localStorage.getItem('rj_cart')) || [];
-        
-        // Check if item already exists in cart with same size
         const existingItemIndex = cart.findIndex(item => item.productId === currentProduct.productId && item.size === selectedSize);
 
         if (existingItemIndex > -1) {
@@ -306,7 +409,6 @@
         localStorage.setItem('rj_cart', JSON.stringify(cart));
         updateCartCount();
 
-        // Show Toast
         const toast = document.getElementById("toast");
         toast.className = "show";
         setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
@@ -317,12 +419,49 @@
         document.getElementById('cart-count').innerText = cart.length;
     }
 
-    // Initialize
+    function checkLoginStatus() {
+        const userName = localStorage.getItem('rj_loggedInUser');
+        const authBtn = document.getElementById('auth-btn');
+        const authText = document.getElementById('auth-text');
+        
+        if (userName && authBtn && authText) {
+            authText.innerText = `${userName.split(' ')[0]}`;
+            authBtn.href = "#";
+            authBtn.onclick = (e) => {
+                e.preventDefault();
+                if(confirm("Log out of One4Sports?")) {
+                    localStorage.removeItem('rj_loggedInUser');
+                    localStorage.removeItem('rj_userEmail');
+                    window.location.reload();
+                }
+            };
+        }
+    }
+
+    // Mobile Menu
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const navLinks = document.getElementById('nav-links');
+
+    if(menuBtn) {
+        menuBtn.addEventListener('click', () => {
+            const isActive = navLinks.classList.contains('active');
+            if (isActive) {
+                navLinks.classList.remove('active');
+                menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                document.body.style.overflow = 'auto'; 
+            } else {
+                navLinks.classList.add('active');
+                menuBtn.innerHTML = '<i class="fas fa-times"></i>';
+                document.body.style.overflow = 'hidden'; 
+            }
+        });
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
+        checkLoginStatus();
         updateCartCount();
         loadProductDetails();
     });
 </script>
-
 </body>
 </html>

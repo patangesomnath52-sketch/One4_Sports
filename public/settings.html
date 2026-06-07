@@ -2,137 +2,175 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings | One4Sports</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Account Settings | One4Sports</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     
+    <!-- IMMEDIATE THEME LOADER TO PREVENT FLASHING -->
     <script>
-        if(localStorage.getItem('rj_theme') === 'dark') {
-            document.documentElement.classList.add('dark-mode');
+        if(localStorage.getItem('rj_theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
         }
     </script>
 
     <style>
-        /* Global CSS Variables */
-        :root {
-            --bg-color: #f4f6f8;
-            --text-color: #1f2937;
-            --header-bg: #fff;
-            --card-bg: #fff;
-            --border-color: #e5e7eb;
-            --accent: #ff3f6c;
+        /* BASE THEME (DARK MODE - Default) */
+        :root { 
+            --bg-color: #050505; 
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --accent: #ff2a2a; 
+            --card-bg: #111111;
+            --nav-bg: rgba(5, 5, 5, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --danger-bg: rgba(255, 42, 42, 0.1);
+            --danger-text: #ff2a2a;
         }
-        :root.dark-mode {
-            --bg-color: #121212;
-            --text-color: #e5e7eb;
-            --header-bg: #1f2937;
-            --card-bg: #1e293b;
-            --border-color: #374151;
+
+        /* LIGHT MODE OVERRIDE */
+        :root.light-mode {
+            --bg-color: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #E10600;
+            --card-bg: #ffffff;
+            --nav-bg: rgba(255, 255, 255, 0.8);
+            --border-color: #e2e8f0;
+            --danger-bg: #fee2e2;
+            --danger-text: #dc2626;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); transition: background 0.3s, color 0.3s; }
 
-        /* Header (साधा आणि प्रोफेशनल) */
-        .header { background: var(--header-bg); padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
-        .back-btn { font-size: 20px; color: var(--text-color); text-decoration: none; margin-right: 15px; }
-        .header h1 { font-size: 20px; font-weight: 800; }
-
-        /* Settings UI */
-        .settings-container { max-width: 600px; margin: 30px auto; padding: 0 20px; }
-        .section-title { font-size: 14px; font-weight: 800; color: #878787; text-transform: uppercase; margin-bottom: 10px; margin-top: 25px; letter-spacing: 1px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        .settings-card { background: var(--card-bg); border-radius: 12px; padding: 0 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid var(--border-color); }
-        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--border-color); }
+        body { 
+            background: var(--bg-color); 
+            color: var(--text-main); 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* HEADER */
+        .header { 
+            background: var(--nav-bg); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 20px 5%; 
+            display: flex; 
+            align-items: center; 
+            border-bottom: 1px solid var(--border-color); 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            transition: all 0.3s ease;
+        }
+        .back-btn { font-size: 20px; color: var(--text-main); text-decoration: none; margin-right: 20px; transition: 0.2s; }
+        .back-btn:hover { color: var(--accent); transform: translateX(-3px); }
+        .header h1 { font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+
+        /* SETTINGS UI */
+        .settings-container { max-width: 600px; margin: 40px auto; padding: 0 20px; width: 100%; flex: 1; }
+        .section-title { font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px; margin-top: 30px; letter-spacing: 2px; }
+        
+        .settings-card { background: var(--card-bg); border-radius: 16px; padding: 0 20px; border: 1px solid var(--border-color); transition: all 0.3s ease; }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border-color); }
         .setting-item:last-child { border-bottom: none; }
         
-        .setting-info { display: flex; align-items: center; gap: 15px; }
-        .setting-info i { font-size: 20px; color: #6b7280; width: 24px; text-align: center; }
-        .setting-text h3 { font-size: 16px; font-weight: 700; color: var(--text-color); margin-bottom: 3px; }
-        .setting-text p { font-size: 13px; color: #878787; }
+        .setting-info { display: flex; align-items: center; gap: 20px; }
+        .setting-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(161, 161, 170, 0.1); display: flex; justify-content: center; align-items: center; color: var(--text-main); font-size: 18px; }
+        .setting-text h3 { font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+        .setting-text p { font-size: 14px; color: var(--text-muted); font-weight: 600; }
 
-        /* Modern Toggle Switch (iOS Style) */
-        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        /* CUSTOM TOGGLE SWITCH */
+        .switch { position: relative; display: inline-block; width: 54px; height: 30px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        input:checked + .slider { background-color: var(--accent); }
-        input:checked + .slider:before { transform: translateX(22px); }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: .4s; border-radius: 34px; border: 1px solid var(--border-color); }
+        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: var(--text-main); transition: .4s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        input:checked + .slider { background-color: var(--accent); border-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(24px); background-color: white; }
 
-        /* Logout Button */
-        .btn-logout { width: 100%; background: #fee2e2; color: #ef4444; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 30px; transition: 0.3s; }
-        .btn-logout:hover { background: #fca5a5; color: #b91c1c; }
-        .dark-mode .btn-logout { background: #450a0a; color: #fca5a5; }
+        /* LOGOUT BUTTON */
+        .btn-logout { width: 100%; background: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-text); padding: 18px; border-radius: 12px; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; margin-top: 40px; transition: 0.3s; display: none; align-items: center; justify-content: center; gap: 10px; }
+        .btn-logout:hover { background: var(--danger-text); color: white; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255, 42, 42, 0.2); }
+
     </style>
 </head>
 <body>
 
     <div class="header">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <h1>Settings</h1>
+        <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <h1>App Settings</h1>
     </div>
 
     <div class="settings-container">
         
-        <div class="section-title">App Appearance</div>
+        <!-- PROFILE SECTION -->
+        <div class="section-title">Account Profile</div>
+        <div class="settings-card">
+            <div class="setting-item" id="account-info">
+                <div class="setting-info">
+                    <div class="setting-icon"><i class="fas fa-user"></i></div>
+                    <div class="setting-text">
+                        <h3 id="set-username">Not Signed In</h3>
+                        <p id="set-email">Sign in to sync your orders & gear</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PREFERENCES SECTION -->
+        <div class="section-title">Preferences</div>
         <div class="settings-card">
             <div class="setting-item">
                 <div class="setting-info">
-                    <i class="fas fa-moon"></i>
+                    <div class="setting-icon" id="theme-icon"><i class="fas fa-moon"></i></div>
                     <div class="setting-text">
-                        <h3>Dark Mode</h3>
-                        <p>Comfortable viewing at night</p>
+                        <h3>Light Mode</h3>
+                        <p>Switch to a brighter aesthetic</p>
                     </div>
                 </div>
                 <label class="switch">
-                    <input type="checkbox" id="darkModeToggle">
+                    <input type="checkbox" id="lightModeToggle">
                     <span class="slider"></span>
                 </label>
             </div>
         </div>
 
-        <div class="section-title">Account Details</div>
-        <div class="settings-card">
-            <div class="setting-item" id="account-info">
-                <div class="setting-info">
-                    <i class="fas fa-user-circle"></i>
-                    <div class="setting-text">
-                        <h3 id="set-username">Not Signed In</h3>
-                        <p id="set-email">Sign in to sync your orders</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <button class="btn-logout" id="logout-btn" style="display: none;">
-            <i class="fas fa-sign-out-alt"></i> Sign Out
+        <button class="btn-logout" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Disconnect Account
         </button>
 
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Dark Mode Logic
-            const toggle = document.getElementById('darkModeToggle');
+            // 1. THEME TOGGLE LOGIC
+            const toggle = document.getElementById('lightModeToggle');
             const html = document.documentElement;
+            const themeIcon = document.querySelector('#theme-icon i');
             
-            // Check current status
-            if(localStorage.getItem('rj_theme') === 'dark') {
+            // Check current status (Default is Dark, we toggle Light)
+            if(localStorage.getItem('rj_theme') === 'light') {
                 toggle.checked = true;
+                themeIcon.className = 'fas fa-sun';
             }
 
-            // Listen for Toggle switch changes
             toggle.addEventListener('change', (e) => {
                 if(e.target.checked) {
-                    html.classList.add('dark-mode');
-                    localStorage.setItem('rj_theme', 'dark');
-                } else {
-                    html.classList.remove('dark-mode');
+                    html.classList.add('light-mode');
                     localStorage.setItem('rj_theme', 'light');
+                    themeIcon.className = 'fas fa-sun';
+                } else {
+                    html.classList.remove('light-mode');
+                    localStorage.setItem('rj_theme', 'dark');
+                    themeIcon.className = 'fas fa-moon';
                 }
             });
 
-            // 2. Load User Info
+            // 2. LOAD USER INFO
             const user = localStorage.getItem('rj_loggedInUser');
             const email = localStorage.getItem('rj_userEmail');
             const logoutBtn = document.getElementById('logout-btn');
@@ -140,12 +178,12 @@
             if(user) {
                 document.getElementById('set-username').innerText = user;
                 if(email) document.getElementById('set-email').innerText = email;
-                logoutBtn.style.display = 'block';
+                logoutBtn.style.display = 'flex';
             }
 
-            // 3. Logout Functionality
+            // 3. LOGOUT LOGIC
             logoutBtn.addEventListener('click', () => {
-                if(confirm("Are you sure you want to sign out?")) {
+                if(confirm("Are you sure you want to disconnect your account?")) {
                     localStorage.removeItem('rj_loggedInUser');
                     localStorage.removeItem('rj_userEmail');
                     window.location.href = 'index.html';

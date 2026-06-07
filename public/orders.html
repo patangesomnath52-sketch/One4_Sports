@@ -7,7 +7,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-   
+   <script>
+    // Instantly checks the saved theme from settings
+    if(localStorage.getItem('rj_theme') === 'light') {
+        document.documentElement.classList.add('light-mode');
+    }
+</script>
     <script>
     // पेज लोड होण्यापूर्वी चेक करा की युजरची थीम काय आहे
     if (localStorage.getItem('rj_theme') === 'dark') {
@@ -16,14 +21,29 @@
 </script>
     <style>
         /* --- UNIVERSAL DARK/LIGHT MODE STYLES --- */
-        :root {
-            --bg-color: #f4f6f8;
-            --text-color: #1f2937;
-            --header-bg: #fff;
-            --card-bg: #fff; 
-            --border-color: #e5e7eb;
-            --accent: #ff3f6c;
-        }
+       /* BASE THEME (DARK MODE - Default) */
+:root { 
+    --bg-color: #050505; 
+    --text-main: #ffffff;
+    --text-muted: #a1a1aa;
+    --accent: #ff2a2a; 
+    --accent-glow: rgba(255, 42, 42, 0.5);
+    --card-bg: #111111;
+    --nav-bg: rgba(5, 5, 5, 0.7);
+    --border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* LIGHT MODE OVERRIDE */
+:root.light-mode {
+    --bg-color: #f8fafc;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --accent: #E10600;
+    --accent-glow: rgba(225, 6, 0, 0.3);
+    --card-bg: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.8);
+    --border-color: #e2e8f0;
+}
         :root.dark-mode {
             --bg-color: #121212;
             --text-color: #e5e7eb;

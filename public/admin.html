@@ -6,19 +6,30 @@
     <title>One4Sports | Secure Admin Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+    // Instantly checks the saved theme from settings
+    if(localStorage.getItem('rj_theme') === 'light') {
+        document.documentElement.classList.add('light-mode');
+    }
+</script>
     <style>
-        :root { 
-            --dark: #0f172a; 
-            --darker: #0b1120;
-            --accent: #ff2a2a; 
-            --accent-hover: #e10600;
-            --bg: #f8fafc; 
-            --card-bg: #ffffff; 
-            --border: #e2e8f0; 
-            --text-main: #334155;
-            --text-muted: #64748b;
-            --success: #10b981; 
-            --warning: #f59e0b;
+
+       :root.light-mode {
+    --bg-color: #f8fafc;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --accent: #E10600;
+    --accent-glow: rgba(225, 6, 0, 0.3);
+    --card-bg: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.8);
+    --border-color: #e2e8f0;
+}
+    :root.dark-mode {
+            --bg-color: #121212;
+            --text-color: #e5e7eb;
+            --header-bg: #1f2937;
+            --card-bg: #1e293b; 
+            --border-color: #374151;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
