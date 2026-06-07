@@ -347,15 +347,24 @@
         const orderId = 'RJ' + Math.floor(Math.random() * 1000000);
         
         const itemsSummary = cartItems.map(i => `${i.name} (${i.size || 'Standard'}) x${i.quantity}`).join(', ');
-        const waMsg = encodeURIComponent(`🔥 *नवीन ऑर्डर (One4Sports)*\n\n🆔 ID: #${orderId}\n👤 ग्राहक: ${name}\n📞 फोन: ${phone}\n📍 पत्ता: ${address}, ${city}, ${state} - ${pin}\n🛒 वस्तू: ${itemsSummary}\n💰 एकूण: ₹${finalTotal.toLocaleString()}\n💳 पेमेंट: Cash on Delivery\n\n_कृपया ऑर्डर कन्फर्म करा!_`);
+       const waMsg = encodeURIComponent(
+    `👋 *Hey ${name}!* \n\n` + 
+    `🎉 *Thanks for your One4Sports order!* \n\n` + 
+    `🆔 *Order ID:* #${orderId}\n` + 
+    `📦 *Items:* ${itemsSummary}\n` + 
+    `💰 *Total:* ₹${finalTotal.toLocaleString()}\n\n` + 
+    `⚡ *We are prepping your gear now!* Our team will confirm the details with you via this chat shortly. Stay tuned!`
+);
         
-        window.location.href = `https://wa.me/918055475552?text=${waMsg}`;
-        
-        // Clear cart after checkout redirect
-        setTimeout(() => {
-            localStorage.removeItem('rj_cart');
-        }, 2000);
-    }
+     // ... existing code in placeOrder() ...
+window.location.href = `https://wa.me/918055475552?text=${waMsg}`;
+
+// CHANGE THIS: Instead of letting them stay on the checkout page, 
+// redirect them to the success page after a short delay
+setTimeout(() => {
+    localStorage.removeItem('rj_cart');
+    window.location.href = 'order-success.html';
+}, 1000);}
 </script>
 </body>
 </html>
