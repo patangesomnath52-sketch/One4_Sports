@@ -5,72 +5,317 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sign In | One4Sports</title>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Added FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg: #f4f6f8; --accent: #E10600; }
-        body { font-family: 'Assistant', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .auth-card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 90%; max-width: 400px; text-align: center; border: 1px solid #e2e8f0; }
-        .brand { font-size: 32px; font-weight: 900; margin-bottom: 20px; }
+        :root { 
+            --bg-base: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --accent: #ff2a2a; 
+            --accent-hover: #e10600;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            font-family: 'Assistant', sans-serif; 
+            background-color: var(--bg-base);
+            /* Gen-Z aesthetic background with glowing orbs */
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(255, 42, 42, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(255, 42, 42, 0.1) 0px, transparent 50%);
+            color: var(--text-main);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            overflow: hidden;
+        }
+
+        .auth-card { 
+            background: var(--card-bg); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
+            width: 90%; 
+            max-width: 420px; 
+            text-align: center; 
+            border: 1px solid var(--border-color);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand { font-size: 36px; font-weight: 900; letter-spacing: -1px; margin-bottom: 5px; }
         .brand span { color: var(--accent); }
-        .google-btn { background: #fff; border: 2px solid #e2e8f0; padding: 15px; width: 100%; font-weight: 800; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 20px; }
-        .google-btn:hover { border-color: var(--accent); background: #f8fafc; }
-        #loading { display: none; margin-top: 15px; font-weight: 700; color: var(--accent); }
+        .subtitle { color: var(--text-muted); font-size: 15px; margin-bottom: 30px; font-weight: 600; }
+
+        /* Floating Label Inputs */
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 16px 16px 45px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(255, 42, 42, 0.1);
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            transition: 0.3s;
+        }
+
+        .input-group input:focus + i { color: var(--accent); }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .primary-btn {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 42, 42, 0.3);
+            margin-top: 10px;
+        }
+
+        .primary-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 42, 42, 0.4);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 25px 0;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .divider:not(:empty)::before { margin-right: .5em; }
+        .divider:not(:empty)::after { margin-left: .5em; }
+
+        .google-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .google-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .google-btn img { width: 20px; }
+
+        /* Loading Spinner */
+        .loader {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .btn.loading .btn-text { display: none; }
+        .btn.loading .loader { display: block; }
+
+        /* Custom Toast Notification */
+        #toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ef4444;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        #toast.show { bottom: 30px; }
+
     </style>
 </head>
 <body>
 
 <div class="auth-card">
     <div class="brand">One4<span>Sports</span></div>
-    <h2>Welcome Back</h2>
-    <p style="color: #64748b; margin: 10px 0 20px;">Sign in to continue to your account</p>
+    <p class="subtitle">Level up your gear. Sign in below.</p>
     
-    <button id="google-btn" class="google-btn">
-        <i class="fab fa-google" style="margin-right:10px;"></i> Sign in with Google
+    <!-- Email/Password Form -->
+    <form id="email-form">
+        <div class="input-group">
+            <input type="email" id="email" placeholder="Email Address" required autocomplete="email">
+            <i class="fa-solid fa-envelope"></i>
+        </div>
+        
+        <div class="input-group">
+            <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+        
+        <button type="submit" id="email-btn" class="btn primary-btn">
+            <span class="btn-text">Sign In</span>
+            <div class="loader"></div>
+        </button>
+    </form>
+
+    <div class="divider">OR</div>
+    
+    <!-- Google Auth -->
+    <button id="google-btn" class="btn google-btn">
+        <span class="btn-text"><i class="fab fa-google" style="color: #ea4335; margin-right: 5px;"></i> Continue with Google</span>
+        <div class="loader"></div>
     </button>
-    <div id="loading">Authenticating...</div>
 </div>
+
+<!-- Custom Error Toast -->
+<div id="toast">An error occurred</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
     // 1. CONFIGURATION
-   const firebaseConfig = {
-  apiKey: "AIzaSyBxyUiyy0L_hDuWul8SrntOtYgI48IiUPQ",
-  authDomain: "rj-sports-24dae.firebaseapp.com",
-  projectId: "rj-sports-24dae",
-  storageBucket: "rj-sports-24dae.firebasestorage.app",
-  messagingSenderId: "952774877656",
-  appId: "1:952774877656:web:aee2f70e14daeb07e912ad"
-};
+    const firebaseConfig = {
+        apiKey: "AIzaSyBxyUiyy0L_hDuWul8SrntOtYgI48IiUPQ",
+        authDomain: "rj-sports-24dae.firebaseapp.com",
+        projectId: "rj-sports-24dae",
+        storageBucket: "rj-sports-24dae.firebasestorage.app",
+        messagingSenderId: "952774877656",
+        appId: "1:952774877656:web:aee2f70e14daeb07e912ad"
+    };
 
-    const auth = getAuth(initializeApp(firebaseConfig));
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
     const adminEmails = ["Viratjadhav03@gmail.com", "patangesomnath52@gmail.com"];
 
-    // 2. LOGIN LOGIC
+    // UI Helpers
+    const showToast = (message) => {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    };
+
+    const toggleLoading = (btnId, isLoading) => {
+        const btn = document.getElementById(btnId);
+        if (isLoading) {
+            btn.classList.add('loading');
+            btn.disabled = true;
+        } else {
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        }
+    };
+
+    // 2. SHARED ROUTING & SAVING LOGIC
+    const handleSuccessfulLogin = (user) => {
+        const email = user.email;
+        // Save User Data (Fallback to 'User' if displayName is null for Email login)
+        localStorage.setItem('rj_loggedInUser', user.displayName || email.split('@')[0]);
+        localStorage.setItem('rj_userEmail', email);
+
+        // Smart Routing
+        if (adminEmails.includes(email)) {
+            window.location.href = 'admin.html';
+        } else {
+            const params = new URLSearchParams(window.location.search);
+            const redirect = params.get('redirect') || 'index.html';
+            window.location.href = redirect;
+        }
+    };
+
+    // 3. EMAIL/PASSWORD LOGIN
+    document.getElementById('email-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        toggleLoading('email-btn', true);
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            handleSuccessfulLogin(userCredential.user);
+        } catch (error) {
+            // Friendly error messages mapping
+            let errorMsg = "Failed to sign in.";
+            if(error.code === 'auth/invalid-credential') errorMsg = "Incorrect email or password.";
+            if(error.code === 'auth/too-many-requests') errorMsg = "Too many attempts. Try again later.";
+            
+            showToast(errorMsg);
+            toggleLoading('email-btn', false);
+        }
+    });
+
+    // 4. GOOGLE LOGIN
     document.getElementById('google-btn').onclick = async () => {
-        document.getElementById('loading').style.display = 'block';
+        toggleLoading('google-btn', true);
         try {
             const res = await signInWithPopup(auth, provider);
-            const email = res.user.email;
-
-            // Save User Data
-            localStorage.setItem('rj_loggedInUser', res.user.displayName);
-            localStorage.setItem('rj_userEmail', email);
-
-            // 3. SMART ROUTING
-            if (adminEmails.includes(email)) {
-                // Direct Admin Access
-                window.location.href = 'admin.html';
-            } else {
-                // Customer Redirect
-                const params = new URLSearchParams(window.location.search);
-                const redirect = params.get('redirect') || 'index.html';
-                window.location.href = redirect;
+            handleSuccessfulLogin(res.user);
+        } catch (error) {
+            if (error.code !== 'auth/popup-closed-by-user') {
+                showToast("Google sign-in failed.");
             }
-        } catch (e) {
-            alert("Error: " + e.message);
-            document.getElementById('loading').style.display = 'none';
+            toggleLoading('google-btn', false);
         }
     };
 </script>
