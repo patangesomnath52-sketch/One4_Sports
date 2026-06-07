@@ -2,208 +2,68 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Track Order | One4Sports</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-color: #f4f6f8; --text-color: #0f172a; --header-bg: #ffffff; --card-bg: #ffffff; --border-color: #e2e8f0; --accent: #E10600; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; }
-        body { background: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; }
-
-        /* HEADER */
-        .rj-header-wrapper { background: var(--header-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; position: sticky; top: 0; z-index: 9999; }
-        .rj-navbar { display: flex; align-items: center; justify-content: space-between; padding: 15px 5%; max-width: 1200px; margin: 0 auto; position: relative; }
-        .rj-links { display: flex; gap: 30px; align-items: center; }
-        .rj-links a { text-decoration: none; color: var(--text-color); font-weight: 800; font-size: 15px; text-transform: uppercase; transition: 0.2s; }
-        .rj-links a:hover { color: var(--accent); }
-        .rj-menu-toggle { display: none; background: none; border: none; font-size: 22px; color: var(--text-color); cursor: pointer; order: -1; margin-right: 15px; }
-
-        /* TRACKING CONTAINER */
-        .track-container { max-width: 600px; width: 100%; margin: 60px auto; padding: 40px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; flex: 1; }
-        .track-container h1 { font-size: 32px; font-weight: 900; margin-bottom: 10px; color: var(--text-color); }
-        .track-container p { color: #64748b; font-weight: 600; margin-bottom: 30px; }
+        :root { --bg-color: #f4f6f8; --text-color: #0f172a; --card-bg: #ffffff; --accent: #E10600; --border-color: #e2e8f0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
         
-        .search-box { display: flex; gap: 10px; margin-bottom: 30px; }
-        .search-box input { flex: 1; padding: 15px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 16px; font-weight: bold; outline: none; transition: 0.3s; }
-        .search-box input:focus { border-color: var(--accent); }
-        .search-box button { background: var(--accent); color: white; border: none; padding: 0 25px; border-radius: 8px; font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.3s; }
-        .search-box button:hover { background: #c10500; }
-
-        .result-card { display: none; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 25px; text-align: left; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .track-card { background: var(--card-bg); padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 500px; text-align: center; border: 1px solid var(--border-color); }
+        h1 { font-size: 28px; font-weight: 900; margin-bottom: 10px; }
+        p { color: #64748b; font-weight: 600; margin-bottom: 25px; }
         
-        .status-badge { display: inline-block; padding: 8px 15px; border-radius: 20px; font-weight: 800; font-size: 14px; margin-top: 15px; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 15px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 16px; font-weight: bold; outline: none; }
+        input:focus { border-color: var(--accent); }
+        button { background: var(--accent); color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: 800; cursor: pointer; }
+        
+        #result-box { display: none; margin-top: 25px; text-align: left; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border-color); }
+        .status-badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-weight: 800; font-size: 12px; margin-top: 10px; text-transform: uppercase; }
         .status-Pending { background: #fef08a; color: #854d0e; }
-        .status-Processing { background: #bfdbfe; color: #1e40af; }
-        .status-Shipped { background: #e9d5ff; color: #6b21a8; }
-        .status-Delivered { background: #bbf7d0; color: #166534; }
-        .status-Cancelled { background: #fecaca; color: #991b1b; }
-
-        /* FOOTER */
-        .rj-footer { background-color: #0f172a; color: #f8fafc; padding: 60px 20px 20px; margin-top: auto; width: 100%; display: flex; flex-direction: column; align-items: center; }
-        .rj-footer-content { max-width: 1200px; width: 100%; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
-        .rj-footer-col { display: flex; flex-direction: column; align-items: flex-start; }
-        .rj-footer-col h3 { font-size: 20px; font-weight: 800; color: #ffffff; margin-bottom: 20px; }
-        .rj-footer-col p, .rj-footer-col a { color: #94a3b8; font-size: 15px; font-weight: 600; text-decoration: none; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; transition: color 0.3s ease; }
-        .rj-footer-col a:hover { color: #E10600; }
-        .rj-footer-bottom { text-align: center; padding-top: 25px; margin-top: 40px; border-top: 1px solid #334155; color: #64748b; font-size: 14px; font-weight: 600; width: 100%; max-width: 1200px; }
-        
-        @media (max-width: 768px) {
-            .rj-menu-toggle { display: block; }
-            .rj-links { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; background: var(--header-bg); padding: 10px 0; box-shadow: 0 10px 15px rgba(0,0,0,0.1); align-items: flex-start; }
-            .rj-links a { width: 100%; padding: 15px 25px; border-bottom: 1px solid var(--border-color); }
-            .rj-links.active { display: flex; }
-            .rj-footer-content { grid-template-columns: 1fr; text-align: center; } 
-            .rj-footer-col { align-items: center; }
-        }
-         /* 📱 MOBILE RESPONSIVE MASTER RULES */
-        @media (max-width: 768px) { 
-            
-            /* App-style sliding side menu */
-            .rj-menu-toggle { display: block; z-index: 10001; }
-            .rj-links { 
-                position: fixed; top: 0; right: -100%; width: 280px; height: 100vh; 
-                background: var(--header-bg); flex-direction: column; padding: 80px 30px 30px; 
-                box-shadow: -10px 0 30px rgba(0,0,0,0.1); transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-                z-index: 10000; align-items: flex-start; 
-            }
-            .rj-links.active { right: 0; }
-            .rj-links a { width: 100%; padding: 15px 0; border-bottom: 1px solid var(--border-color); font-size: 18px; }
-            .rj-links a:last-child { border-bottom: none; }
-            
-            /* Overlay when menu is open */
-            .menu-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; opacity: 0; transition: opacity 0.3s; }
-            .menu-overlay.active { display: block; opacity: 1; }
-
-            /* Fix header order for mobile */
-            .rj-navbar { padding: 12px 5%; }
-            .brand-logo { order: 1; flex-grow: 1; }
-            .cart-container { order: 2; margin-right: 20px; }
-
-            /* Hero scaling for small screens */
-            .hero { height: 65vh; min-height: 450px; }
-            .hero-title { font-size: 38px; margin-bottom: 15px; }
-            .hero-subtitle { font-size: 16px; margin-bottom: 30px; padding: 0 10px; }
-            .hero-buttons { flex-direction: column; width: 100%; gap: 12px; }
-            .btn { width: 100%; padding: 18px; font-size: 16px; }
-
-            /* Grid scaling */
-            .section { padding: 50px 5%; }
-            .section-title { font-size: 28px; }
-            .category-card { height: 220px; margin-bottom: 10px; }
-            
-            /* Footer stacking */
-            .rj-footer-content { grid-template-columns: 1fr; gap: 30px; text-align: center; } 
-            .rj-footer-col { align-items: center; }
-            .rj-footer-col p { text-align: center; justify-content: center; }
-            .rj-footer { padding: 50px 20px 20px; }
-        }
-    </style>
+        .status-Shipped { background: #dcfce7; color: #166534; }
     </style>
 </head>
 <body>
 
-<header class="rj-header-wrapper">
-    <div class="rj-navbar">
-        <button class="rj-menu-toggle" id="mobile-menu-btn"><i class="fas fa-bars"></i></button>
-        <a href="index.html" style="text-decoration: none; font-size: 26px; font-weight: 900; color: var(--text-color); letter-spacing: -0.5px;">One4<span style="color: var(--accent);">Sports</span></a>
-        <nav class="rj-links" id="nav-links">
-            <a href="index.html">HOME</a>
-            <a href="cricket.html">CRICKET</a>
-            <a href="footwear.html">FOOTWEAR</a>
-            <a href="accessories.html">ACCESSORIES</a>
-        </nav>
-        <a href="cart.html" style="text-decoration:none; font-size: 22px; color: var(--text-color);">🛒</a>
+<div class="track-card">
+    <h1>Track Order</h1>
+    <p>Enter your Order ID (e.g., ORD-12345)</p>
+    <div class="input-group">
+        <input type="text" id="orderId" placeholder="Order ID">
+        <button onclick="fetchTracking()">Track</button>
     </div>
-</header>
-
-<div class="track-container">
-    <h1>Track Your Order</h1>
-    <p>Enter your Order ID below to check the current shipping status.</p>
-    
-    <div class="search-box">
-        <input type="text" id="orderInput" placeholder="e.g. ORD-12345">
-        <button onclick="trackOrder()">Track</button>
+    <div id="result-box">
+        <div style="font-size: 14px; font-weight: bold;">Status: <span id="status" class="status-badge"></span></div>
+        <div style="margin-top: 10px;">Customer: <span id="customer-name"></span></div>
     </div>
-
-    <div id="resultCard" class="result-card">
-        <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 5px;">ORDER ID: <span id="r-id" style="color: var(--text-color);"></span></div>
-        <div style="font-size: 18px; font-weight: 800; margin-bottom: 15px;">Customer: <span id="r-name"></span></div>
-        <hr style="border: none; border-top: 1px solid var(--border-color); margin-bottom: 15px;">
-        <div style="font-weight: bold; color: var(--text-color);">Current Status:</div>
-        <div id="r-status" class="status-badge"></div>
-    </div>
-    
-    <div id="errorMsg" style="color: var(--accent); font-weight: bold; display: none; margin-top: 20px;">
-        Order not found. Please check your ID and try again.
-    </div>
+    <div id="error-msg" style="color:var(--accent); font-weight:bold; display:none; margin-top:15px;">Order not found.</div>
 </div>
 
-<footer class="rj-footer">
-    <div class="rj-footer-content">
-        <div class="rj-footer-col">
-            <div style="font-size: 26px; font-weight: 900; color: white; letter-spacing: -0.5px; margin-bottom: 15px;">One4<span style="color: #E10600;">Sports</span></div>
-            <p style="line-height: 1.6; text-align: left;">Equipping champions with premium, high-performance sports gear.</p>
-        </div>
-        <div class="rj-footer-col">
-            <h3>Quick Links</h3>
-            <a href="track.html" style="color: #E10600;">Track Order</a>
-            <a href="cricket.html">Cricket Gear</a>
-            <a href="footwear.html">Footwear</a>
-            <a href="accessories.html">Accessories</a>
-        </div>
-        <div class="rj-footer-col">
-            <h3>Contact Us</h3>
-            <p><i class="fas fa-map-marker-alt" style="color: #E10600;"></i> Shree Nagar, Nanded, Maharashtra</p>
-            <p><i class="fas fa-phone-alt" style="color: #E10600;"></i> +91 8055475552</p>
-            <p><i class="fas fa-envelope" style="color: #E10600;"></i> support@one4sports.in</p>
-            <a href="https://t.me/one4sports" target="_blank" style="color: #0088cc; font-weight: bold; margin-top: 5px;">
-                <i class="fab fa-telegram" style="font-size: 20px;"></i> Join our Telegram Group
-            </a>
-        </div>
-    </div>
-    <div class="rj-footer-bottom">&copy; 2026 One4Sports. All rights reserved.</div>
-</footer>
-
 <script>
-    // Mobile Menu
-    const menuBtn = document.getElementById('mobile-menu-btn');
-    const navLinks = document.getElementById('nav-links');
-    if (menuBtn && navLinks) {
-        menuBtn.addEventListener('click', () => navLinks.classList.toggle('active'));
-    }
-
-    async function trackOrder() {
-        const orderId = document.getElementById('orderInput').value.trim();
-        const resultCard = document.getElementById('resultCard');
-        const errorMsg = document.getElementById('errorMsg');
+    async function fetchTracking() {
+        const id = document.getElementById('orderId').value;
+        const resBox = document.getElementById('result-box');
+        const errBox = document.getElementById('error-msg');
         
-        if(!orderId) return;
-
-        resultCard.style.display = 'none';
-        errorMsg.style.display = 'none';
-
         try {
-            // This calls your backend to find the specific order
-            const res = await fetch(`/api/orders/${orderId}`);
+            const res = await fetch(`/api/orders/${id}`);
             const data = await res.json();
             
-            if(data.success && data.order) {
-                document.getElementById('r-id').innerText = data.order.orderId;
-                document.getElementById('r-name').innerText = data.order.customer;
-                
-                const statusBadge = document.getElementById('r-status');
-                statusBadge.innerText = data.order.status || 'Pending';
-                statusBadge.className = `status-badge status-${data.order.status || 'Pending'}`;
-                
-                resultCard.style.display = 'block';
+            if(data.success) {
+                document.getElementById('status').innerText = data.order.status;
+                document.getElementById('status').className = `status-badge status-${data.order.status}`;
+                document.getElementById('customer-name').innerText = data.order.customer;
+                resBox.style.display = 'block';
+                errBox.style.display = 'none';
             } else {
-                errorMsg.style.display = 'block';
+                errBox.style.display = 'block';
+                resBox.style.display = 'none';
             }
-        } catch(err) {
-            errorMsg.innerText = "Error connecting to database. Please try again.";
-            errorMsg.style.display = 'block';
+        } catch(e) {
+            alert("Error connecting to server.");
         }
     }
 </script>
