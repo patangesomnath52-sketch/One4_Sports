@@ -6,17 +6,18 @@
     <title>Track Order | One4Sports</title>
     <style>
         body { font-family: 'Assistant', sans-serif; background: #f4f6f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .track-card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 500px; text-align: center; }
-        input { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px; font-size: 16px; }
-        button { background: #E10600; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: 800; cursor: pointer; }
-        #result-box { display: none; margin-top: 20px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; text-align: left; }
+        .track-card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; margin-bottom: 15px; font-size: 16px; }
+        button { background: #E10600; color: white; border: none; padding: 12px 25px; border-radius: 6px; font-weight: 800; cursor: pointer; width: 100%; }
+        #result-box { display: none; margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; }
     </style>
 </head>
 <body>
     <div class="track-card">
-        <h1>Track Order</h1>
+        <h2>Track Your Order</h2>
         <input type="text" id="orderId" placeholder="Enter Order ID (e.g. RJ521460)">
         <button onclick="fetchTracking()">Track Order</button>
+        
         <div id="result-box">
             <p><strong>Status:</strong> <span id="status"></span></p>
             <p><strong>Customer:</strong> <span id="customer-name"></span></p>
@@ -27,17 +28,20 @@
     <script>
         async function fetchTracking() {
             let rawId = document.getElementById('orderId').value;
-            // Clean input: remove #, ID:, and spaces
-            let cleanId = rawId.replace(/ID:|#|\s/gi, ''); 
+            // CLEANING: Strip out ID:, #, and spaces so the server gets exactly "RJ521460"
+            let cleanId = rawId.replace(/ID:|#|\s/gi, '').trim(); 
             
+            if(!cleanId) { alert("Please enter an Order ID"); return; }
+
             const resBox = document.getElementById('result-box');
             const errBox = document.getElementById('error-msg');
-            
+
             try {
-                const res = await fetch(`/api/orders/${cleanId}`);
-                const data = await res.json();
+                // The URL here matches the backend route /api/orders/:id
+                const response = await fetch(`/api/orders/${cleanId}`);
+                const data = await response.json();
                 
-                if(data.success) {
+                if(response.ok && data.success) {
                     document.getElementById('status').innerText = data.order.status;
                     document.getElementById('customer-name').innerText = data.order.customer;
                     resBox.style.display = 'block';
@@ -47,7 +51,7 @@
                     resBox.style.display = 'none';
                 }
             } catch(e) {
-                alert("Server Connection Error.");
+                alert("Server Error. Check Backend Logs.");
             }
         }
     </script>

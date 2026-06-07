@@ -77,6 +77,21 @@ app.post('/api/products/add', upload.array('productImages', 3), async (req, res)
         res.status(500).json({ success: false, message: err.message });
     }
 });
+// Add this route to your server.js
+app.get('/api/orders/:id', async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        // Adjust 'Order' to match your database model name
+        const order = await Order.findOne({ orderId: orderId }); 
+        
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+        res.json({ success: true, order: order });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Database Error" });
+    }
+});
 
 // GET ALL PRODUCTS (This must be separate and come before the /:id route)
 app.get('/api/products', async (req, res) => {
