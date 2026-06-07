@@ -13,7 +13,20 @@
     }
 </script>
     <style>
-        :root.light-mode {
+   /* BASE THEME (DARK MODE - Default) */
+:root { 
+    --bg-color: #050505; 
+    --text-main: #ffffff;
+    --text-muted: #a1a1aa;
+    --accent: #ff2a2a; 
+    --accent-glow: rgba(255, 42, 42, 0.5);
+    --card-bg: #111111;
+    --nav-bg: rgba(5, 5, 5, 0.7);
+    --border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* LIGHT MODE OVERRIDE */
+:root.light-mode {
     --bg-color: #f8fafc;
     --text-main: #0f172a;
     --text-muted: #64748b;
@@ -23,6 +36,13 @@
     --nav-bg: rgba(255, 255, 255, 0.8);
     --border-color: #e2e8f0;
 }
+  :root.dark-mode {
+            --bg-color: #121212;
+            --text-color: #e5e7eb;
+            --header-bg: #1f2937;
+            --card-bg: #1e293b; 
+            --border-color: #374151;
+        }
         
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
         

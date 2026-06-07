@@ -13,15 +13,31 @@
     }
 </script>
     <style>
+        /* BASE THEME (DARK MODE - Default) */
+:root { 
+    --bg-color: #050505; 
+    --text-main: #ffffff;
+    --text-muted: #a1a1aa;
+    --accent: #ff2a2a; 
+    --accent-glow: rgba(255, 42, 42, 0.5);
+    --card-bg: #111111;
+    --nav-bg: rgba(5, 5, 5, 0.7);
+    --border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* LIGHT MODE OVERRIDE */
+:root.light-mode {
+    --bg-color: #f8fafc;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --accent: #E10600;
+    --accent-glow: rgba(225, 6, 0, 0.3);
+    --card-bg: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.8);
+    --border-color: #e2e8f0;
+}
         /* --- UNIVERSAL DARK/LIGHT MODE STYLES --- */
-        :root {
-            --bg-color: #f4f6f8;
-            --text-color: #1f2937;
-            --header-bg: #fff;
-            --card-bg: #fff; /* प्रॉडक्ट्स आणि कार्टच्या पांढऱ्या बॉक्ससाठी */
-            --border-color: #e5e7eb;
-            --accent: #ff3f6c;
-        }
+       
         body.dark-mode {
             --bg-color: #121212;
             --text-color: #e5e7eb;
