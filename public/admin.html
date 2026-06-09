@@ -132,6 +132,30 @@
     max-width: 1400px; 
     margin: 0 auto; 
 }
+/* Update these sections in your <style> block */
+
+/* 1. Fix Image Sizes */
+.product-img { 
+    width: 100%; 
+    height: 180px; 
+    object-fit: cover; /* Forces consistent size */
+    display: block;
+}
+
+/* 2. Inventory Grid - Responsive Layout */
+.inventory-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+    gap: 20px; 
+}
+
+/* 3. Status Badges and Size Pills */
+.size-container { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; }
+.size-pill { 
+    padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; border: 1px solid var(--border);
+}
+.status-available { background: #dcfce7; color: #166534; }
+.status-soldout { background: #fee2e2; color: #991b1b; }
     </style>
 </head>
 <body>
@@ -193,9 +217,10 @@
                 </div>
 
                 <div id="sec-inventory" class="admin-section">
-                    <div class="section-header"><h2>Manage Inventory</h2></div>
-                    <div class="inventory-grid" id="inventory-list">
-                        </div>
+    <div class="section-header"><h2>Manage Inventory</h2></div>
+    <div class="inventory-grid" id="inventory-list">
+        </div>
+</div>
                 </div>
 
                 <div id="sec-upload" class="admin-section">
@@ -336,34 +361,41 @@ function toggleSidebar() {
                 showToast("Error connecting to server.");
             }
         }
+async function fetchInventory() {
+    const inventoryBox = document.getElementById('inventory-list');
+    inventoryBox.innerHTML = '<p>Loading...</p>';
+    
+    try {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        
+        if(data.success) {
+            inventoryBox.innerHTML = data.products.map(p => {
+                // Generate size/status pills
+                const sizesHtml = p.sizes.map(s => `
+                    <span class="size-pill ${s.status === 'Sold Out' ? 'status-soldout' : 'status-available'}">
+                        ${s.size}
+                    </span>
+                `).join('');
 
-        // Fetch Inventory
-        async function fetchInventory() {
-            const inventoryBox = document.getElementById('inventory-list');
-            inventoryBox.innerHTML = '<p style="grid-column: 1/-1; color: var(--light-text); font-weight: 600;">Loading products... ⏳</p>';
-            try {
-                const res = await fetch('/api/products');
-                const data = await res.json();
-                if(data.success && data.products.length > 0) {
-                    inventoryBox.innerHTML = data.products.map(p => {
-                        const imgUrl = p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/250x200';
-                        return `
-                            <div class="product-card">
-                                <img src="${imgUrl}" class="product-img">
-                                <div style="padding: 15px; flex: 1; display: flex; flex-direction: column;">
-                                    <div style="font-weight: 800; font-size: 16px; margin-bottom: 5px;">${p.name}</div>
-                                    <div style="color: var(--success); font-weight: 900; margin-bottom: 15px; font-size: 18px;">₹${p.price}</div>
-                                    <button class="btn-delete" onclick="deleteProduct('${p.productId}')"><i class="fas fa-trash"></i> Remove</button>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    inventoryBox.innerHTML = '<p style="grid-column: 1/-1; color: var(--light-text);">Your store is currently empty.</p>';
-                }
-            } catch (err) { inventoryBox.innerHTML = '<p style="grid-column: 1/-1; color: var(--accent);">Failed to load inventory.</p>'; }
-        }
-
+                return `
+                    <div class="product-card" style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
+                        <img src="${p.images[0]}" class="product-img">
+                        <div style="padding: 15px;">
+                            <div style="font-weight: 800;">${p.name}</div>
+                            <div style="color: var(--accent); margin: 5px 0;">₹${p.price}</div>
+                            <div class="size-container">${sizesHtml}</div>
+                            <button class="btn-delete" style="margin-top:10px; width:100%;" 
+                                    onclick="deleteProduct('${p.productId}')">Remove</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    } catch (err) {
+        inventoryBox.innerHTML = '<p>Error loading inventory.</p>';
+    }
+}
         // Delete Product
         async function deleteProduct(productId) {
             if(!confirm("Are you sure you want to permanently delete this product?")) return;
