@@ -524,11 +524,11 @@
     const STORAGE_KEYS = { PRODUCTS: 'one4sports_products', ORDERS: 'one4sports_orders' };
     function initializeMockData() {
         if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
-            const defaultProducts = [
-                { productId: "BAT-100", name: "Master Blaster Kashmir Willow", price: 3299, category: "Cricket", images: ["https://placehold.co/400x400/1e293b/white?text=BAT"], sizes: [] },
-                { productId: "SHOE-42", name: "Pro Sprint Shoes", price: 4999, category: "Footwear", images: ["https://placehold.co/400x400/E10600/white?text=SHOE"], sizes: [{ size: "7", status: "Available" }, { size: "8", status: "Available" }, { size: "9", status: "Sold Out" }, { size: "10", status: "Available" }] },
-                { productId: "ACC-01", name: "Premium Cricket Gloves", price: 1299, category: "Accessories", images: ["https://placehold.co/400x400/0f172a/white?text=GLOVES"], sizes: [{ size: "S", status: "Available" }, { size: "M", status: "Available" }, { size: "L", status: "Sold Out" }, { size: "XL", status: "Available" }] }
-            ];
+   const defaultProducts = [
+    { productId: "BAT-100", name: "Master Blaster Kashmir Willow", price: 3299, category: "Cricket", images: ["data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%231e293b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3EBAT%3C/text%3E%3C/svg%3E"], sizes: [] },
+    { productId: "SHOE-42", name: "Pro Sprint Shoes", price: 4999, category: "Footwear", images: ["data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23E10600'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3ESHOE%3C/text%3E%3C/svg%3E"], sizes: [{ size: "7", status: "Available" }, { size: "8", status: "Available" }, { size: "9", status: "Sold Out" }, { size: "10", status: "Available" }] },
+    { productId: "ACC-01", name: "Premium Cricket Gloves", price: 1299, category: "Accessories", images: ["data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%230f172a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3EGLOVES%3C/text%3E%3C/svg%3E"], sizes: [{ size: "S", status: "Available" }, { size: "M", status: "Available" }, { size: "L", status: "Sold Out" }, { size: "XL", status: "Available" }] }
+];
             localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(defaultProducts));
         }
         if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) {
@@ -736,24 +736,26 @@
             else showToast("Status update failed");
         } catch(e) { showToast("Server error"); }
     };
-
-    async function fetchInventory() {
-        const container = document.getElementById('inventory-list');
-        if(!container) return;
-        container.innerHTML = '<div>Loading inventory...</div>';
-        try {
-            const res = await fetch('/api/products');
-            const data = await res.json();
-            if(data.success && data.products) {
-                if(data.products.length === 0) { container.innerHTML = '<div class="card">✨ No products yet. Add some!</div>'; return; }
-                container.innerHTML = data.products.map(p => {
-                    const sizesHtml = (p.sizes || []).map(s => `<span class="size-pill ${s.status === 'Sold Out' ? 'status-soldout' : 'status-available'}">${escapeHtml(s.size)}</span>`).join('');
-                    const imgUrl = (p.images && p.images[0]) ? p.images[0] : "https://placehold.co/400x400/f1f5f9/64748b?text=No+Image";
-                    return `<div class="product-card"><img src="${imgUrl}" class="product-img" onerror="this.src='https://placehold.co/400x400/f1f5f9/64748b?text=Image'"><div class="product-info"><div class="product-title">${escapeHtml(p.name)}</div><div class="product-price">₹${p.price}</div><div class="size-container">${sizesHtml || '<span class="size-pill">No sizes</span>'}</div><button class="btn-delete" onclick="deleteProduct('${p.productId}')"><i class="fas fa-trash-alt"></i> Remove</button></div></div>`;
-                }).join('');
-            } else { container.innerHTML = '<div class="card">Failed to load inventory</div>'; }
-        } catch(err) { container.innerHTML = '<div class="card">Network error</div>'; }
-    }
+async function fetchInventory() {
+    const container = document.getElementById('inventory-list');
+    if(!container) return;
+    container.innerHTML = '<div>Loading inventory...</div>';
+    try {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        if(data.success && data.products) {
+            if(data.products.length === 0) { container.innerHTML = '<div class="card">✨ No products yet. Add some!</div>'; return; }
+            container.innerHTML = data.products.map(p => {
+                const sizesHtml = (p.sizes || []).map(s => `<span class="size-pill ${s.status === 'Sold Out' ? 'status-soldout' : 'status-available'}">${escapeHtml(s.size)}</span>`).join('');
+                // Local SVG placeholder (base64 encoded)
+                const placeholderSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%2364748b' font-size='20'%3ENo Image%3C/text%3E%3C/svg%3E";
+                let imgUrl = (p.images && p.images[0]) ? p.images[0] : placeholderSvg;
+                // Sanitize: if image fails to load, replace with placeholder (no external URL)
+                return `<div class="product-card"><img src="${imgUrl}" class="product-img" onerror="this.onerror=null; this.src='${placeholderSvg}'"><div class="product-info"><div class="product-title">${escapeHtml(p.name)}</div><div class="product-price">₹${p.price}</div><div class="size-container">${sizesHtml || '<span class="size-pill">No sizes</span>'}</div><button class="btn-delete" onclick="deleteProduct('${p.productId}')"><i class="fas fa-trash-alt"></i> Remove</button></div></div>`;
+            }).join('');
+        } else { container.innerHTML = '<div class="card">Failed to load inventory</div>'; }
+    } catch(err) { container.innerHTML = '<div class="card">Network error</div>'; }
+}
 
     window.deleteProduct = async function(productId) {
         if(!confirm("Permanently delete this product?")) return;
