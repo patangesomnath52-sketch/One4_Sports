@@ -10,9 +10,11 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static('public'));
 
+// ------------------------------
 // 1. Cloudinary Setup
+// ------------------------------
 cloudinary.config({
-    cloud_name: 'dcxsebtas', 
+    cloud_name: 'dcxsebtas',
     api_key: '872585929966168',
     api_secret: 't490x7y5jzQhZrJ8juEhNmjmLwI'
 });
@@ -26,129 +28,199 @@ const storage = new CloudinaryStorage({
 });
 const upload = multer({ storage: storage });
 
+// ------------------------------
 // 2. MongoDB Connection
-const MONGO_URI = "mongodb+srv://Ram_Jadhav:Ram%401234@cluster0.5ii6lfb.mongodb.net/rjsports?retryWrites=true&w=majority"; 
-mongoose.connect(MONGO_URI).then(() => console.log("✅ MongoDB Connected!"));
+// ------------------------------
+const MONGO_URI = "mongodb+srv://Ram_Jadhav:Ram%401234@cluster0.5ii6lfb.mongodb.net/rjsports?retryWrites=true&w=majority";
+mongoose.connect(MONGO_URI)
+    .then(() => console.log("✅ MongoDB Connected!"))
+    .catch(err => console.error("❌ MongoDB connection error:", err));
 
+// ------------------------------
 // 3. Database Schemas
-const Product = mongoose.model('Product', new mongoose.Schema({
+// ------------------------------
+const productSchema = new mongoose.Schema({
     productId: { type: String, unique: true, required: true },
     name: String,
     price: Number,
     category: String,
     images: [String],
-    isOutOfStock: { type: Boolean, default: false }
-}));
+    isOutOfStock: { type: Boolean, default: false },
+    availableSizes: [String],     // added for size support
+    stockStatus: String            // added to match frontend expectations
+});
 
-const Order = mongoose.model('Order', new mongoose.Schema({
+const Product = mongoose.model('Product', productSchema);
+
+const orderSchema = new mongoose.Schema({
     orderId: String,
     customer: String,
     phone: String,
     total: Number,
     status: { type: String, default: 'Processing' },
     date: { type: Date, default: Date.now }
-}));
+});
 
-// 4. API Routes
+const Order = mongoose.model('Order', orderSchema);
 
-// ADD/UPDATE PRODUCT (With Upsert to prevent duplicate errors)
+// ------------------------------
+// 4. API ROUTES
+// ------------------------------
+
+// ---- PRODUCT ROUTES ----
+
+// GET all products
+app.get('/api/products', async (req, res) => {
+    try {
+        const products = await Product.find();
+        res.json({ success: true, products });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Failed to fetch products" });
+    }
+});
+
+// GET single product by productId
+app.get('/api/products/:id', async (req, res) => {
+    try {
+        const product = await Product.findOne({ productId: req.params.id });
+        if (product) {
+            res.json({ success: true, product });
+        } else {
+            res.status(404).json({ success: false, message: "Product not found" });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
+// ADD or UPDATE product (with image upload)
 app.post('/api/products/add', upload.array('productImages', 3), async (req, res) => {
     try {
-        const imagePaths = req.files.map(file => file.path);
-        const { productId, name, price, category } = req.body;
+        const imagePaths = req.files ? req.files.map(file => file.path) : [];
+        const { productId, name, price, category, availableSizes, stockStatus } = req.body;
+
+        if (!productId || !name || !price) {
+            return res.status(400).json({ success: false, message: "Missing required fields: productId, name, price" });
+        }
 
         const updateData = {
             name,
             price: parseFloat(price),
-            category,
-            isOutOfStock: false // Ensure it's not hidden by "Sold Out" filter
+            category: category || 'Uncategorized',
+            isOutOfStock: stockStatus === 'out-of-stock',   // map frontend value
+            availableSizes: availableSizes ? availableSizes.split(',') : [],
+            stockStatus: stockStatus || 'in-stock'
         };
 
         if (imagePaths.length > 0) updateData.images = imagePaths;
 
-        await Product.findOneAndUpdate(
+        const updatedProduct = await Product.findOneAndUpdate(
             { productId },
             { $set: updateData },
             { upsert: true, new: true }
         );
 
-        res.json({ success: true, message: "✅ Product Saved/Updated Successfully!" });
+        res.json({ success: true, message: "✅ Product saved/updated successfully", product: updatedProduct });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ success: false, message: err.message });
     }
 });
-// Add this to your server.js
-app.post('/api/products/add', async (req, res) => {
+
+// UPDATE product stock/sizes (alternative endpoint)
+app.post('/api/products/update', async (req, res) => {
     try {
-        const newProduct = new Product(req.body); // Assumes 'Product' is your MongoDB model
-        await newProduct.save();
-        res.status(201).json({ success: true });
+        const { productId, availableSizes, stockStatus } = req.body;  // use productId, not name
+        if (!productId) {
+            return res.status(400).json({ success: false, message: "productId required" });
+        }
+        const updateFields = {};
+        if (availableSizes) updateFields.availableSizes = availableSizes;
+        if (stockStatus) {
+            updateFields.stockStatus = stockStatus;
+            updateFields.isOutOfStock = (stockStatus === 'out-of-stock');
+        }
+        const updated = await Product.findOneAndUpdate(
+            { productId },
+            { $set: updateFields },
+            { new: true }
+        );
+        if (!updated) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
+        res.json({ success: true, product: updated });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ success: false, error: err.message });
     }
 });
-// Add these routes to your server.js
-app.get('/api/orders', async (req, res) => {
-    try {
-        const orders = await Order.find(); // Matches your Order DB model
-        res.json({ orders });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
 
-app.post('/api/products/update', async (req, res) => {
-    try {
-        const { name, sizes, status } = req.body;
-        await Product.findOneAndUpdate({ name }, { availableSizes: sizes, stockStatus: status });
-        res.json({ success: true });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-// GET ALL PRODUCTS (This must be separate and come before the /:id route)
-app.get('/api/products', async (req, res) => {
-    try {
-        // This finds all products in your MongoDB database
-        const products = await Product.find(); 
-        res.json({ success: true, products });
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Failed to fetch products" });
-    }
-});
-
-// GET SINGLE PRODUCT DETAILS
-app.get('/api/products/:id', async (req, res) => {
-    try {
-        // We use req.params.id to catch the "s2" from the URL
-        const product = await Product.findOne({ productId: req.params.id });
-        
-        if (product) {
-            res.json({ success: true, product });
-        } else {
-            // If the ID doesn't exist in MongoDB, it returns 404
-            res.status(404).json({ success: false, message: "Product not found in database" });
-        }
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Server Error" });
-    }
-});
-
-// GET ALL ORDERS
-app.get('/api/orders', async (req, res) => {
-    try {
-        const orders = await Order.find().sort({ date: -1 });
-        res.json({ success: true, orders });
-    } catch (err) { 
-        res.status(500).json({ success: false }); 
-    }
-});
-
-// DELETE PRODUCT
+// DELETE product
 app.delete('/api/products/:id', async (req, res) => {
     try {
-        await Product.findOneAndDelete({ productId: req.params.id });
-        res.json({ success: true });
+        const deleted = await Product.findOneAndDelete({ productId: req.params.id });
+        if (!deleted) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
+        res.json({ success: true, message: "Product deleted" });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ success: false, message: "Failed to delete" });
     }
 });
 
+// ---- ORDER ROUTES ----
+
+// GET all orders (sorted newest first)
+app.get('/api/orders', async (req, res) => {
+    try {
+        const orders = await Order.find().sort({ date: -1 });
+        res.json({ success: true, orders });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Failed to fetch orders" });
+    }
+});
+
+// UPDATE order status (used by dashboard dropdown)
+app.patch('/api/orders/:orderId/status', async (req, res) => {
+    try {
+        const { status } = req.body;
+        const validStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+        if (!status || !validStatuses.includes(status)) {
+            return res.status(400).json({ success: false, message: "Invalid status" });
+        }
+        const order = await Order.findOneAndUpdate(
+            { orderId: req.params.orderId },
+            { status },
+            { new: true }
+        );
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+        res.json({ success: true, order });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// (Optional) POST new order – add if your frontend creates orders
+app.post('/api/orders', async (req, res) => {
+    try {
+        const newOrder = new Order(req.body);
+        await newOrder.save();
+        res.status(201).json({ success: true, order: newOrder });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ------------------------------
+// 5. Start Server
+// ------------------------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
