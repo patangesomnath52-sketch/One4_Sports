@@ -802,9 +802,39 @@
             reader.readAsDataURL(file);
         });
     }
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('uploadBtn');
+    btn.disabled = true; btn.innerHTML = "⏳ Publishing...";
 
-    // Product submission with image resizing
-   // Replace your existing uploadForm submit event with this:
+    const productId = document.getElementById('p-id').value.trim();
+    const name = document.getElementById('p-name').value.trim();
+    const price = parseInt(document.getElementById('p-price').value);
+    const category = document.getElementById('p-category').value;
+    const files = document.getElementById('p-images').files;
+
+    // Convert images
+    const imageBase64Array = [];
+    for(const file of Array.from(files).slice(0,3)) {
+        imageBase64Array.push(await resizeImage(file, 300, 300, 0.6));
+    }
+    
+    // Convert sizes
+    let sizes = currentSizeRows.filter(r => r.size.trim() !== "").map(r => ({ size: r.size, status: r.status }));
+
+    const newProduct = { productId, name, price, category, images: imageBase64Array, sizes };
+    
+    // Save to LocalStorage (Mocking your DB)
+    const products = JSON.parse(localStorage.getItem('one4sports_products') || '[]');
+    products.push(newProduct);
+    localStorage.setItem('one4sports_products', JSON.stringify(products));
+
+    showToast("✅ Product published!");
+    document.getElementById('uploadForm').reset();
+    fetchInventory();
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-upload"></i> Publish to Store';
+});
+
 document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
