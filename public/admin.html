@@ -231,9 +231,13 @@
                 <div class="nav-item" onclick="switchTab('upload', this)">
                     <i class="fas fa-plus-circle"></i> Deploy Product
                 </div>
-                <div class="nav-item" onclick="switchTab('editor', this)">
-                    <i class="fas fa-pen-square"></i> Edit Product
-                </div>
+<!-- Edit Product (NEW) -->
+    <div id="sec-editor" class="admin-section">
+        <div class="editor-container">
+            <!-- all editor HTML goes here -->
+        </div>
+               <main class="content">
+   
                 <div class="system-status">
                     <div class="status-box">
                         <i class="fas fa-server" style="color: var(--success); font-size: 24px; margin-bottom: 10px;"></i>
@@ -395,6 +399,7 @@
 </div>
 
     <script>
+        document.getElementById('sec-editor').classList.remove('active');
         const ADMIN_PIN = "ONE42024";
 
         // UI Helpers
