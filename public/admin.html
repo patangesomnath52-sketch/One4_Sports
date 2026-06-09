@@ -405,7 +405,7 @@
             if(id === 'inventory') fetchInventory();
         }
 
-        // --- DASHBOARD API INTEGRATION ---
+       // --- DASHBOARD API INTEGRATION ---
         async function fetchDashboardData() {
             const tableBody = document.getElementById('order-table-body');
             tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--text-muted);"><i class="fas fa-circle-notch fa-spin fa-2x"></i><br><br>Syncing Transmissions...</td></tr>';
@@ -458,11 +458,13 @@
                         </tr>`;
                     }).join('');
                 } else {
-                    throw new Error("Server returned false success.");
+                    // NEW: Throw the exact error message provided by the backend
+                    throw new Error(data.message || "Server returned false success.");
                 }
             } catch (err) { 
+                // NEW: Log the exact error to the console and UI
                 console.error("Dashboard Fetch Error:", err);
-                tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--danger); padding: 30px; font-weight: 800;">CONNECTION REFUSED. Is your server running?</td></tr>';
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--danger); padding: 30px; font-weight: 800;">BACKEND ERROR: ${err.message}</td></tr>`;
             }
         }
 
