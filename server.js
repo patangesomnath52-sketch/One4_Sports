@@ -77,7 +77,16 @@ app.post('/api/products/add', upload.array('productImages', 3), async (req, res)
         res.status(500).json({ success: false, message: err.message });
     }
 });
-
+// Add this to your server.js
+app.post('/api/products/add', async (req, res) => {
+    try {
+        const newProduct = new Product(req.body); // Assumes 'Product' is your MongoDB model
+        await newProduct.save();
+        res.status(201).json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 // Add these routes to your server.js
 app.get('/api/orders', async (req, res) => {
     try {

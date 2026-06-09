@@ -804,16 +804,31 @@
     }
 
     // Product submission with image resizing
-    document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('uploadBtn');
-        btn.disabled = true; btn.innerHTML = "⏳ Publishing...";
-        const productId = document.getElementById('p-id').value.trim();
-        const name = document.getElementById('p-name').value.trim();
-        const price = parseInt(document.getElementById('p-price').value);
-        const category = document.getElementById('p-category').value;
-        const files = document.getElementById('p-images').files;
-        if(!productId || !name || isNaN(price) || files.length === 0) { showToast("Please fill all required fields + at least 1 image"); btn.disabled=false; btn.innerHTML='<i class="fas fa-upload"></i> Publish to Store'; return; }
+   // Replace your existing uploadForm submit event with this:
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // 1. Gather your data
+    const productData = {
+        productId: document.getElementById('p-id').value,
+        name: document.getElementById('p-name').value,
+        price: document.getElementById('p-price').value,
+        // ... gather your images and sizes
+    };
+
+    // 2. Send to your REAL server
+    const response = await fetch('/api/products/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productData)
+    });
+
+    if (response.ok) {
+        alert("Product uploaded to the Database!");
+    } else {
+        alert("Server failed to save product.");
+    }
+});
         
         const imageBase64Array = [];
         const fileArray = Array.from(files).slice(0,3);
