@@ -2,433 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>One4Sports | Secure Admin Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Assistant', sans-serif;
-        }
-
-        :root {
-            --dark: #0f172a;
-            --accent: #E10600;
-            --bg: #f4f6f8;
-            --card-bg: #ffffff;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --text-muted: #64748b;
-        }
-
-        body {
-            background: var(--bg);
-            color: #1e293b;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* LOGIN */
-        #login-screen {
-            position: fixed;
-            inset: 0;
-            background: var(--dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            padding: 20px;
-        }
-
-        .login-box {
-            background: white;
-            padding: 40px 30px;
-            border-radius: 24px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 25px 40px rgba(0,0,0,0.3);
-        }
-
-        .login-logo {
-            font-size: 36px;
-            font-weight: 900;
-            margin-bottom: 16px;
-            color: var(--dark);
-        }
-
+        :root { --dark: #0f172a; --accent: #E10600; --bg: #f4f6f8; --card-bg: #ffffff; --border: #e2e8f0; --text-muted: #64748b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; }
+        body { background: var(--bg); color: #1e293b; height: 100vh; overflow: hidden; }
+        
+        /* Layout */
+        #login-screen { position: fixed; inset: 0; background: var(--dark); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
+        .login-box { background: white; padding: 40px 30px; border-radius: 24px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 25px 40px rgba(0,0,0,0.3); }
+        .login-logo { font-size: 36px; font-weight: 900; margin-bottom: 16px; color: var(--dark); }
         .login-logo span { color: var(--accent); }
-
-        .login-input {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid var(--border);
-            border-radius: 14px;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .login-btn {
-            width: 100%;
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 14px;
-            font-size: 18px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .error-msg {
-            background: #fee2e2;
-            color: #b91c1c;
-            padding: 10px;
-            border-radius: 12px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        /* APP */
-        #app-content {
-            display: none;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        .top-navbar {
-            background: var(--dark);
-            color: white;
-            padding: 12px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-
-        .mobile-menu-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 26px;
-            cursor: pointer;
-            display: none;
-        }
-
-        .brand-logo {
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .brand-img {
-            height: 48px;
-            width: auto;
-            object-fit: contain;
-            background: white;
-            border-radius: 12px;
-            padding: 4px;
-        }
-
-        .brand-text {
-            font-weight: 800;
-            font-size: 18px;
-            letter-spacing: 1px;
-            color: white;
-        }
-
-        .logout-btn {
-            background: rgba(255,255,255,0.1);
-            padding: 8px 18px;
-            border-radius: 40px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .logout-btn:hover { background: rgba(255,255,255,0.2); }
-
-        /* MAIN LAYOUT */
-        .main-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .sidebar {
-            width: 280px;
-            background: var(--card-bg);
-            border-right: 1px solid var(--border);
-            padding-top: 24px;
-            overflow-y: auto;
-            transition: transform 0.25s ease;
-            z-index: 1000;
-        }
-
-        .sidebar-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            display: none;
-        }
-
-        .nav-item {
-            padding: 16px 28px;
-            cursor: pointer;
-            font-weight: 700;
-            color: #475569;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            font-size: 18px;
-            transition: all 0.2s;
-            border-left: 4px solid transparent;
-        }
-
-        .nav-item i { width: 24px; }
-
-        .nav-item.active {
-            background: #fff0ee;
-            color: var(--accent);
-            border-left-color: var(--accent);
-        }
-
-        .content {
-            flex: 1;
-            padding: 28px 32px;
-            overflow-y: auto;
-        }
-
+        .login-input { width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 14px; font-size: 18px; font-weight: 600; margin-bottom: 20px; text-align: center; }
+        .login-btn { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 14px; font-size: 18px; font-weight: 800; cursor: pointer; }
+        
+        #app-content { display: none; flex-direction: column; height: 100vh; }
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Components */
+        .sidebar { width: 280px; background: white; border-right: 1px solid var(--border); padding-top: 24px; transition: transform 0.25s; }
+        .nav-item { padding: 16px 28px; cursor: pointer; font-weight: 700; color: #475569; display: flex; align-items: center; gap: 14px; border-left: 4px solid transparent; transition: all 0.2s; }
+        .nav-item.active { background: #fff0ee; color: var(--accent); border-left-color: var(--accent); }
+        
+        .content { flex: 1; padding: 28px; overflow-y: auto; }
         .admin-section { display: none; }
         .admin-section.active { display: block; }
-
-        /* CARDS & FORMS */
-        .card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
-        }
-
-        .section-header {
-            margin-bottom: 24px;
-        }
-
-        .section-header h2 {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--dark);
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .full-width { grid-column: span 2; }
-
-        .form-group label {
-            font-weight: 700;
-            display: block;
-            margin-bottom: 6px;
-        }
-
-        .form-control, select.form-control {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid var(--border);
-            border-radius: 16px;
-            font-size: 15px;
-            transition: 0.2s;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .btn-action {
-            background: var(--dark);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 40px;
-            font-weight: 800;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 16px;
-        }
-
-        /* SIZES MANAGER */
-        .sizes-manager {
-            background: #f8fafc;
-            border-radius: 20px;
-            padding: 16px;
-            margin-top: 12px;
-            transition: all 0.2s;
-        }
-        .sizes-manager.disabled-manager {
-            opacity: 0.6;
-            pointer-events: none;
-            background: #eef2f6;
-        }
-        .size-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .size-name-input {
-            flex: 2;
-            padding: 10px 12px;
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            font-size: 15px;
-            font-weight: 500;
-        }
-        .size-status-select {
-            flex: 1;
-            padding: 10px 12px;
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            background: white;
-            font-weight: 600;
-        }
-        .remove-size-btn {
-            background: #e2e8f0;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .add-size-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-weight: 800;
-            cursor: pointer;
-            margin-top: 12px;
-            font-size: 14px;
-        }
-        .info-message {
-            background: #e6f7ff;
-            padding: 12px;
-            border-radius: 16px;
-            color: #0050b3;
-            font-weight: 600;
-            margin-top: 12px;
-            text-align: center;
-        }
-
-        /* INVENTORY GRID */
-        .inventory-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 24px;
-        }
-        .product-card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-        .product-img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            background: #f1f5f9;
-        }
-        .product-info {
-            padding: 16px;
-        }
-        .product-title {
-            font-weight: 800;
-            font-size: 18px;
-        }
-        .product-price {
-            color: var(--accent);
-            font-weight: 800;
-            margin: 8px 0;
-        }
-        .size-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 12px 0;
-        }
-        .size-pill {
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 800;
-            background: #eef2ff;
-            color: #1e293b;
-        }
-        .status-available { background: #dcfce7; color: #166534; }
-        .status-soldout { background: #fee2e2; color: #991b1b; }
-        .btn-delete {
-            background: #fee2e2;
-            color: #b91c1c;
-            border: none;
-            padding: 10px;
-            border-radius: 40px;
-            font-weight: 800;
-            width: 100%;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 14px; text-align: left; border-bottom: 1px solid var(--border); }
-        th { font-weight: 800; color: var(--dark); }
-        .status-select { padding: 8px 12px; border-radius: 40px; border: 1px solid var(--border); font-weight: bold; }
-
-        #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #1e293b;
-            color: white;
-            text-align: center;
-            border-radius: 60px;
-            padding: 14px 24px;
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-weight: 700;
-            z-index: 10001;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        }
-        #toast.show { visibility: visible; animation: fadein 0.3s, fadeout 0.3s 2.7s; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-
-        @media (max-width: 768px) {
-            .mobile-menu-btn { display: block; }
-            .sidebar { position: fixed; left: -280px; top: 0; height: 100%; }
-            .sidebar.active { left: 0; }
-            .content { padding: 20px; }
-            .form-grid { grid-template-columns: 1fr; }
-            .full-width { grid-column: span 1; }
-            .size-row { flex-direction: column; align-items: stretch; }
-        }
+        .card { background: white; border-radius: 24px; padding: 24px; border: 1px solid var(--border); margin-bottom: 20px; }
+        
+        /* Inputs & Tables */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-control { width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 16px; }
+        .btn-action { background: var(--dark); color: white; border: none; padding: 16px; border-radius: 40px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 16px; }
+        
+        .sizes-manager { background: #f8fafc; border-radius: 20px; padding: 16px; margin-top: 12px; }
+        .size-row { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; }
+        
+        #toast { visibility: hidden; background: #1e293b; color: white; padding: 14px 24px; border-radius: 60px; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10001; }
+        #toast.show { visibility: visible; }
     </style>
 </head>
 <body>
@@ -436,478 +49,170 @@
 <div id="login-screen">
     <div class="login-box">
         <div class="login-logo">One4<span>Sports</span></div>
-        <h3 style="margin-bottom: 20px; color: #475569;">Admin Portal</h3>
-        <div class="error-msg" id="login-error">Incorrect PIN. Please try again.</div>
         <input type="password" id="admin-pin" class="login-input" placeholder="Enter Secure PIN">
-        <button class="login-btn" onclick="checkLogin()">Access Dashboard</button>
+        <button class="login-btn" onclick="Auth.login()">Access Dashboard</button>
     </div>
 </div>
 
 <div id="app-content">
-    <header class="top-navbar">
-        <div style="display: flex; align-items: center; gap: 16px;">
-            <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-            <a href="#" class="brand-logo">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23E10600'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-weight='bold'%3E1%3C/text%3E%3C/svg%3E" alt="One4Sports" class="brand-img">
-                <span class="brand-text">ONE4SPORTS ADMIN</span>
-            </a>
-        </div>
-        <div class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+    <header class="top-navbar" style="background: var(--dark); color: white; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="brand-text" style="font-weight: 800; font-size: 18px;">ONE4SPORTS ADMIN</div>
+        <div class="logout-btn" onclick="Auth.logout()" style="cursor: pointer;">Logout</div>
     </header>
 
     <div class="main-container">
-        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
-        <aside class="sidebar" id="sidebar">
-            <div class="nav-item active" onclick="switchTab('dashboard', this)"><i class="fas fa-chart-line"></i> Orders Dashboard</div>
-            <div class="nav-item" onclick="switchTab('inventory', this)"><i class="fas fa-box-open"></i> Manage Inventory</div>
-            <div class="nav-item" onclick="switchTab('upload', this)"><i class="fas fa-cloud-upload-alt"></i> Add Product</div>
+        <aside class="sidebar">
+            <div class="nav-item active" onclick="App.switchTab('dashboard', this)"><i class="fas fa-chart-line"></i> Orders</div>
+            <div class="nav-item" onclick="App.switchTab('inventory', this)"><i class="fas fa-box-open"></i> Inventory</div>
+            <div class="nav-item" onclick="App.switchTab('upload', this)"><i class="fas fa-cloud-upload-alt"></i> Add Product</div>
         </aside>
 
         <main class="content">
-            <div id="sec-dashboard" class="admin-section active">
-                <div class="section-header"><h2>📦 Orders Overview</h2></div>
+            <section id="sec-dashboard" class="admin-section active">
+                <h2>📦 Orders Overview</h2>
                 <div class="card">
-                    <h3 style="margin-bottom: 16px;">Recent Orders · <span id="kpi-orders" style="color: var(--accent);">0</span></h3>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status Control</th></tr></thead>
-                            <tbody id="order-table-body"></tbody>
-                        </table>
-                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead><tr><th>Order ID</th><th>Customer</th><th>Status</th></tr></thead>
+                        <tbody id="order-table-body"></tbody>
+                    </table>
                 </div>
-            </div>
+            </section>
 
-            <div id="sec-inventory" class="admin-section">
-                <div class="section-header"><h2>🏏 Product Inventory</h2></div>
-                <div class="inventory-grid" id="inventory-list"></div>
-            </div>
+            <section id="sec-inventory" class="admin-section">
+                <h2>🏏 Product Inventory</h2>
+                <div id="inventory-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px;"></div>
+            </section>
 
-            <div id="sec-upload" class="admin-section">
-                <div class="section-header"><h2>➕ Add New Product</h2></div>
+            <section id="sec-upload" class="admin-section">
+                <h2>➕ Add New Product</h2>
                 <div class="card">
                     <form id="uploadForm">
                         <div class="form-grid">
-                            <div class="form-group"><label>Product ID *</label><input type="text" id="p-id" class="form-control" placeholder="e.g., SHOE-101, BAT-22" required></div>
-                            <div class="form-group"><label>Category *</label>
-                                <select id="p-category" class="form-control">
-                                    <option value="Cricket">Cricket Equipment</option>
-                                    <option value="Footwear">Sports Footwear</option>
-                                    <option value="Accessories">Accessories</option>
-                                </select>
-                            </div>
-                            <div class="form-group full-width"><label>Product Title *</label><input type="text" id="p-name" class="form-control" placeholder="e.g., Pro Running Shoes / Kashmir Willow Bat" required></div>
-                            <div class="form-group"><label>Selling Price (₹) *</label><input type="number" id="p-price" class="form-control" placeholder="4500" required></div>
-                            <div class="form-group full-width"><label>📸 Product Images (Max 3)</label><input type="file" id="p-images" class="form-control" multiple accept="image/*" required></div>
+                            <input type="text" id="p-id" class="form-control" placeholder="Product ID" required>
+                            <select id="p-category" class="form-control" onchange="App.handleCategoryChange(this.value)">
+                                <option value="Cricket">Cricket</option>
+                                <option value="Footwear">Footwear</option>
+                            </select>
+                            <input type="text" id="p-name" class="form-control" placeholder="Product Name" style="grid-column: span 2;" required>
+                            <input type="number" id="p-price" class="form-control" placeholder="Price (₹)" required>
+                            <input type="file" id="p-images" class="form-control" accept="image/*" multiple>
                         </div>
-
-                        <!-- DYNAMIC SIZE CHART SECTION -->
-                        <div id="size-manager-wrapper">
-                            <div id="size-header" style="margin-top: 20px;"><label style="font-weight: 800;">📏 Sizes & Stock Status</label></div>
-                            <div id="size-manager-container" class="sizes-manager">
-                                <div id="size-rows-container"></div>
-                                <button type="button" class="add-size-btn" id="addSizeBtn">+ Add Size / Variant</button>
-                                <div id="size-info-message" class="info-message" style="display: none;"></div>
-                            </div>
-                        </div>
-
-                        <button type="submit" id="uploadBtn" class="btn-action"><i class="fas fa-upload"></i> Publish to Store</button>
+                        <div id="size-rows-container" class="sizes-manager"></div>
+                        <button type="button" class="btn-action" onclick="App.addSizeRow()" style="background: var(--accent);">+ Add Size</button>
+                        <button type="submit" class="btn-action">Publish to Store</button>
                     </form>
                 </div>
-            </div>
+            </section>
         </main>
     </div>
 </div>
-<div id="toast">Notification</div>
+<div id="toast"></div>
 
 <script>
-    // ---------- MOCK BACKEND ----------
-    const STORAGE_KEYS = { PRODUCTS: 'one4sports_products', ORDERS: 'one4sports_orders' };
-    
-    function initializeMockData() {
-        if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
-            const defaultProducts = [
-                { productId: "BAT-100", name: "Master Blaster Kashmir Willow", price: 3299, category: "Cricket", images: ["data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%231e293b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3EBAT%3C/text%3E%3C/svg%3E"], sizes: [] },
-                { productId: "SHOE-42", name: "Pro Sprint Shoes", price: 4999, category: "Footwear", images: ["data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23E10600'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3ESHOE%3C/text%3E%3C/svg%3E"], sizes: [{ size: "7", status: "Available" }, { size: "8", status: "Available" }, { size: "9", status: "Sold Out" }, { size: "10", status: "Available" }] },
-                { productId: "ACC-01", name: "Premium Cricket Gloves", price: 1299, category: "Accessories", images: ["data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%230f172a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3EGLOVES%3C/text%3E%3C/svg%3E"], sizes: [{ size: "S", status: "Available" }, { size: "M", status: "Available" }, { size: "L", status: "Sold Out" }, { size: "XL", status: "Available" }] }
-            ];
-            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(defaultProducts));
-        }
-        if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) {
-            const defaultOrders = [
-                { orderId: "ORD1001", customer: "Rahul Sharma", total: 3299, status: "Pending" },
-                { orderId: "ORD1002", customer: "Virat K.", total: 8298, status: "Processing" },
-                { orderId: "ORD1003", customer: "Anjali Patil", total: 4999, status: "Shipped" },
-                { orderId: "ORD1004", customer: "MS Dhoni Fan", total: 12000, status: "Delivered" }
-            ];
-            localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(defaultOrders));
-        }
-    }
-
-    // Mock fetch
-    const originalFetch = window.fetch;
-    window.fetch = function(url, options = {}) {
-        const urlStr = typeof url === 'string' ? url : url.url;
-        if (urlStr.startsWith('/api/')) {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    if (urlStr === '/api/orders' && (!options.method || options.method === 'GET')) {
-                        const orders = JSON.parse(localStorage.getItem(STORAGE_KEYS.ORDERS) || '[]');
-                        resolve(new Response(JSON.stringify({ success: true, orders }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
-                    }
-                    else if (urlStr.match(/\/api\/orders\/[^/]+\/status/) && options.method === 'PUT') {
-                        const orderId = urlStr.split('/')[3];
-                        const body = JSON.parse(options.body);
-                        const orders = JSON.parse(localStorage.getItem(STORAGE_KEYS.ORDERS) || '[]');
-                        const index = orders.findIndex(o => o.orderId === orderId);
-                        if (index !== -1) { orders[index].status = body.status; localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders)); }
-                        resolve(new Response(JSON.stringify({ success: true }), { status: 200 }));
-                    }
-                    else if (urlStr === '/api/products' && (!options.method || options.method === 'GET')) {
-                        const products = JSON.parse(localStorage.getItem(STORAGE_KEYS.PRODUCTS) || '[]');
-                        resolve(new Response(JSON.stringify({ success: true, products }), { status: 200 }));
-                    }
-                    else if (urlStr.match(/\/api\/products\/.+/) && options.method === 'DELETE') {
-                        const productId = urlStr.split('/')[3];
-                        let products = JSON.parse(localStorage.getItem(STORAGE_KEYS.PRODUCTS) || '[]');
-                        products = products.filter(p => p.productId !== productId);
-                        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-                        resolve(new Response(JSON.stringify({ success: true }), { status: 200 }));
-                    }
-                    else if (urlStr === '/api/products/add' && options.method === 'POST') {
-                        const productData = JSON.parse(options.body);
-                        const products = JSON.parse(localStorage.getItem(STORAGE_KEYS.PRODUCTS) || '[]');
-                        if (products.find(p => p.productId === productData.productId)) {
-                            resolve(new Response(JSON.stringify({ success: false, error: "Duplicate Product ID" }), { status: 409 }));
-                        } else {
-                            products.push(productData);
-                            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-                            resolve(new Response(JSON.stringify({ success: true }), { status: 201 }));
-                        }
-                    }
-                    else { resolve(new Response(JSON.stringify({ success: false }), { status: 404 })); }
-                }, 150);
-            });
-        }
-        return originalFetch.call(this, url, options);
-    };
-    initializeMockData();
-
-    // ----- GLOBALS -----
-    let currentSizeRows = [];
-
-    function showToast(msg) { const toast = document.getElementById("toast"); toast.innerText = msg; toast.className = "show"; setTimeout(() => toast.className = "", 3000); }
-
-    function renderSizeManagerUI() {
-        const container = document.getElementById("size-rows-container");
-        if (!container) return;
-        container.innerHTML = "";
-        if (currentSizeRows.length === 0) {
-            const emptyMsg = document.createElement("div");
-            emptyMsg.className = "info-message";
-            emptyMsg.innerText = "No sizes defined. Click 'Add Size' to add variants or leave empty for cricket equipment.";
-            container.appendChild(emptyMsg);
-        } else {
-            currentSizeRows.forEach((item, idx) => {
-                const rowDiv = document.createElement("div"); rowDiv.className = "size-row";
-                const sizeInput = document.createElement("input");
-                sizeInput.type = "text"; sizeInput.className = "size-name-input"; sizeInput.placeholder = "e.g., 8, 9, S, M, Full Size";
-                sizeInput.value = item.size;
-                sizeInput.addEventListener("input", (e) => { currentSizeRows[idx].size = e.target.value; });
-                const statusSelect = document.createElement("select"); statusSelect.className = "size-status-select";
-                const optAvail = document.createElement("option"); optAvail.value = "Available"; optAvail.innerText = "✅ Available";
-                const optSold = document.createElement("option"); optSold.value = "Sold Out"; optSold.innerText = "❌ Sold Out";
-                statusSelect.appendChild(optAvail); statusSelect.appendChild(optSold);
-                statusSelect.value = item.status;
-                statusSelect.addEventListener("change", (e) => { currentSizeRows[idx].status = e.target.value; });
-                const removeBtn = document.createElement("button"); removeBtn.type = "button"; removeBtn.innerText = "🗑️ Remove"; removeBtn.className = "remove-size-btn";
-                removeBtn.onclick = () => { currentSizeRows.splice(idx, 1); renderSizeManagerUI(); };
-                rowDiv.appendChild(sizeInput); rowDiv.appendChild(statusSelect); rowDiv.appendChild(removeBtn);
-                container.appendChild(rowDiv);
-            });
-        }
-    }
-
-    // Dynamic preset based on category
-    function applySizePreset(category) {
-        if (category === "Cricket") {
-            currentSizeRows = [];  // No sizes for cricket
-            const managerDiv = document.getElementById("size-manager-container");
-            const infoMsgDiv = document.getElementById("size-info-message");
-            if (managerDiv) managerDiv.classList.add("disabled-manager");
-            if (infoMsgDiv) { infoMsgDiv.style.display = "block"; infoMsgDiv.innerHTML = "🏏 Cricket equipment does not require size variants. You can still add custom sizes if needed (e.g., Youth, Full Size) by clicking the button above."; }
-        } 
-        else if (category === "Footwear") {
-            currentSizeRows = [
-                { size: "6", status: "Available" }, { size: "7", status: "Available" }, 
-                { size: "8", status: "Available" }, { size: "9", status: "Available" }, 
-                { size: "10", status: "Available" }
-            ];
-            const managerDiv = document.getElementById("size-manager-container");
-            const infoMsgDiv = document.getElementById("size-info-message");
-            if (managerDiv) managerDiv.classList.remove("disabled-manager");
-            if (infoMsgDiv) { infoMsgDiv.style.display = "block"; infoMsgDiv.innerHTML = "👟 Footwear: Numeric sizes (6,7,8,9,10) pre-filled. You can add/remove sizes as needed."; }
-        } 
-        else if (category === "Accessories") {
-            currentSizeRows = [
-                { size: "S", status: "Available" }, { size: "M", status: "Available" }, 
-                { size: "L", status: "Available" }, { size: "XL", status: "Available" }
-            ];
-            const managerDiv = document.getElementById("size-manager-container");
-            const infoMsgDiv = document.getElementById("size-info-message");
-            if (managerDiv) managerDiv.classList.remove("disabled-manager");
-            if (infoMsgDiv) { infoMsgDiv.style.display = "block"; infoMsgDiv.innerHTML = "🧢 Accessories: Standard sizes S, M, L, XL pre-filled. Customize freely."; }
-        }
-        renderSizeManagerUI();
-    }
-
-    // Category change listener
-    function initCategoryListener() {
-        const catSelect = document.getElementById("p-category");
-        if (catSelect) {
-            catSelect.addEventListener("change", (e) => {
-                applySizePreset(e.target.value);
-            });
-        }
-    }
-
-    // AUTH
-    const ADMIN_PIN = "ONE42024";
-    if(sessionStorage.getItem('one4_admin_auth') === 'true') unlockDashboard();
-
-    function checkLogin() {
-        const input = document.getElementById('admin-pin').value;
-        if(input === ADMIN_PIN) {
-            sessionStorage.setItem('one4_admin_auth', 'true');
-            unlockDashboard();
-        } else {
-            document.getElementById('login-error').style.display = 'block';
-            document.getElementById('admin-pin').value = '';
-        }
-    }
-    document.getElementById('admin-pin')?.addEventListener('keypress', (e) => { if(e.key === 'Enter') checkLogin(); });
-
-    function unlockDashboard() {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-content').style.display = 'flex';
-        fetchDashboardData();
-        fetchInventory();
-        if (document.getElementById('sec-upload').classList.contains('active')) {
-            const initialCat = document.getElementById("p-category").value;
-            applySizePreset(initialCat);
-        }
-    }
-
-    function logout() { sessionStorage.removeItem('one4_admin_auth'); location.reload(); }
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.sidebar-overlay').classList.toggle('active'); }
-
-    async function switchTab(id, el) {
-        document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(`sec-${id}`).classList.add('active');
-        el.classList.add('active');
-        if(window.innerWidth <= 768) toggleSidebar();
-        if(id === 'dashboard') fetchDashboardData();
-        if(id === 'inventory') fetchInventory();
-        if(id === 'upload') {
-            const currentCat = document.getElementById("p-category").value;
-            applySizePreset(currentCat);
-        }
-    }
-
-    async function fetchDashboardData() {
-        try {
-            const res = await fetch('/api/orders');
-            const data = await res.json();
-            if(data.success) {
-                document.getElementById('kpi-orders').innerText = data.orders.length;
-                document.getElementById('order-table-body').innerHTML = data.orders.map(o => `
-                    <td><td style="font-weight:800;">#${o.orderId}</td><td>${escapeHtml(o.customer)}</td><td style="font-weight:800;">₹${o.total}</td>
-                    <td><select class="status-select" onchange="updateOrderStatus('${o.orderId}', this.value)">${["Pending","Processing","Shipped","Delivered","Cancelled"].map(st => `<option value="${st}" ${o.status===st ? 'selected' : ''}>${st}</option>`).join('')}</select></td>
-                </tr>
-                `).join('');
-            }
-        } catch(e) { showToast("Error loading orders"); }
-    }
-
-    window.updateOrderStatus = async function(orderId, newStatus) {
-        try {
-            const res = await fetch(`/api/orders/${orderId}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
-            const data = await res.json();
-            if(data.success) { showToast(`Order #${orderId} → ${newStatus}`); fetchDashboardData(); }
-            else showToast("Status update failed");
-        } catch(e) { showToast("Server error"); }
+    // --- MOCK API LAYER ---
+    const DB = {
+        get: (key) => JSON.parse(localStorage.getItem(key) || '[]'),
+        set: (key, val) => localStorage.setItem(key, JSON.stringify(val))
     };
 
-    async function fetchInventory() {
-        const container = document.getElementById('inventory-list');
-        if(!container) return;
-        container.innerHTML = '<div>Loading inventory...</div>';
-        try {
-            const res = await fetch('/api/products');
-            const data = await res.json();
-            if(data.success && data.products) {
-                if(data.products.length === 0) { container.innerHTML = '<div class="card">✨ No products yet. Add some!</div>'; return; }
-                container.innerHTML = data.products.map(p => {
-                    const sizesHtml = (p.sizes || []).map(s => `<span class="size-pill ${s.status === 'Sold Out' ? 'status-soldout' : 'status-available'}">${escapeHtml(s.size)}</span>`).join('');
-                    const placeholderSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%2364748b' font-size='20'%3ENo Image%3C/text%3E%3C/svg%3E";
-                    let imgUrl = (p.images && p.images[0]) ? p.images[0] : placeholderSvg;
-                    return `<div class="product-card"><img src="${imgUrl}" class="product-img" onerror="this.onerror=null; this.src='${placeholderSvg}'"><div class="product-info"><div class="product-title">${escapeHtml(p.name)}</div><div class="product-price">₹${p.price}</div><div class="size-container">${sizesHtml || '<span class="size-pill">No sizes</span>'}</div><button class="btn-delete" onclick="deleteProduct('${p.productId}')"><i class="fas fa-trash-alt"></i> Remove</button></div></div>`;
-                }).join('');
-            } else { container.innerHTML = '<div class="card">Failed to load inventory</div>'; }
-        } catch(err) { container.innerHTML = '<div class="card">Network error</div>'; }
-    }
-
-    window.deleteProduct = async function(productId) {
-        if(!confirm("Permanently delete this product?")) return;
-        try {
-            const res = await fetch(`/api/products/${productId}`, { method: 'DELETE' });
-            const data = await res.json();
-            if(data.success) { showToast("Product removed"); fetchInventory(); }
-            else showToast("Delete failed");
-        } catch(e) { showToast("Error deleting"); }
-    };
-
-    // Helper: resize image before base64 conversion to avoid quota error
-    function resizeImage(file, maxWidth, maxHeight, quality) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    let width = img.width;
-                    let height = img.height;
-                    if (width > height) {
-                        if (width > maxWidth) {
-                            height *= maxWidth / width;
-                            width = maxWidth;
-                        }
-                    } else {
-                        if (height > maxHeight) {
-                            width *= maxHeight / height;
-                            height = maxHeight;
-                        }
-                    }
-                    const canvas = document.createElement('canvas');
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', quality);
-                    resolve(dataUrl);
-                };
-                img.onerror = reject;
-                img.src = e.target.result;
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    }
-document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('uploadBtn');
-    btn.disabled = true; btn.innerHTML = "⏳ Publishing...";
-
-    const productId = document.getElementById('p-id').value.trim();
-    const name = document.getElementById('p-name').value.trim();
-    const price = parseInt(document.getElementById('p-price').value);
-    const category = document.getElementById('p-category').value;
-    const files = document.getElementById('p-images').files;
-
-    // Convert images
-    const imageBase64Array = [];
-    for(const file of Array.from(files).slice(0,3)) {
-        imageBase64Array.push(await resizeImage(file, 300, 300, 0.6));
-    }
-    
-    // Convert sizes
-    let sizes = currentSizeRows.filter(r => r.size.trim() !== "").map(r => ({ size: r.size, status: r.status }));
-
-    const newProduct = { productId, name, price, category, images: imageBase64Array, sizes };
-    
-    // Save to LocalStorage (Mocking your DB)
-    const products = JSON.parse(localStorage.getItem('one4sports_products') || '[]');
-    products.push(newProduct);
-    localStorage.setItem('one4sports_products', JSON.stringify(products));
-
-    showToast("✅ Product published!");
-    document.getElementById('uploadForm').reset();
-    fetchInventory();
-    btn.disabled = false; btn.innerHTML = '<i class="fas fa-upload"></i> Publish to Store';
-});
-
-document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    // 1. Gather your data
-    const productData = {
-        productId: document.getElementById('p-id').value,
-        name: document.getElementById('p-name').value,
-        price: document.getElementById('p-price').value,
-        // ... gather your images and sizes
-    };
-
-    // 2. Send to your REAL server
-    const response = await fetch('/api/products/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(productData)
-    });
-
-    if (response.ok) {
-        alert("Product uploaded to the Database!");
-    } else {
-        alert("Server failed to save product.");
-    }
-});
+    // --- APP CONTROLLER ---
+    const App = {
+        currentSizeRows: [],
         
-        const imageBase64Array = [];
-        const fileArray = Array.from(files).slice(0,3);
-        for(const file of fileArray) {
-            try {
-                // Resize to max 300px width/height, quality 0.6
-                const resizedBase64 = await resizeImage(file, 300, 300, 0.6);
-                imageBase64Array.push(resizedBase64);
-            } catch(err) {
-                showToast("Error processing image: " + file.name);
-                btn.disabled=false; btn.innerHTML='<i class="fas fa-upload"></i> Publish to Store';
-                return;
-            }
+        init: () => {
+            if(sessionStorage.getItem('auth') === 'true') App.showDashboard();
+        },
+
+        showDashboard: () => {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-content').style.display = 'flex';
+            App.renderOrders();
+            App.renderInventory();
+        },
+
+        switchTab: (id, el) => {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(`sec-${id}`).classList.add('active');
+            el.classList.add('active');
+        },
+
+        renderOrders: () => {
+            const orders = DB.get('one4sports_orders');
+            document.getElementById('order-table-body').innerHTML = orders.map(o => `
+                <tr><td>#${o.orderId}</td><td>${o.customer}</td><td>${o.status}</td></tr>
+            `).join('');
+        },
+
+        renderInventory: () => {
+            const products = DB.get('one4sports_products');
+            const container = document.getElementById('inventory-list');
+            container.innerHTML = products.map(p => `
+                <div class="card" style="margin:0">
+                    <strong>${p.name}</strong><br>₹${p.price}
+                    <button class="btn-action" style="margin-top:10px" onclick="App.deleteProduct('${p.productId}')">Delete</button>
+                </div>
+            `).join('');
+        },
+
+        addSizeRow: () => {
+            App.currentSizeRows.push({ size: "", status: "Available" });
+            App.renderSizeRows();
+        },
+
+        renderSizeRows: () => {
+            const container = document.getElementById('size-rows-container');
+            container.innerHTML = App.currentSizeRows.map((r, i) => `
+                <div class="size-row">
+                    <input type="text" value="${r.size}" onchange="App.currentSizeRows[${i}].size=this.value" placeholder="Size">
+                    <button type="button" onclick="App.currentSizeRows.splice(${i},1); App.renderSizeRows()">✕</button>
+                </div>
+            `).join('');
+        },
+
+        handleCategoryChange: (cat) => {
+            App.currentSizeRows = (cat === 'Footwear') ? [{size:'7', status:'Available'}, {size:'8', status:'Available'}] : [];
+            App.renderSizeRows();
+        },
+
+        deleteProduct: (id) => {
+            let products = DB.get('one4sports_products').filter(p => p.productId !== id);
+            DB.set('one4sports_products', products);
+            App.renderInventory();
         }
+    };
+
+    // --- AUTH ---
+    const Auth = {
+        login: () => {
+            if(document.getElementById('admin-pin').value === "ONE42024") {
+                sessionStorage.setItem('auth', 'true');
+                App.showDashboard();
+            } else alert("Invalid PIN");
+        },
+        logout: () => { sessionStorage.clear(); location.reload(); }
+    };
+
+    // --- FORM HANDLING ---
+    document.getElementById('uploadForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newProduct = {
+            productId: document.getElementById('p-id').value,
+            name: document.getElementById('p-name').value,
+            price: document.getElementById('p-price').value,
+            category: document.getElementById('p-category').value,
+            sizes: App.currentSizeRows
+        };
+        const products = DB.get('one4sports_products');
+        products.push(newProduct);
+        DB.set('one4sports_products', products);
         
-        let sizes = [];
-        for (let row of currentSizeRows) {
-            let sizeName = row.size.trim();
-            if (sizeName !== "") sizes.push({ size: sizeName, status: row.status });
-        }
-        const newProduct = { productId, name, price, category, images: imageBase64Array, sizes };
-        try {
-            const res = await fetch('/api/products/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newProduct) });
-            const result = await res.json();
-            if(result.success) {
-                showToast("✅ Product published!");
-                document.getElementById('uploadForm').reset();
-                const currentCat = document.getElementById("p-category").value;
-                applySizePreset(currentCat);
-                document.getElementById('p-images').value = '';
-                fetchInventory();
-                switchTab('inventory', document.querySelectorAll('.nav-item')[1]);
-            } else { showToast(result.error || "Upload failed: ID exists"); }
-        } catch(err) { showToast("Network error"); }
-        finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-upload"></i> Publish to Store'; }
+        document.getElementById('uploadForm').reset();
+        App.renderInventory();
+        alert("Product Published!");
     });
 
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
-
-    // init
-    document.getElementById("addSizeBtn")?.addEventListener("click", () => {
-        currentSizeRows.push({ size: "", status: "Available" });
-        renderSizeManagerUI();
-    });
-    initCategoryListener();
-    if(sessionStorage.getItem('one4_admin_auth') === 'true') {
-        setTimeout(() => { applySizePreset(document.getElementById("p-category")?.value || "Cricket"); }, 100);
-    }
-    window.renderSizeManagerUI = renderSizeManagerUI;
+    App.init();
 </script>
 </body>
 </html>
