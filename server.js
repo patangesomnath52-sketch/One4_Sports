@@ -95,26 +95,39 @@ app.get('/api/products/:id', async (req, res) => {
     }
 });
 
-// ADD or UPDATE product (with image upload)
 app.post('/api/products/add', upload.array('productImages', 3), async (req, res) => {
     try {
-        const imagePaths = req.files ? req.files.map(file => file.path) : [];
         const { productId, name, price, category, availableSizes, stockStatus } = req.body;
 
         if (!productId || !name || !price) {
-            return res.status(400).json({ success: false, message: "Missing required fields: productId, name, price" });
+            return res.status(400).json({ success: false, message: "Missing required fields" });
         }
 
+        // 1. Parse existing images sent from frontend (JSON string)
+        let existingImages = [];
+        if (req.body.images) {
+            try {
+                existingImages = JSON.parse(req.body.images);
+                if (!Array.isArray(existingImages)) existingImages = [];
+            } catch(e) { existingImages = []; }
+        }
+
+        // 2. Get newly uploaded image paths
+        const newImagePaths = req.files ? req.files.map(file => file.path) : [];
+
+        // 3. Merge: existing (which already includes deletions) + new uploads
+        const finalImages = [...existingImages, ...newImagePaths];
+
+        // 4. Build update data
         const updateData = {
             name,
             price: parseFloat(price),
             category: category || 'Uncategorized',
-            isOutOfStock: stockStatus === 'out-of-stock',   // map frontend value
+            isOutOfStock: stockStatus === 'out-of-stock',
             availableSizes: availableSizes ? availableSizes.split(',') : [],
-            stockStatus: stockStatus || 'in-stock'
+            stockStatus: stockStatus || 'in-stock',
+            images: finalImages   // ← key change
         };
-
-        if (imagePaths.length > 0) updateData.images = imagePaths;
 
         const updatedProduct = await Product.findOneAndUpdate(
             { productId },
@@ -122,13 +135,12 @@ app.post('/api/products/add', upload.array('productImages', 3), async (req, res)
             { upsert: true, new: true }
         );
 
-        res.json({ success: true, message: "✅ Product saved/updated successfully", product: updatedProduct });
+        res.json({ success: true, message: "✅ Product saved/updated", product: updatedProduct });
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: err.message });
     }
 });
-
 // UPDATE product stock/sizes (alternative endpoint)
 app.post('/api/products/update', async (req, res) => {
     try {

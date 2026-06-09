@@ -183,6 +183,16 @@
         @media (max-width: 480px) {
             .kpi-grid { grid-template-columns: 1fr; }
         }
+        .editor-container { background: var(--card-bg); border-radius: 24px; padding: 24px; margin-top: 20px; }
+.product-selector { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 16px; margin-bottom: 24px; }
+.size-grid { display: flex; flex-wrap: wrap; gap: 12px; background: var(--bg-color); padding: 16px; border-radius: 16px; margin: 10px 0; }
+.size-item { display: flex; align-items: center; gap: 8px; background: var(--card-bg); padding: 6px 14px; border-radius: 40px; border: 1px solid var(--border-color); }
+.image-gallery { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.image-card { position: relative; width: 80px; height: 80px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
+.delete-img { position: absolute; top: 4px; right: 4px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; }
+.message { margin-top: 16px; padding: 12px; border-radius: 12px; display: none; }
+.message.success { background: var(--success-bg); color: var(--success); display: block; }
+.message.error { background: rgba(239,68,68,0.1); color: var(--danger); display: block; }
     </style>
 </head>
 <body>
@@ -221,7 +231,9 @@
                 <div class="nav-item" onclick="switchTab('upload', this)">
                     <i class="fas fa-plus-circle"></i> Deploy Product
                 </div>
-                
+                <div class="nav-item" onclick="switchTab('editor', this)">
+                    <i class="fas fa-pen-square"></i> Edit Product
+                </div>
                 <div class="system-status">
                     <div class="status-box">
                         <i class="fas fa-server" style="color: var(--success); font-size: 24px; margin-bottom: 10px;"></i>
@@ -339,6 +351,48 @@
     </div>
 
     <div id="toast"><i class="fas fa-info-circle" style="margin-right: 8px; color: var(--accent);"></i> <span id="toast-msg">System Notification</span></div>
+<div class="editor-container">
+    <h2><i class="fas fa-edit"></i> Edit Product</h2>
+
+    <!-- Product selector -->
+    <div class="product-selector">
+        <label for="product-search">Select product to edit:</label>
+        <select id="product-search" style="margin-bottom: 8px;">
+            <option value="">-- Load product list --</option>
+        </select>
+        <button id="load-product-btn" class="secondary" style="margin-top: 0;">📦 Load selected</button>
+    </div>
+
+    <!-- Edit form (hidden until product loaded) -->
+    <div id="edit-panel" style="display: none;">
+        <input type="hidden" id="product-id">
+        
+        <label>Product Name</label>
+        <input type="text" id="product-name" placeholder="e.g., Pro Football">
+
+        <label>Price (₹)</label>
+        <input type="number" id="product-price" step="1">
+
+        <label>Category</label>
+        <input type="text" id="product-category" placeholder="e.g., Footwear">
+
+        <label>📏 Size Availability (check = in stock)</label>
+        <div class="size-grid" id="size-list"></div>
+
+        <label>🖼️ Product Images</label>
+        <div id="image-gallery" class="image-gallery"></div>
+        
+        <label>➕ Add more photos (max 5)</label>
+        <input type="file" id="new-images" accept="image/*" multiple>
+
+        <div style="display: flex; gap: 12px; margin-top: 20px;">
+            <button id="save-product-btn">💾 Save Changes</button>
+            <button id="delete-product-btn" class="danger">🗑️ Delete Product</button>
+        </div>
+    </div>
+
+    <div id="message-box" class="message"></div>
+</div>
 
     <script>
         const ADMIN_PIN = "ONE42024";
@@ -471,7 +525,7 @@
         async function updateOrderStatus(orderId, newStatus) {
             try {
                 const res = await fetch(`/api/orders/${orderId}/status`, {
-                    method: 'PUT',
+                    method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: newStatus })
                 });
@@ -574,5 +628,202 @@
             }
         });
     </script>
+    <script>
+    // ---------- Helper Functions ----------
+    const apiFetch = async (url, options = {}) => {
+        const res = await fetch(url, options);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    };
+
+    const showMessage = (text, isError = false) => {
+        const box = document.getElementById('message-box');
+        box.textContent = text;
+        box.className = `message ${isError ? 'error' : 'success'}`;
+        setTimeout(() => { box.className = 'message'; }, 4000);
+    };
+
+    // Load all products into dropdown
+    async function loadProductList() {
+        try {
+            const data = await apiFetch('/api/products');
+            if (!data.success) throw new Error(data.message);
+            const select = document.getElementById('product-search');
+            select.innerHTML = '<option value="">-- Choose product --</option>';
+            data.products.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.productId;
+                option.textContent = `${p.productId} - ${p.name} (₹${p.price})`;
+                select.appendChild(option);
+            });
+        } catch (err) {
+            showMessage(`Failed to load products: ${err.message}`, true);
+        }
+    }
+
+    // Render size checkboxes based on availableSizes array
+    function renderSizeControls(availableSizes = []) {
+        const allPossibleSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL', '6XL', '7XL', '8XL', '9XL', '10XL', 'Free', 'One Size'];
+        const container = document.getElementById('size-list');
+        container.innerHTML = '';
+        allPossibleSizes.forEach(size => {
+            const isChecked = availableSizes.includes(size);
+            const div = document.createElement('div');
+            div.className = 'size-item';
+            div.innerHTML = `
+                <input type="checkbox" value="${size}" ${isChecked ? 'checked' : ''}>
+                <span>${size}</span>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    // Get selected sizes from checkboxes
+    function getSelectedSizes() {
+        const checkboxes = document.querySelectorAll('#size-list input[type="checkbox"]');
+        const selected = [];
+        checkboxes.forEach(cb => {
+            if (cb.checked) selected.push(cb.value);
+        });
+        return selected;
+    }
+
+    // Display existing images with delete buttons
+    function renderImages(imagesArray) {
+        const gallery = document.getElementById('image-gallery');
+        gallery.innerHTML = '';
+        (imagesArray || []).forEach((imgUrl, idx) => {
+            const card = document.createElement('div');
+            card.className = 'image-card';
+            card.innerHTML = `
+                <img src="${imgUrl}" alt="product image">
+                <button class="delete-img" data-index="${idx}"><i class="fas fa-trash"></i></button>
+            `;
+            gallery.appendChild(card);
+        });
+        // attach delete events
+        document.querySelectorAll('.delete-img').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.dataset.index);
+                const currentImages = window._currentProductImages || [];
+                currentImages.splice(idx, 1);
+                window._currentProductImages = currentImages;
+                renderImages(currentImages);
+                showMessage('Image removed (save to persist)', false);
+            });
+        });
+    }
+
+    // Load full product data into the editor
+    async function loadProductForEdit(productId) {
+        if (!productId) return;
+        try {
+            showMessage('Loading product details...');
+            const data = await apiFetch(`/api/products/${productId}`);
+            if (!data.success) throw new Error(data.message);
+            const p = data.product;
+            
+            document.getElementById('product-id').value = p.productId;
+            document.getElementById('product-name').value = p.name || '';
+            document.getElementById('product-price').value = p.price || 0;
+            document.getElementById('product-category').value = p.category || '';
+            
+            // sizes
+            const availableSizes = p.availableSizes || [];
+            renderSizeControls(availableSizes);
+            
+            // images
+            window._currentProductImages = p.images || [];
+            renderImages(window._currentProductImages);
+            
+            document.getElementById('edit-panel').style.display = 'block';
+            showMessage(`Editing ${p.name}`, false);
+        } catch (err) {
+            showMessage(`Error loading product: ${err.message}`, true);
+            document.getElementById('edit-panel').style.display = 'none';
+        }
+    }
+
+    // Save product using /api/products/add (supports upsert + images)
+    async function saveProduct() {
+        const productId = document.getElementById('product-id').value;
+        const name = document.getElementById('product-name').value.trim();
+        const price = parseFloat(document.getElementById('product-price').value);
+        const category = document.getElementById('product-category').value.trim();
+        const selectedSizes = getSelectedSizes();
+        const currentImages = window._currentProductImages || [];
+        
+        // Prepare FormData
+        const formData = new FormData();
+        formData.append('productId', productId);
+        formData.append('name', name);
+        formData.append('price', price);
+        formData.append('category', category);
+        
+        // sizes -> store as comma separated string (backend expects array or string? we send as JSON in normal POST, but for multipart we send as text)
+        formData.append('availableSizes', selectedSizes.join(','));
+        // stockStatus: if no sizes available -> out of stock, else in stock
+        const stockStatus = selectedSizes.length === 0 ? 'out-of-stock' : 'in-stock';
+        formData.append('stockStatus', stockStatus);
+        
+        // send existing images as JSON string (backend will overwrite images array)
+        formData.append('images', JSON.stringify(currentImages));
+        
+        // add new image files
+        const fileInput = document.getElementById('new-images');
+        if (fileInput.files.length > 0) {
+            for (let file of fileInput.files) {
+                formData.append('productImages', file);
+            }
+        }
+        
+        try {
+            const res = await fetch('/api/products/add', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await res.json();
+            if (!result.success) throw new Error(result.message);
+            showMessage('✅ Product updated successfully!', false);
+            // refresh product list dropdown and reload current product
+            await loadProductList();
+            await loadProductForEdit(productId);
+            document.getElementById('new-images').value = ''; // clear file input
+        } catch (err) {
+            showMessage(`Save failed: ${err.message}`, true);
+        }
+    }
+
+    // Delete product
+    async function deleteProduct() {
+        const productId = document.getElementById('product-id').value;
+        if (!confirm(`Delete product ${productId} permanently?`)) return;
+        try {
+            const res = await fetch(`/api/products/${productId}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.message);
+            showMessage(`Product ${productId} deleted.`, false);
+            document.getElementById('edit-panel').style.display = 'none';
+            await loadProductList();
+        } catch (err) {
+            showMessage(`Delete error: ${err.message}`, true);
+        }
+    }
+
+    // Event listeners & initial load
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadProductList();
+        
+        document.getElementById('load-product-btn').addEventListener('click', () => {
+            const selectedId = document.getElementById('product-search').value;
+            if (selectedId) loadProductForEdit(selectedId);
+            else showMessage('Please select a product from the list', true);
+        });
+        
+        document.getElementById('save-product-btn').addEventListener('click', saveProduct);
+        document.getElementById('delete-product-btn').addEventListener('click', deleteProduct);
+    });
+</script>
+
 </body>
 </html>
