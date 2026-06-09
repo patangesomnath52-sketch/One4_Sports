@@ -522,13 +522,14 @@
 <script>
     // ---------- MOCK BACKEND ----------
     const STORAGE_KEYS = { PRODUCTS: 'one4sports_products', ORDERS: 'one4sports_orders' };
+    
     function initializeMockData() {
         if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
-   const defaultProducts = [
-    { productId: "BAT-100", name: "Master Blaster Kashmir Willow", price: 3299, category: "Cricket", images: ["data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%231e293b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3EBAT%3C/text%3E%3C/svg%3E"], sizes: [] },
-    { productId: "SHOE-42", name: "Pro Sprint Shoes", price: 4999, category: "Footwear", images: ["data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23E10600'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3ESHOE%3C/text%3E%3C/svg%3E"], sizes: [{ size: "7", status: "Available" }, { size: "8", status: "Available" }, { size: "9", status: "Sold Out" }, { size: "10", status: "Available" }] },
-    { productId: "ACC-01", name: "Premium Cricket Gloves", price: 1299, category: "Accessories", images: ["data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%230f172a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3EGLOVES%3C/text%3E%3C/svg%3E"], sizes: [{ size: "S", status: "Available" }, { size: "M", status: "Available" }, { size: "L", status: "Sold Out" }, { size: "XL", status: "Available" }] }
-];
+            const defaultProducts = [
+                { productId: "BAT-100", name: "Master Blaster Kashmir Willow", price: 3299, category: "Cricket", images: ["data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%231e293b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3EBAT%3C/text%3E%3C/svg%3E"], sizes: [] },
+                { productId: "SHOE-42", name: "Pro Sprint Shoes", price: 4999, category: "Footwear", images: ["data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23E10600'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3ESHOE%3C/text%3E%3C/svg%3E"], sizes: [{ size: "7", status: "Available" }, { size: "8", status: "Available" }, { size: "9", status: "Sold Out" }, { size: "10", status: "Available" }] },
+                { productId: "ACC-01", name: "Premium Cricket Gloves", price: 1299, category: "Accessories", images: ["data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%230f172a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3EGLOVES%3C/text%3E%3C/svg%3E"], sizes: [{ size: "S", status: "Available" }, { size: "M", status: "Available" }, { size: "L", status: "Sold Out" }, { size: "XL", status: "Available" }] }
+            ];
             localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(defaultProducts));
         }
         if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) {
@@ -691,7 +692,6 @@
         fetchDashboardData();
         fetchInventory();
         if (document.getElementById('sec-upload').classList.contains('active')) {
-            // Set default preset based on initial category (Cricket)
             const initialCat = document.getElementById("p-category").value;
             applySizePreset(initialCat);
         }
@@ -721,8 +721,9 @@
             if(data.success) {
                 document.getElementById('kpi-orders').innerText = data.orders.length;
                 document.getElementById('order-table-body').innerHTML = data.orders.map(o => `
-                    <tr><td style="font-weight:800;">#${o.orderId}</td><td>${escapeHtml(o.customer)}</td><td style="font-weight:800;">₹${o.total}</td>
-                    <td><select class="status-select" onchange="updateOrderStatus('${o.orderId}', this.value)">${["Pending","Processing","Shipped","Delivered","Cancelled"].map(st => `<option value="${st}" ${o.status===st ? 'selected' : ''}>${st}</option>`).join('')}</select></td></tr>
+                    <td><td style="font-weight:800;">#${o.orderId}</td><td>${escapeHtml(o.customer)}</td><td style="font-weight:800;">₹${o.total}</td>
+                    <td><select class="status-select" onchange="updateOrderStatus('${o.orderId}', this.value)">${["Pending","Processing","Shipped","Delivered","Cancelled"].map(st => `<option value="${st}" ${o.status===st ? 'selected' : ''}>${st}</option>`).join('')}</select></td>
+                </tr>
                 `).join('');
             }
         } catch(e) { showToast("Error loading orders"); }
@@ -736,26 +737,25 @@
             else showToast("Status update failed");
         } catch(e) { showToast("Server error"); }
     };
-async function fetchInventory() {
-    const container = document.getElementById('inventory-list');
-    if(!container) return;
-    container.innerHTML = '<div>Loading inventory...</div>';
-    try {
-        const res = await fetch('/api/products');
-        const data = await res.json();
-        if(data.success && data.products) {
-            if(data.products.length === 0) { container.innerHTML = '<div class="card">✨ No products yet. Add some!</div>'; return; }
-            container.innerHTML = data.products.map(p => {
-                const sizesHtml = (p.sizes || []).map(s => `<span class="size-pill ${s.status === 'Sold Out' ? 'status-soldout' : 'status-available'}">${escapeHtml(s.size)}</span>`).join('');
-                // Local SVG placeholder (base64 encoded)
-                const placeholderSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%2364748b' font-size='20'%3ENo Image%3C/text%3E%3C/svg%3E";
-                let imgUrl = (p.images && p.images[0]) ? p.images[0] : placeholderSvg;
-                // Sanitize: if image fails to load, replace with placeholder (no external URL)
-                return `<div class="product-card"><img src="${imgUrl}" class="product-img" onerror="this.onerror=null; this.src='${placeholderSvg}'"><div class="product-info"><div class="product-title">${escapeHtml(p.name)}</div><div class="product-price">₹${p.price}</div><div class="size-container">${sizesHtml || '<span class="size-pill">No sizes</span>'}</div><button class="btn-delete" onclick="deleteProduct('${p.productId}')"><i class="fas fa-trash-alt"></i> Remove</button></div></div>`;
-            }).join('');
-        } else { container.innerHTML = '<div class="card">Failed to load inventory</div>'; }
-    } catch(err) { container.innerHTML = '<div class="card">Network error</div>'; }
-}
+
+    async function fetchInventory() {
+        const container = document.getElementById('inventory-list');
+        if(!container) return;
+        container.innerHTML = '<div>Loading inventory...</div>';
+        try {
+            const res = await fetch('/api/products');
+            const data = await res.json();
+            if(data.success && data.products) {
+                if(data.products.length === 0) { container.innerHTML = '<div class="card">✨ No products yet. Add some!</div>'; return; }
+                container.innerHTML = data.products.map(p => {
+                    const sizesHtml = (p.sizes || []).map(s => `<span class="size-pill ${s.status === 'Sold Out' ? 'status-soldout' : 'status-available'}">${escapeHtml(s.size)}</span>`).join('');
+                    const placeholderSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%2364748b' font-size='20'%3ENo Image%3C/text%3E%3C/svg%3E";
+                    let imgUrl = (p.images && p.images[0]) ? p.images[0] : placeholderSvg;
+                    return `<div class="product-card"><img src="${imgUrl}" class="product-img" onerror="this.onerror=null; this.src='${placeholderSvg}'"><div class="product-info"><div class="product-title">${escapeHtml(p.name)}</div><div class="product-price">₹${p.price}</div><div class="size-container">${sizesHtml || '<span class="size-pill">No sizes</span>'}</div><button class="btn-delete" onclick="deleteProduct('${p.productId}')"><i class="fas fa-trash-alt"></i> Remove</button></div></div>`;
+                }).join('');
+            } else { container.innerHTML = '<div class="card">Failed to load inventory</div>'; }
+        } catch(err) { container.innerHTML = '<div class="card">Network error</div>'; }
+    }
 
     window.deleteProduct = async function(productId) {
         if(!confirm("Permanently delete this product?")) return;
@@ -767,7 +767,43 @@ async function fetchInventory() {
         } catch(e) { showToast("Error deleting"); }
     };
 
-    // Product submission with dynamic sizes
+    // Helper: resize image before base64 conversion to avoid quota error
+    function resizeImage(file, maxWidth, maxHeight, quality) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width *= maxHeight / height;
+                            height = maxHeight;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                    resolve(dataUrl);
+                };
+                img.onerror = reject;
+                img.src = e.target.result;
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Product submission with image resizing
     document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('uploadBtn');
@@ -778,19 +814,26 @@ async function fetchInventory() {
         const category = document.getElementById('p-category').value;
         const files = document.getElementById('p-images').files;
         if(!productId || !name || isNaN(price) || files.length === 0) { showToast("Please fill all required fields + at least 1 image"); btn.disabled=false; btn.innerHTML='<i class="fas fa-upload"></i> Publish to Store'; return; }
+        
         const imageBase64Array = [];
         const fileArray = Array.from(files).slice(0,3);
         for(const file of fileArray) {
-            const reader = new FileReader();
-            const base64 = await new Promise((resolve) => { reader.onloadend = () => resolve(reader.result); reader.readAsDataURL(file); });
-            imageBase64Array.push(base64);
+            try {
+                // Resize to max 300px width/height, quality 0.6
+                const resizedBase64 = await resizeImage(file, 300, 300, 0.6);
+                imageBase64Array.push(resizedBase64);
+            } catch(err) {
+                showToast("Error processing image: " + file.name);
+                btn.disabled=false; btn.innerHTML='<i class="fas fa-upload"></i> Publish to Store';
+                return;
+            }
         }
+        
         let sizes = [];
         for (let row of currentSizeRows) {
             let sizeName = row.size.trim();
             if (sizeName !== "") sizes.push({ size: sizeName, status: row.status });
         }
-        // For cricket, if no sizes provided, keep empty array (no size chart)
         const newProduct = { productId, name, price, category, images: imageBase64Array, sizes };
         try {
             const res = await fetch('/api/products/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newProduct) });
@@ -798,7 +841,6 @@ async function fetchInventory() {
             if(result.success) {
                 showToast("✅ Product published!");
                 document.getElementById('uploadForm').reset();
-                // Reset size rows based on current category after reset
                 const currentCat = document.getElementById("p-category").value;
                 applySizePreset(currentCat);
                 document.getElementById('p-images').value = '';
