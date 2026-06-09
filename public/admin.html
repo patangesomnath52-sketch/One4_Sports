@@ -120,6 +120,7 @@
         .product-selector { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 16px; margin-bottom: 24px; }
         .size-grid { display: flex; flex-wrap: wrap; gap: 12px; background: var(--bg-color); padding: 16px; border-radius: 16px; margin: 10px 0; }
         .size-item { display: flex; align-items: center; gap: 8px; background: var(--card-bg); padding: 6px 14px; border-radius: 40px; border: 1px solid var(--border-color); }
+        .size-item.disabled { opacity: 0.5; pointer-events: none; }
         .image-gallery { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
         .image-card { position: relative; width: 80px; height: 80px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
         .delete-img { position: absolute; top: 4px; right: 4px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; }
@@ -219,6 +220,10 @@
                             <label>Product Name</label><input type="text" id="product-name" placeholder="e.g., Pro Football">
                             <label>Price (₹)</label><input type="number" id="product-price" step="1">
                             <label>Category</label><input type="text" id="product-category" placeholder="e.g., Footwear">
+                            <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                                <input type="checkbox" id="product-soldout-toggle"> 
+                                <span style="font-weight: 900;">🚫 Entire Product Sold Out (overrides sizes)</span>
+                            </label>
                             <label>📏 Size Availability (check = in stock)</label><div class="size-grid" id="size-list"></div>
                             <label>🖼️ Product Images</label><div id="image-gallery" class="image-gallery"></div>
                             <label>➕ Add more photos (max 5)</label><input type="file" id="new-images" accept="image/*" multiple>
@@ -273,7 +278,6 @@
             if(id === 'dashboard') fetchDashboardData();
             if(id === 'inventory') fetchInventory();
         }
-        // Escape HTML helper
         function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m; }); }
         async function fetchDashboardData() {
             const tableBody = document.getElementById('order-table-body');
@@ -293,7 +297,7 @@
                     if(orders.length === 0) { tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 30px; color: var(--text-muted);">No logs found.</td></tr>'; return; }
                     tableBody.innerHTML = orders.map(o => {
                         const orderDate = o.date ? new Date(o.date).toLocaleDateString() : 'N/A';
-                        return `<tr>
+                        return `<table>
                             <td style="font-weight: 900; color: var(--accent);">#${escapeHtml(o.orderId)}</td>
                             <td><div style="font-weight: 800; color: var(--text-main);">${escapeHtml(o.customer)}</div><div style="font-size: 12px; color: var(--text-muted);">${escapeHtml(o.email || 'Direct User')}</div></td>
                             <td style="color: var(--text-muted); font-size: 14px; font-weight: 700;">${orderDate}</td>
@@ -378,7 +382,7 @@
             finally { btn.innerHTML = originalText; btn.disabled = false; }
         });
 
-        // ---------- EDITOR SCRIPT (self-contained) ----------
+        // ---------- EDITOR SCRIPT with Sold Out Toggle ----------
         async function loadProductList() {
             try {
                 const res = await fetch('/api/products');
@@ -386,22 +390,34 @@
                 if(!data.success) throw new Error(data.message);
                 const select = document.getElementById('product-search');
                 select.innerHTML = '<option value="">-- Choose product --</option>';
-                data.products.forEach(p => { const opt = document.createElement('option'); opt.value = p.productId; opt.textContent = `${p.productId} - ${p.name} (₹${p.price})`; select.appendChild(opt); });
+                data.products.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.productId;
+                    opt.textContent = `${p.productId} - ${p.name} (₹${p.price})`;
+                    select.appendChild(opt);
+                });
             } catch(err) { showToast(`Failed to load products: ${err.message}`, true); }
         }
-        function renderSizeControls(availableSizes = []) {
+
+        function renderSizeControls(availableSizes = [], isSoldOut = false) {
             const allSizes = ['XS','S','M','L','XL','XXL','3XL','4XL','5XL','6XL','7XL','8XL','9XL','10XL','Free','One Size'];
             const container = document.getElementById('size-list');
             container.innerHTML = '';
             allSizes.forEach(size => {
-                const isChecked = availableSizes.includes(size);
+                const isChecked = availableSizes.includes(size) && !isSoldOut;
                 const div = document.createElement('div');
-                div.className = 'size-item';
-                div.innerHTML = `<input type="checkbox" value="${size}" ${isChecked ? 'checked' : ''}><span>${size}</span>`;
+                div.className = `size-item ${isSoldOut ? 'disabled' : ''}`;
+                div.innerHTML = `<input type="checkbox" value="${size}" ${isChecked ? 'checked' : ''} ${isSoldOut ? 'disabled' : ''}><span>${size}</span>`;
                 container.appendChild(div);
             });
         }
-        function getSelectedSizes() { return Array.from(document.querySelectorAll('#size-list input:checked')).map(cb => cb.value); }
+
+        function getSelectedSizes() {
+            const toggle = document.getElementById('product-soldout-toggle');
+            if (toggle && toggle.checked) return [];
+            return Array.from(document.querySelectorAll('#size-list input:checked:not([disabled])')).map(cb => cb.value);
+        }
+
         function renderImages(imagesArray) {
             const gallery = document.getElementById('image-gallery');
             gallery.innerHTML = '';
@@ -422,6 +438,7 @@
                 });
             });
         }
+
         async function loadProductForEdit(productId) {
             if(!productId) return;
             try {
@@ -434,19 +451,57 @@
                 document.getElementById('product-name').value = p.name || '';
                 document.getElementById('product-price').value = p.price || 0;
                 document.getElementById('product-category').value = p.category || '';
-                renderSizeControls(p.availableSizes || []);
+
+                const isSoldOut = (p.isOutOfStock === true) || (p.stockStatus === 'out-of-stock');
+                const toggle = document.getElementById('product-soldout-toggle');
+                if (toggle) toggle.checked = isSoldOut;
+
+                const availableSizes = p.availableSizes || [];
+                renderSizeControls(availableSizes, isSoldOut);
+
                 window._currentProductImages = p.images || [];
                 renderImages(window._currentProductImages);
                 document.getElementById('edit-panel').style.display = 'block';
                 showToast(`Editing ${p.name}`);
-            } catch(err) { showToast(`Error loading product: ${err.message}`, true); document.getElementById('edit-panel').style.display = 'none'; }
+            } catch(err) {
+                showToast(`Error loading product: ${err.message}`, true);
+                document.getElementById('edit-panel').style.display = 'none';
+            }
         }
+
+        function setupSoldOutToggle() {
+            const toggle = document.getElementById('product-soldout-toggle');
+            if (!toggle) return;
+            toggle.addEventListener('change', function(e) {
+                const isSoldOut = e.target.checked;
+                const sizeItems = document.querySelectorAll('#size-list .size-item');
+                sizeItems.forEach(item => {
+                    const cb = item.querySelector('input[type="checkbox"]');
+                    if (isSoldOut) {
+                        cb.checked = false;
+                        cb.disabled = true;
+                        item.classList.add('disabled');
+                    } else {
+                        cb.disabled = false;
+                        item.classList.remove('disabled');
+                    }
+                });
+            });
+        }
+
         async function saveProduct() {
             const productId = document.getElementById('product-id').value;
             const name = document.getElementById('product-name').value.trim();
             const price = parseFloat(document.getElementById('product-price').value);
             const category = document.getElementById('product-category').value.trim();
-            const selectedSizes = getSelectedSizes();
+
+            const isSoldOutGlobal = document.getElementById('product-soldout-toggle').checked;
+            let selectedSizes = [];
+            if (!isSoldOutGlobal) {
+                selectedSizes = getSelectedSizes();
+            }
+            const stockStatus = isSoldOutGlobal ? 'out-of-stock' : (selectedSizes.length ? 'in-stock' : 'out-of-stock');
+
             const currentImages = window._currentProductImages || [];
             const formData = new FormData();
             formData.append('productId', productId);
@@ -454,10 +509,14 @@
             formData.append('price', price);
             formData.append('category', category);
             formData.append('availableSizes', selectedSizes.join(','));
-            formData.append('stockStatus', selectedSizes.length === 0 ? 'out-of-stock' : 'in-stock');
+            formData.append('stockStatus', stockStatus);
             formData.append('images', JSON.stringify(currentImages));
+
             const fileInput = document.getElementById('new-images');
-            if(fileInput.files.length) for(let file of fileInput.files) formData.append('productImages', file);
+            if(fileInput.files.length) {
+                for(let file of fileInput.files) formData.append('productImages', file);
+            }
+
             try {
                 const res = await fetch('/api/products/add', { method: 'POST', body: formData });
                 const result = await res.json();
@@ -466,9 +525,12 @@
                 await loadProductList();
                 await loadProductForEdit(productId);
                 document.getElementById('new-images').value = '';
-                fetchInventory(); // refresh grid
-            } catch(err) { showToast(`Save failed: ${err.message}`, true); }
+                fetchInventory();
+            } catch(err) {
+                showToast(`Save failed: ${err.message}`, true);
+            }
         }
+
         async function deleteProductFromEditor() {
             const productId = document.getElementById('product-id').value;
             if(!confirm(`Delete product ${productId} permanently?`)) return;
@@ -480,11 +542,19 @@
                 document.getElementById('edit-panel').style.display = 'none';
                 await loadProductList();
                 fetchInventory();
-            } catch(err) { showToast(`Delete error: ${err.message}`, true); }
+            } catch(err) {
+                showToast(`Delete error: ${err.message}`, true);
+            }
         }
+
         document.addEventListener('DOMContentLoaded', async () => {
             await loadProductList();
-            document.getElementById('load-product-btn').addEventListener('click', () => { const id = document.getElementById('product-search').value; if(id) loadProductForEdit(id); else showToast('Please select a product', true); });
+            setupSoldOutToggle();
+            document.getElementById('load-product-btn').addEventListener('click', () => {
+                const id = document.getElementById('product-search').value;
+                if(id) loadProductForEdit(id);
+                else showToast('Please select a product', true);
+            });
             document.getElementById('save-product-btn').addEventListener('click', saveProduct);
             document.getElementById('delete-product-editor-btn').addEventListener('click', deleteProductFromEditor);
         });
