@@ -408,5 +408,33 @@
     });
     
 </script>
+<script>
+    // 1. Function to pull the data from the Admin's "box"
+    function loadProductsToWebsite() {
+        const storedProducts = localStorage.getItem('one4sports_products');
+        
+        if (!storedProducts) {
+            console.log("No products found in LocalStorage.");
+            return;
+        }
+
+        const products = JSON.parse(storedProducts);
+        const gridContainer = document.getElementById('product-grid'); // Ensure this ID exists in your HTML
+        
+        if (!gridContainer) return;
+
+        gridContainer.innerHTML = products.map(p => `
+            <div class="product-card">
+                <img src="${p.images[0] || ''}" alt="${p.name}" style="width:100%; height:200px; object-fit:cover;">
+                <h3>${p.name}</h3>
+                <p>₹${p.price}</p>
+                <button>Add to Cart</button>
+            </div>
+        `).join('');
+    }
+
+    // 2. Run this when the page loads
+    window.onload = loadProductsToWebsite;
+</script>
 </body>
 </html>
