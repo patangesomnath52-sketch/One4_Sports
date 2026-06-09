@@ -114,12 +114,51 @@
             .right-column { position: static; }
             .mobile-footer { padding: 15px 20px; }
         }
+        /* Modern Left-Aligned Brand Block */
+.brand-logo { 
+    text-decoration: none; 
+    display: flex; 
+    flex-direction: column; /* Stacks text under the logo */
+    align-items: center; 
+    justify-content: center;
+    gap: 4px;
+    z-index: 10000;
+}
+
+.brand-img { 
+    height: 75px; /* Larger for better visibility */
+    width: auto;
+    object-fit: contain;
+    justify-content:start
+}
+
+.brand-text {
+    font-size: 10px; /* Bolder text */
+    font-weight: 600;
+    color: var(--text-main);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    line-height: 0;
+}
+
+/* Ensure the navbar keeps the logo in the corner */
+.rj-navbar { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 10px 1%; 
+    max-width: 1400px; 
+    margin: 0 auto; 
+}
     </style>
 </head>
 <body>
 
 <header class="header">
-    <a href="index.html" class="logo">One4<span>Sports</span></a>
+     <a href="index.html" class="brand-logo">
+            <img src="logo.jpg.png" alt="One4Sports" class="brand-img">
+            <span class="brand-text">ONE4SPORTS</span>
+        </a>
     <div class="secure-badge"><i class="fas fa-lock"></i> 100% Secure</div>
 </header>
 
