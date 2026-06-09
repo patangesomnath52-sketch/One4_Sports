@@ -436,20 +436,6 @@
     // 2. Run this when the page loads
     window.onload = loadProductsToWebsite;
 </script>
-// Put this in index.html to show products to customers
-async function fetchProducts() {
-    const res = await fetch('/api/products'); // Fetches from your live server
-    const data = await res.json();
-    
-    const container = document.getElementById('product-grid');
-    container.innerHTML = data.products.map(p => `
-        <div class="card">
-            <h3>${p.name}</h3>
-            <p>₹${p.price}</p>
-        </div>
-    `).join('');
-}
 
-fetchProducts();
 </body>
 </html>
