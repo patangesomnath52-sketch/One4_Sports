@@ -216,7 +216,6 @@
     <div class="rj-footer-bottom">&copy; 2026 One4Sports. Built for the next generation.</div>
 </footer>
 <div id="toast"><i class="fas fa-check-circle" style="color: #10b981; margin-right: 8px;"></i> Review submitted!</div>
-
 <script>
     let currentProduct = null;
     let selectedSize = 'Standard';
@@ -227,8 +226,17 @@
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
 
-    function selectSize(el, size) { document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('selected')); el.classList.add('selected'); selectedSize = size; }
-    function swapImage(src, el) { document.getElementById('main-img').src = src; document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active')); el.classList.add('active'); }
+    function selectSize(el, size) { 
+        document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('selected')); 
+        el.classList.add('selected'); 
+        selectedSize = size; 
+    }
+    
+    function swapImage(src, el) { 
+        document.getElementById('main-img').src = src; 
+        document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active')); 
+        el.classList.add('active'); 
+    }
 
     // ---------- REVIEWS LOGIC (localStorage) ----------
     function getReviewsKey() { return `one4sports_reviews_${currentProduct?.productId || productId}`; }
@@ -364,6 +372,7 @@
             };
         }
     }
+
     function clearUploadedImage() { uploadedImageBase64 = null; if(document.getElementById('imagePreviewDiv')) document.getElementById('imagePreviewDiv').innerHTML = ''; document.getElementById('reviewPhotoInput').value = ''; }
     function attachStarPickerEvents() {
         const stars = document.querySelectorAll('#starPicker i');
@@ -379,91 +388,156 @@
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; return m;}); }
     function showToastMessage(msg, isSuccess) { const toast = document.getElementById("toast"); toast.innerHTML = `<i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-triangle'}" style="margin-right:8px;"></i> ${msg}`; toast.className = "show"; setTimeout(() => toast.className = toast.className.replace("show",""), 3000); }
 
-    // ---------- PRODUCT LOAD ----------
-  // Inside your product page loading script
-async function loadProductDetails(productId) {
-    const res = await fetch(`/api/products/${productId}`);
-    const product = await res.json();
-    
-    const buyButton = document.getElementById('add-to-cart-btn');
-    
-    // THE CHECK
-    if (product.stockStatus === 'out-of-stock') {
-        buyButton.disabled = true;
-        buyButton.innerText = "SOLD OUT";
-        buyButton.style.backgroundColor = "#64748b"; // Grey out the button
-        buyButton.style.cursor = "not-allowed";
-    } else {
-        buyButton.disabled = false;
-        buyButton.innerText = "ADD TO CART";
+    // ---------- PRODUCT LOAD & RENDER ----------
+    async function loadProductDetails() {
+        if (!productId) { 
+            document.getElementById('loader').innerHTML = "<div>Product Not Found</div><a href='index.html'>Return</a>"; 
+            return; 
+        }
+        try {
+            const res = await fetch(`/api/products/${productId}`);
+            const data = await res.json();
+            
+            if (data.success) { 
+                currentProduct = data.product; 
+                renderProduct(currentProduct); 
+                document.getElementById('reviewsSection').style.display = 'block'; 
+                renderReviewsUI(); 
+            } else {
+                throw new Error();
+            }
+        } catch (err) { 
+            document.getElementById('loader').innerHTML = "<i class='fas fa-wifi'></i><div>Connection Failed</div>"; 
+        }
     }
-}
+
     function renderProduct(p) {
         const price = p.price, mrp = Math.round(price * 1.4);
         document.getElementById('p-category').innerText = p.category || 'Gear';
         document.getElementById('p-title').innerText = p.name;
         document.getElementById('p-price').innerText = `₹${price.toLocaleString()}`;
         document.getElementById('p-mrp').innerText = `₹${mrp.toLocaleString()}`;
+        
         if(p.description) document.getElementById('p-desc').innerText = p.description;
+        
         const gallery = document.getElementById('image-gallery');
         if(p.images && p.images.length) {
             let thumbHtml = p.images.map((img, idx) => `<div class="thumb ${idx===0?'active':''}" onclick="swapImage('${img}', this)"><img src="${img}"></div>`).join('');
             gallery.innerHTML = `<div class="main-image"><img src="${p.images[0]}" id="main-img"></div><div class="thumbnail-row">${thumbHtml}</div>`;
-        } else gallery.innerHTML = `<div class="main-image"><img src="https://via.placeholder.com/800x800" id="main-img"></div>`;
+        } else {
+            gallery.innerHTML = `<div class="main-image"><img src="https://via.placeholder.com/800x800" id="main-img"></div>`;
+        }
+        
         const sizeGrid = document.getElementById('size-grid');
-        if(p.category === 'Footwear') { sizeGrid.innerHTML = `<button class="size-btn selected" onclick="selectSize(this,'UK 7')">UK 7</button><button class="size-btn" onclick="selectSize(this,'UK 8')">UK 8</button><button class="size-btn" onclick="selectSize(this,'UK 9')">UK 9</button><button class="size-btn" onclick="selectSize(this,'UK 10')">UK 10</button>`; selectedSize = 'UK 7'; }
-        else if(p.category === 'Apparel') { sizeGrid.innerHTML = `<button class="size-btn" onclick="selectSize(this,'S')">S</button><button class="size-btn selected" onclick="selectSize(this,'M')">M</button><button class="size-btn" onclick="selectSize(this,'L')">L</button><button class="size-btn" onclick="selectSize(this,'XL')">XL</button>`; selectedSize = 'M'; }
-        else { sizeGrid.innerHTML = `<button class="size-btn selected" onclick="selectSize(this,'Standard')">Standard Size</button>`; selectedSize = 'Standard'; }
-        if(p.stock === 0) { const btn = document.getElementById('add-to-cart-btn'); btn.innerHTML = '<i class="fas fa-times-circle"></i> Sold Out'; btn.disabled = true; btn.style.background = '#333'; }
+        if(p.category === 'Footwear') { 
+            sizeGrid.innerHTML = `<button class="size-btn selected" onclick="selectSize(this,'UK 7')">UK 7</button><button class="size-btn" onclick="selectSize(this,'UK 8')">UK 8</button><button class="size-btn" onclick="selectSize(this,'UK 9')">UK 9</button><button class="size-btn" onclick="selectSize(this,'UK 10')">UK 10</button>`; 
+            selectedSize = 'UK 7'; 
+        } else if(p.category === 'Apparel') { 
+            sizeGrid.innerHTML = `<button class="size-btn" onclick="selectSize(this,'S')">S</button><button class="size-btn selected" onclick="selectSize(this,'M')">M</button><button class="size-btn" onclick="selectSize(this,'L')">L</button><button class="size-btn" onclick="selectSize(this,'XL')">XL</button>`; 
+            selectedSize = 'M'; 
+        } else { 
+            sizeGrid.innerHTML = `<button class="size-btn selected" onclick="selectSize(this,'Standard')">Standard Size</button>`; 
+            selectedSize = 'Standard'; 
+        }
+
+        // --- ENFORCING THE SOLD OUT LOGIC ---
+        const btn = document.getElementById('add-to-cart-btn');
+        const isSoldOut = (p.stockStatus === 'out-of-stock');
+        
+        if (isSoldOut) {
+            btn.innerHTML = '<i class="fas fa-times-circle"></i> Sold Out';
+            btn.disabled = true;
+            btn.style.background = '#333';
+            btn.style.cursor = 'not-allowed';
+            btn.style.boxShadow = 'none';
+        } else {
+            btn.innerHTML = '<i class="fas fa-lock"></i> Secure Item in Cart';
+            btn.disabled = false;
+            btn.style.background = 'var(--accent)';
+        }
+
         document.getElementById('loader').style.display = 'none';
         document.getElementById('product-content').style.display = 'flex';
-        function renderProduct(p) {
-    // ... (keep your existing top part of the function)
-
-    // REPLACE THIS SPECIFIC SECTION IN YOUR renderProduct FUNCTION
-    const btn = document.getElementById('add-to-cart-btn');
-    
-    // Logic to check status
-    const isSoldOut = (p.stockStatus === 'out-of-stock');
-    
-    if (isSoldOut) {
-        btn.innerHTML = '<i class="fas fa-times-circle"></i> Sold Out';
-        btn.disabled = true;
-        btn.style.background = '#333';
-        btn.style.cursor = 'not-allowed';
-        btn.style.boxShadow = 'none';
-    } else {
-        btn.innerHTML = '<i class="fas fa-lock"></i> Secure Item in Cart';
-        btn.disabled = false;
-        btn.style.background = 'var(--accent)';
     }
 
-    document.getElementById('loader').style.display = 'none';
-    document.getElementById('product-content').style.display = 'flex';
-}
-    }
-    // Cart + Auth
+    // ---------- CART + AUTH ----------
     document.getElementById('add-to-cart-btn').addEventListener('click', () => {
         if(!currentProduct) return;
-        if(!localStorage.getItem('rj_loggedInUser')) { window.location.href = `signin.html?redirect=${encodeURIComponent(window.location.href)}`; return; }
+        
+        // Final guard to prevent clicking if visually bypassed
+        if (currentProduct.stockStatus === 'out-of-stock') {
+            showToastMessage("This item is currently sold out!", false);
+            return; 
+        }
+
+        if(!localStorage.getItem('rj_loggedInUser')) { 
+            window.location.href = `signin.html?redirect=${encodeURIComponent(window.location.href)}`; 
+            return; 
+        }
+        
         let cart = JSON.parse(localStorage.getItem('rj_cart')) || [];
         const idx = cart.findIndex(i => i.productId === currentProduct.productId && i.size === selectedSize);
-        if(idx > -1) cart[idx].quantity += 1;
-        else cart.push({ productId: currentProduct.productId, name: currentProduct.name, price: currentProduct.price, image: currentProduct.images?.[0] || '', size: selectedSize, quantity: 1 });
+        
+        if(idx > -1) {
+            cart[idx].quantity += 1;
+        } else {
+            cart.push({ 
+                productId: currentProduct.productId, 
+                name: currentProduct.name, 
+                price: currentProduct.price, 
+                image: currentProduct.images?.[0] || '', 
+                size: selectedSize, 
+                quantity: 1 
+            });
+        }
+        
         localStorage.setItem('rj_cart', JSON.stringify(cart));
         updateCartCount();
         showToastMessage("Added to cart", true);
     });
-    function updateCartCount() { const cart = JSON.parse(localStorage.getItem('rj_cart')) || []; document.getElementById('cart-count').innerText = cart.length; }
+
+    function updateCartCount() { 
+        const cart = JSON.parse(localStorage.getItem('rj_cart')) || []; 
+        document.getElementById('cart-count').innerText = cart.length; 
+    }
+
     function checkLoginStatus() {
         const userName = localStorage.getItem('rj_loggedInUser');
         const authText = document.getElementById('auth-text');
-        if(userName && authText) { authText.innerText = userName.split(' ')[0]; document.getElementById('auth-btn').onclick = (e) => { e.preventDefault(); if(confirm("Log out?")){ localStorage.removeItem('rj_loggedInUser'); localStorage.removeItem('rj_userEmail'); window.location.reload(); } }; }
+        if(userName && authText) { 
+            authText.innerText = userName.split(' ')[0]; 
+            document.getElementById('auth-btn').onclick = (e) => { 
+                e.preventDefault(); 
+                if(confirm("Log out?")){ 
+                    localStorage.removeItem('rj_loggedInUser'); 
+                    localStorage.removeItem('rj_userEmail'); 
+                    window.location.reload(); 
+                } 
+            }; 
+        }
     }
-    const menuBtn = document.getElementById('mobile-menu-btn'), navLinks = document.getElementById('nav-links');
-    if(menuBtn) menuBtn.addEventListener('click', () => { navLinks.classList.toggle('active'); menuBtn.innerHTML = navLinks.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>'; document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : 'auto'; });
-    window.addEventListener('DOMContentLoaded', () => { checkLoginStatus(); updateCartCount(); loadProductDetails(); });
-    window.selectSize = selectSize; window.swapImage = swapImage; window.deleteReview = deleteReview; window.clearUploadedImage = clearUploadedImage;
+
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const navLinks = document.getElementById('nav-links');
+    
+    if(menuBtn) {
+        menuBtn.addEventListener('click', () => { 
+            navLinks.classList.toggle('active'); 
+            menuBtn.innerHTML = navLinks.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>'; 
+            document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : 'auto'; 
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => { 
+        checkLoginStatus(); 
+        updateCartCount(); 
+        loadProductDetails(); 
+    });
+    
+    window.selectSize = selectSize; 
+    window.swapImage = swapImage; 
+    window.deleteReview = deleteReview; 
+    window.clearUploadedImage = clearUploadedImage;
 </script>
 </body>
 </html>
