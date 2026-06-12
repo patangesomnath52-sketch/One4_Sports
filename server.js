@@ -35,14 +35,20 @@ const productSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const Product = mongoose.model('Product', productSchema);
-
 const orderSchema = new mongoose.Schema({
     orderId: String,
     customer: String,
-    phone: String,
     total: Number,
     status: { type: String, default: 'Processing' },
-    date: { type: Date, default: Date.now }
+    date: { type: Date, default: Date.now },
+    items: [{ // <--- NEW: Store the actual products
+        name: String,
+        price: Number,
+        quantity: Number,
+        size: String,
+        image: String
+    }],
+    address: String // Add shipping details
 });
 
 const Order = mongoose.model('Order', orderSchema);
