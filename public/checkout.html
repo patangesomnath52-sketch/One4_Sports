@@ -247,173 +247,81 @@
 </div>
 
 <div id="toast"><i class="fas fa-exclamation-circle" style="color: var(--accent); margin-right: 8px;"></i> <span id="toast-msg">Message</span></div>
-
 <script>
-    let cartItems = [];
+    let cartItems = JSON.parse(localStorage.getItem('rj_cart')) || [];
     let finalTotal = 0;
 
     document.addEventListener('DOMContentLoaded', () => {
-        cartItems = JSON.parse(localStorage.getItem('rj_cart')) || [];
-        if (cartItems.length === 0) {
-            alert("Your bag is empty!");
-            window.location.href = 'index.html';
-            return;
-        }
+        if (cartItems.length === 0) { window.location.href = 'index.html'; return; }
         
-        // Auto-fill logged in user info
         const userName = localStorage.getItem('rj_loggedInUser');
-        if(userName) {
-            document.getElementById('c-name').value = userName;
-        }
+        if(userName) document.getElementById('c-name').value = userName;
         
         renderSummary();
     });
 
-    function showToast(msg) {
-        const toast = document.getElementById("toast");
-        document.getElementById("toast-msg").innerText = msg;
-        toast.className = "show";
-        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3500);
-    }
-
     function renderSummary() {
-        const itemsContainer = document.getElementById('checkout-items');
-        let html = '';
         let actualTotal = 0;
-        let mrpTotal = 0;
-
-        cartItems.forEach(item => {
-            const price = parseFloat(item.price);
-            const mrp = Math.round(price * 1.4); 
-            const qty = item.quantity || 1;
-            
-            actualTotal += (price * qty);
-            mrpTotal += (mrp * qty);
-            
-            // Fallback for dark mode images
-            const imgUrl = item.image || 'https://via.placeholder.com/300x300/111111/ffffff?text=Image';
-
-            html += `
-                <div class="s-item">
-                    <img src="${imgUrl}" class="s-img" onerror="this.src='https://via.placeholder.com/300x300/111111/ffffff?text=Image'">
-                    <div class="s-info">
-                        <div class="s-name">${item.name}</div>
-                        <div style="font-size:13px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px;">Variant: ${item.size || 'Standard'} | Qty: ${qty}</div>
-                        <div style="font-weight:900; color: var(--text-main);">₹${price.toLocaleString()}</div>
-                    </div>
-                </div>`;
-        });
-
-        const savings = mrpTotal - actualTotal;
+        cartItems.forEach(item => { actualTotal += (parseFloat(item.price) * (item.quantity || 1)); });
         finalTotal = actualTotal;
-
-        itemsContainer.innerHTML = html;
-        document.getElementById('sub-total').innerText = `₹${mrpTotal.toLocaleString()}`;
-        document.getElementById('saved-amt').innerText = `-₹${savings.toLocaleString()}`;
         document.getElementById('t-final').innerText = `₹${actualTotal.toLocaleString()}`;
         document.getElementById('m-final').innerText = `₹${actualTotal.toLocaleString()}`;
-        document.getElementById('savings-msg').innerText = `🔥 You saved ₹${savings.toLocaleString()} today!`;
     }
 
-    // 🔴 EXACT PINCODE API LOGIC (Untouched)
-    async function autoDetectLocation() {
-        const pinInput = document.getElementById('s-pin');
-        const cityInput = document.getElementById('s-city');
-        const stateInput = document.getElementById('s-state');
+    async function placeOrder() {
+        const name = document.getElementById('c-name').value.trim();
+        const phone = document.getElementById('c-phone').value.trim();
+        const address = document.getElementById('s-address').value.trim();
+        const city = document.getElementById('s-city').value.trim();
+        const state = document.getElementById('s-state').value.trim();
+        const pin = document.getElementById('s-pin').value.trim();
+
+        if (!name || phone.length !== 10 || !address || !city || !state || !pin) {
+            alert("Please fill all fields!");
+            return;
+        }
+
+        const orderId = 'RJ' + Math.floor(100000 + Math.random() * 900000);
         
-        let pincode = pinInput.value.replace(/[^0-9]/g, '');
-        pinInput.value = pincode;
+        const orderData = {
+            orderId: orderId,
+            customer: name,
+            phone: phone,
+            email: localStorage.getItem('rj_userEmail') || 'N/A',
+            total: finalTotal,
+            status: 'Processing',
+            date: new Date().toISOString(),
+            items: cartItems.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                size: item.size || 'Standard',
+                image: item.image
+            }))
+        };
 
-        if (pincode.length === 6) {
-            cityInput.value = "Detecting...";
-            stateInput.value = "Detecting...";
-            
-            try {
-                const response = await fetch(`https://api.postalpincode.in/postoffice/${pincode}`);
-                const data = await response.json();
+        try {
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
 
-                if (data && data[0] && data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
-                    const postOffice = data[0].PostOffice[0];
-                    
-                    let detectedCity = postOffice.District;
-                    if (!detectedCity || detectedCity === "NA") {
-                        detectedCity = postOffice.Block || postOffice.Region || postOffice.Name;
-                    }
-                    
-                    cityInput.value = detectedCity;
-                    stateInput.value = postOffice.State;
-                    
-                    pinInput.style.borderColor = "var(--success)";
-                    cityInput.style.borderColor = "var(--success)";
-                    stateInput.style.borderColor = "var(--success)";
-                } else {
-                    throw new Error("Invalid Pincode");
-                }
-            } catch (error) {
-                console.error("API Error:", error);
-                cityInput.value = "";
-                stateInput.value = "";
-                cityInput.placeholder = "Enter City manually";
-                stateInput.placeholder = "Enter State manually";
-                pinInput.style.borderColor = "var(--accent)";
-                showToast("Pincode not found. Please type City manually.");
+            if (response.ok) {
+                const itemsSummary = cartItems.map(i => `${i.name} (UK${i.size}) x${i.quantity}`).join(', ');
+                const waMsg = encodeURIComponent(
+                    `🔥 *नवीन ऑर्डर (One4Sports)*\n\n🆔 ID: #${orderId}\n👤 ग्राहक: ${name}\n📞 फोन: ${phone}\n📍 पत्ता: ${address}, ${city}, ${state} - ${pin}\n🛒 वस्तू: ${itemsSummary}\n💰 एकूण: ₹${finalTotal.toLocaleString()}`
+                );
+                window.open(`https://wa.me/918055475552?text=${waMsg}`, '_blank');
+                localStorage.removeItem('rj_cart');
+                window.location.href = `success.html?order=${orderId}`;
+            } else {
+                alert("Database error. Please try again.");
             }
-        } else {
-            pinInput.style.borderColor = "var(--border-color)";
-            cityInput.style.borderColor = "var(--border-color)";
-            stateInput.style.borderColor = "var(--border-color)";
-            if(cityInput.value === "Detecting...") {
-                cityInput.value = "";
-                stateInput.value = "";
-            }
+        } catch (err) {
+            alert("Network error. Check connection.");
         }
     }
-
-    // WhatsApp logic (Untouched text)
-    async function placeOrder() {
-    const name = document.getElementById('c-name').value.trim();
-    const phone = document.getElementById('c-phone').value.trim();
-    const address = document.getElementById('s-address').value.trim();
-    const city = document.getElementById('s-city').value.trim();
-    const state = document.getElementById('s-state').value.trim();
-    const pin = document.getElementById('s-pin').value.trim();
-
-    // 1. Basic Validation
-    if (!name || phone.length !== 10 || !address || !city || !state || !pin) {
-        showToast("Please fill all contact and address details!");
-        return;
-    }
-
-    // 2. Prepare Data
-    const orderId = 'RJ' + Math.floor(Math.random() * 1000000);
-    const itemsSummary = cartItems.map(i => `${i.name} (UK${i.size}) x${i.quantity}`).join(', ');
-    
-    // 3. Create WhatsApp URL
-    const waMsg = encodeURIComponent(
-        `🔥 *नवीन ऑर्डर (One4Sports)*\n\n` +
-        `🆔 ID: #${orderId}\n` +
-        `👤 ग्राहक: ${name}\n` +
-        `📞 फोन: ${phone}\n` +
-        `📍 पत्ता: ${address}, ${city}, ${state} - ${pin}\n` +
-        `🛒 वस्तू: ${itemsSummary}\n` +
-        `💰 एकूण: ₹${finalTotal.toLocaleString()}\n` +
-        `💳 पेमेंट: Cash on Delivery\n\n` +
-        `_कृपया ऑर्डर कन्फर्म करा!_`
-    );
-
-    // 4. Trigger WhatsApp in a new tab
-    window.open(`https://wa.me/918055475552?text=${waMsg}`, '_blank');
-
-    // 5. Success Flow: Clear cart and redirect
-    showToast("Opening WhatsApp to confirm...");
-    
-    setTimeout(() => {
-        localStorage.removeItem('rj_cart');
-        window.location.href = 'order-success.html';
-    }, 1500); // Gives the user 1.5 seconds to see the toast before leaving
-}
-        
-  
 </script>
 </body>
 </html>
