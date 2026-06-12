@@ -186,13 +186,28 @@ app.delete('/api/products/:id', async (req, res) => {
 // ---- ORDER ROUTES ----
 
 // GET all orders (sorted newest first)
-app.get('/api/orders', async (req, res) => {
+app.post('/api/orders', async (req, res) => {
     try {
-        const orders = await Order.find().sort({ date: -1 });
-        res.json({ success: true, orders });
+        const { productId } = req.body;
+        
+        // 1. Fetch the product from your Database
+        const product = await Product.findOne({ productId: productId });
+        
+        // 2. CHECK THE STATUS BEFORE PROCESSING
+        if (product.stockStatus === 'out-of-stock') {
+            return res.status(400).json({ 
+                success: false, 
+                message: "This product is currently unavailable." 
+            });
+        }
+
+        // 3. If in stock, proceed with order creation
+        const newOrder = new Order(req.body);
+        await newOrder.save();
+        res.status(201).json({ success: true });
+        
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: "Failed to fetch orders" });
+        res.status(500).json({ success: false, message: "Order failed" });
     }
 });
 

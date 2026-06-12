@@ -380,15 +380,24 @@
     function showToastMessage(msg, isSuccess) { const toast = document.getElementById("toast"); toast.innerHTML = `<i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-triangle'}" style="margin-right:8px;"></i> ${msg}`; toast.className = "show"; setTimeout(() => toast.className = toast.className.replace("show",""), 3000); }
 
     // ---------- PRODUCT LOAD ----------
-    async function loadProductDetails() {
-        if (!productId) { document.getElementById('loader').innerHTML = "<div>Product Not Found</div><a href='index.html'>Return</a>"; return; }
-        try {
-            const res = await fetch(`/api/products/${productId}`);
-            const data = await res.json();
-            if (data.success) { currentProduct = data.product; renderProduct(currentProduct); document.getElementById('reviewsSection').style.display = 'block'; renderReviewsUI(); }
-            else throw new Error();
-        } catch (err) { document.getElementById('loader').innerHTML = "<i class='fas fa-wifi'></i><div>Connection Failed</div>"; }
+  // Inside your product page loading script
+async function loadProductDetails(productId) {
+    const res = await fetch(`/api/products/${productId}`);
+    const product = await res.json();
+    
+    const buyButton = document.getElementById('add-to-cart-btn');
+    
+    // THE CHECK
+    if (product.stockStatus === 'out-of-stock') {
+        buyButton.disabled = true;
+        buyButton.innerText = "SOLD OUT";
+        buyButton.style.backgroundColor = "#64748b"; // Grey out the button
+        buyButton.style.cursor = "not-allowed";
+    } else {
+        buyButton.disabled = false;
+        buyButton.innerText = "ADD TO CART";
     }
+}
     function renderProduct(p) {
         const price = p.price, mrp = Math.round(price * 1.4);
         document.getElementById('p-category').innerText = p.category || 'Gear';
@@ -408,6 +417,30 @@
         if(p.stock === 0) { const btn = document.getElementById('add-to-cart-btn'); btn.innerHTML = '<i class="fas fa-times-circle"></i> Sold Out'; btn.disabled = true; btn.style.background = '#333'; }
         document.getElementById('loader').style.display = 'none';
         document.getElementById('product-content').style.display = 'flex';
+        function renderProduct(p) {
+    // ... (keep your existing top part of the function)
+
+    // REPLACE THIS SPECIFIC SECTION IN YOUR renderProduct FUNCTION
+    const btn = document.getElementById('add-to-cart-btn');
+    
+    // Logic to check status
+    const isSoldOut = (p.stockStatus === 'out-of-stock');
+    
+    if (isSoldOut) {
+        btn.innerHTML = '<i class="fas fa-times-circle"></i> Sold Out';
+        btn.disabled = true;
+        btn.style.background = '#333';
+        btn.style.cursor = 'not-allowed';
+        btn.style.boxShadow = 'none';
+    } else {
+        btn.innerHTML = '<i class="fas fa-lock"></i> Secure Item in Cart';
+        btn.disabled = false;
+        btn.style.background = 'var(--accent)';
+    }
+
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('product-content').style.display = 'flex';
+}
     }
     // Cart + Auth
     document.getElementById('add-to-cart-btn').addEventListener('click', () => {
