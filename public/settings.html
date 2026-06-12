@@ -367,33 +367,59 @@
                 document.getElementById('pi-last').value = names[1] || '';
             }
             document.getElementById('pi-email').value = email;
+// --- 3. REAL ORDERS INJECTION ---
+async function fetchMyOrders() {
+    const ordersContainer = document.getElementById('orders-container');
+    ordersContainer.innerHTML = '<div style="text-align:center; padding: 30px; color: var(--text-muted);"><i class="fas fa-circle-notch fa-spin fa-2x"></i><br><br>Loading your orders...</div>';
+    
+    try {
+        const res = await fetch('/api/orders');
+        const data = await res.json();
+        
+        if (data.success) {
+            // Identify the logged-in user
+            const myName = localStorage.getItem('rj_loggedInUser');
+            
+            // Filter the database for ONLY this user's orders
+            const myOrders = data.orders.filter(o => o.customer === myName);
+            
+            if (myOrders.length === 0) {
+                ordersContainer.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);"><i class="fas fa-box-open fa-3x" style="margin-bottom: 15px; opacity: 0.5;"></i><br>No orders found. Time to grab some gear!</div>';
+                return;
+            }
+            
+            ordersContainer.innerHTML = myOrders.map(order => {
+                // Determine badge color
+                let badgeClass = 'status-processing';
+                if(order.status === 'Delivered') badgeClass = 'status-delivered';
+                if(order.status === 'Cancelled') badgeClass = 'status-cancelled'; // Add standard CSS for red if you want
 
-            // --- 3. MOCK ORDERS INJECTION ---
-            const ordersContainer = document.getElementById('orders-container');
-            const mockOrders = [
-                { id: 'ORD-84729', date: '10 Jun 2026', total: '₹3,299', status: 'Delivered', class: 'status-delivered', items: 'Premium Kashmir Willow Bat', img: 'https://via.placeholder.com/150/111111/ffffff?text=BAT' },
-                { id: 'ORD-84730', date: '02 Jun 2026', total: '₹4,500', status: 'Processing', class: 'status-processing', items: 'Pro Sprint Shoes (Size: UK 8)', img: 'https://via.placeholder.com/150/111111/E10600?text=SHOES' }
-            ];
-
-            ordersContainer.innerHTML = mockOrders.map(order => `
+                return `
                 <div class="order-card">
                     <div class="order-header">
                         <div>
-                            <div class="order-id">${order.id}</div>
-                            <div class="order-date">Placed on ${order.date}</div>
+                            <div class="order-id">#${order.orderId || 'PENDING'}</div>
+                            <div class="order-date">Placed on ${new Date(order.date).toLocaleDateString()}</div>
                         </div>
-                        <div class="status-badge ${order.class}">${order.status}</div>
+                        <div class="status-badge ${badgeClass}">${order.status}</div>
                     </div>
                     <div class="order-body">
-                        <img src="${order.img}" alt="Product" class="order-img">
                         <div class="order-details">
-                            <h4>${order.items}</h4>
-                            <div class="order-price">${order.total}</div>
+                            <h4 style="color: var(--text-muted); font-size: 12px; text-transform: uppercase;">Order Total</h4>
+                            <div class="order-price">₹${order.total.toLocaleString()}</div>
                         </div>
-                        <button class="btn-primary" style="padding: 10px 20px; font-size: 13px;">View</button>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
+        }
+    } catch (err) {
+        ordersContainer.innerHTML = '<div style="text-align:center; color: var(--danger); padding: 20px;">Could not connect to database.</div>';
+    }
+}
+
+// Call the function when the page loads
+fetchMyOrders();
 
             // --- 4. LOGOUT LOGIC ---
             document.getElementById('logout-btn').addEventListener('click', () => {

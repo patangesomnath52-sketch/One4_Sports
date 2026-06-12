@@ -282,16 +282,69 @@
         renderCart(); 
     }
 
-    function proceedToCheckout() { 
-        // Enforce Login Gatekeeper one more time before checkout
-        if (!localStorage.getItem('rj_loggedInUser')) {
-            window.location.href = 'signin.html?redirect=checkout.html';
-        } else {
-            window.location.href = 'checkout.html'; 
+   async function proceedToCheckout() { 
+        const customerName = localStorage.getItem('rj_loggedInUser');
+        const customerEmail = localStorage.getItem('rj_userEmail');
+
+        // 1. Enforce Login
+        if (!customerName) {
+            window.location.href = 'signin.html?redirect=cart.html';
+            return;
+        }
+
+        // 2. Calculate Total
+        let orderTotal = 0;
+        cart.forEach(item => { orderTotal += (Number(item.price) * item.quantity); });
+
+        // 3. Generate a Random Order ID (e.g. ORD-84729)
+        const generateOrderId = () => 'ORD-' + Math.floor(10000 + Math.random() * 90000);
+
+        // 4. Create the Order Payload
+        const newOrder = {
+            orderId: generateOrderId(),
+            customer: customerName,
+            email: customerEmail || 'N/A', // Send email if available
+            total: orderTotal,
+            status: 'Processing',
+            date: new Date().toISOString()
+            // Note: If you want to save the actual items bought, you need to update 
+            // your Order Schema in server.js to accept an array of items. 
+            // For now, this matches your current schema exactly.
+        };
+
+        // 5. Change Button State
+        const btn = document.querySelector('.checkout-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
+        btn.disabled = true;
+
+        try {
+            // 6. Send to the Server
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newOrder)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // Success! Clear the cart and redirect to the dashboard
+                localStorage.removeItem('rj_cart');
+                alert(`Order Placed Successfully! Your Order ID is ${newOrder.orderId}`);
+                window.location.href = 'settings.html'; // Or whatever you named the Customer Dashboard
+            } else {
+                alert(`Checkout Failed: ${result.message}`);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        } catch (error) {
+            console.error("Checkout Error:", error);
+            alert("Connection error. Could not place order.");
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
     }
-
-    window.addEventListener('DOMContentLoaded', renderCart);
 </script>
 </body>
 </html>
