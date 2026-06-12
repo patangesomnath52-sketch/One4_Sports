@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Account Settings | One4Sports</title>
+    <title>My Account | One4Sports</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- IMMEDIATE THEME LOADER TO PREVENT FLASHING -->
     <script>
         if(localStorage.getItem('rj_theme') === 'light') {
             document.documentElement.classList.add('light-mode');
@@ -20,12 +19,15 @@
             --bg-color: #050505; 
             --text-main: #ffffff;
             --text-muted: #a1a1aa;
-            --accent: #ff2a2a; 
+            --accent: #E10600; 
             --card-bg: #111111;
             --nav-bg: rgba(5, 5, 5, 0.7);
             --border-color: rgba(255, 255, 255, 0.1);
             --danger-bg: rgba(255, 42, 42, 0.1);
             --danger-text: #ff2a2a;
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --input-bg: rgba(255, 255, 255, 0.05);
         }
 
         /* LIGHT MODE OVERRIDE */
@@ -39,6 +41,9 @@
             --border-color: #e2e8f0;
             --danger-bg: #fee2e2;
             --danger-text: #dc2626;
+            --success: #059669;
+            --success-bg: #dcfce7;
+            --input-bg: #f1f5f9;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -64,22 +69,85 @@
             position: sticky; 
             top: 0; 
             z-index: 100; 
-            transition: all 0.3s ease;
         }
         .back-btn { font-size: 20px; color: var(--text-main); text-decoration: none; margin-right: 20px; transition: 0.2s; }
         .back-btn:hover { color: var(--accent); transform: translateX(-3px); }
         .header h1 { font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
 
-        /* SETTINGS UI */
-        .settings-container { max-width: 600px; margin: 40px auto; padding: 0 20px; width: 100%; flex: 1; }
-        .section-title { font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px; margin-top: 30px; letter-spacing: 2px; }
+        /* DASHBOARD LAYOUT */
+        .dashboard-container { 
+            max-width: 1200px; 
+            margin: 40px auto; 
+            padding: 0 5%; 
+            width: 100%; 
+            display: flex; 
+            gap: 40px; 
+            flex: 1; 
+            align-items: flex-start;
+        }
+
+        /* SIDEBAR MENU */
+        .sidebar { width: 280px; flex-shrink: 0; position: sticky; top: 100px; }
+        .menu-list { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; }
+        .menu-item { display: flex; align-items: center; gap: 15px; padding: 18px 24px; color: var(--text-muted); font-weight: 700; font-size: 16px; cursor: pointer; border-bottom: 1px solid var(--border-color); transition: 0.3s; }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item i { font-size: 18px; width: 20px; text-align: center; }
+        .menu-item:hover { background: rgba(128,128,128,0.05); color: var(--text-main); }
+        .menu-item.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        /* MAIN CONTENT AREA */
+        .content-area { flex: 1; min-width: 0; }
+        .tab-pane { display: none; animation: fadeIn 0.4s ease; }
+        .tab-pane.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* PROFILE BANNER & AVATAR */
+        .profile-banner { height: 200px; border-radius: 24px 24px 0 0; background-image: url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000&auto=format&fit=crop'); background-size: cover; background-position: center; position: relative; border: 1px solid var(--border-color); border-bottom: none; }
+        .profile-banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, var(--card-bg)); border-radius: 24px 24px 0 0; }
+        .profile-header { background: var(--card-bg); border-radius: 0 0 24px 24px; border: 1px solid var(--border-color); border-top: none; padding: 0 30px 30px; display: flex; align-items: flex-end; gap: 24px; position: relative; margin-bottom: 30px; }
+        .avatar-container { position: relative; margin-top: -60px; z-index: 10; }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--card-bg); background: var(--input-bg); display: flex; align-items: center; justify-content: center; font-size: 40px; color: var(--text-muted); overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-title { padding-bottom: 10px; }
+        .user-title h2 { font-size: 28px; font-weight: 900; margin-bottom: 4px; }
+        .user-title p { color: var(--text-muted); font-weight: 600; font-size: 15px; }
+
+        /* FORMS */
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 30px; margin-bottom: 30px; }
+        .card-header { margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .card-header h3 { font-size: 20px; font-weight: 900; text-transform: uppercase; }
         
-        .settings-card { background: var(--card-bg); border-radius: 16px; padding: 0 20px; border: 1px solid var(--border-color); transition: all 0.3s ease; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group.full { grid-column: span 2; }
+        .form-group label { font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .form-control { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 16px; border-radius: 12px; font-size: 15px; font-weight: 600; transition: 0.3s; outline: none; }
+        .form-control:focus { border-color: var(--accent); }
+        
+        .btn-primary { background: var(--accent); color: white; border: none; padding: 16px 32px; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.3s; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+        /* ORDERS LIST */
+        .order-card { border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .order-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px; }
+        .order-id { font-weight: 900; font-size: 16px; }
+        .order-date { color: var(--text-muted); font-size: 14px; font-weight: 600; }
+        .status-badge { padding: 6px 12px; border-radius: 40px; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+        .status-delivered { background: var(--success-bg); color: var(--success); }
+        .status-processing { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        
+        .order-body { display: flex; gap: 20px; align-items: center; }
+        .order-img { width: 80px; height: 80px; border-radius: 12px; background: var(--input-bg); object-fit: cover; border: 1px solid var(--border-color); }
+        .order-details { flex: 1; }
+        .order-details h4 { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+        .order-price { color: var(--accent); font-weight: 900; font-size: 18px; }
+
+        /* SETTINGS UI */
         .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border-color); }
         .setting-item:last-child { border-bottom: none; }
-        
         .setting-info { display: flex; align-items: center; gap: 20px; }
-        .setting-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(161, 161, 170, 0.1); display: flex; justify-content: center; align-items: center; color: var(--text-main); font-size: 18px; }
+        .setting-icon { width: 45px; height: 45px; border-radius: 12px; background: var(--input-bg); display: flex; justify-content: center; align-items: center; color: var(--text-main); font-size: 18px; border: 1px solid var(--border-color); }
         .setting-text h3 { font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
         .setting-text p { font-size: 14px; color: var(--text-muted); font-weight: 600; }
 
@@ -88,71 +156,186 @@
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: .4s; border-radius: 34px; border: 1px solid var(--border-color); }
         .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: var(--text-main); transition: .4s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        
         input:checked + .slider { background-color: var(--accent); border-color: var(--accent); }
         input:checked + .slider:before { transform: translateX(24px); background-color: white; }
 
-        /* LOGOUT BUTTON */
-        .btn-logout { width: 100%; background: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-text); padding: 18px; border-radius: 12px; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; margin-top: 40px; transition: 0.3s; display: none; align-items: center; justify-content: center; gap: 10px; }
-        .btn-logout:hover { background: var(--danger-text); color: white; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255, 42, 42, 0.2); }
+        .btn-logout { background: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-text); padding: 12px 24px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-logout:hover { background: var(--danger-text); color: white; }
 
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 900px) {
+            .dashboard-container { flex-direction: column; }
+            .sidebar { width: 100%; position: static; }
+            .menu-list { display: flex; overflow-x: auto; white-space: nowrap; border-radius: 12px; scroll-snap-type: x mandatory; }
+            .menu-item { border-bottom: none; border-right: 1px solid var(--border-color); flex: 1; justify-content: center; scroll-snap-align: start; }
+            .menu-item span { display: none; } /* Hide text on mobile for compact menu */
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: span 1; }
+            .profile-header { flex-direction: column; align-items: center; text-align: center; }
+            .avatar-container { margin-top: -80px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
         <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <h1>App Settings</h1>
+        <h1>My Account</h1>
     </div>
 
-    <div class="settings-container">
+    <div class="dashboard-container">
         
-        <!-- PROFILE SECTION -->
-        <div class="section-title">Account Profile</div>
-        <div class="settings-card">
-            <div class="setting-item" id="account-info">
-                <div class="setting-info">
-                    <div class="setting-icon"><i class="fas fa-user"></i></div>
-                    <div class="setting-text">
-                        <h3 id="set-username">Not Signed In</h3>
-                        <p id="set-email">Sign in to sync your orders & gear</p>
-                    </div>
+        <aside class="sidebar">
+            <div class="menu-list">
+                <div class="menu-item active" onclick="switchTab('profile', this)">
+                    <i class="fas fa-user-circle"></i> <span>Personal Profile</span>
+                </div>
+                <div class="menu-item" onclick="switchTab('orders', this)">
+                    <i class="fas fa-box-open"></i> <span>Order History</span>
+                </div>
+                <div class="menu-item" onclick="switchTab('settings', this)">
+                    <i class="fas fa-cog"></i> <span>App Settings</span>
                 </div>
             </div>
-        </div>
+        </aside>
 
-        <!-- PREFERENCES SECTION -->
-        <div class="section-title">Preferences</div>
-        <div class="settings-card">
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-icon" id="theme-icon"><i class="fas fa-moon"></i></div>
-                    <div class="setting-text">
-                        <h3>Light Mode</h3>
-                        <p>Switch to a brighter aesthetic</p>
+        <main class="content-area">
+
+            <div id="tab-profile" class="tab-pane active">
+                <div class="profile-banner"></div>
+                <div class="profile-header">
+                    <div class="avatar-container">
+                        <div class="avatar"><i class="fas fa-user"></i></div>
+                    </div>
+                    <div class="user-title">
+                        <h2 id="display-name">Guest User</h2>
+                        <p id="display-email">Sign in to sync your data</p>
                     </div>
                 </div>
-                <label class="switch">
-                    <input type="checkbox" id="lightModeToggle">
-                    <span class="slider"></span>
-                </label>
+
+                <div class="card">
+                    <div class="card-header"><h3>Personal Information</h3></div>
+                    <form id="profile-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" class="form-control" id="pi-first" placeholder="e.g. Somnath">
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" class="form-control" id="pi-last" placeholder="Doe">
+                            </div>
+                            <div class="form-group full">
+                                <label>Email Address</label>
+                                <input type="email" class="form-control" id="pi-email" placeholder="email@example.com" readonly style="opacity: 0.7;">
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" class="form-control" id="pi-phone" placeholder="+91 00000 00000">
+                            </div>
+                            <div class="form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" class="form-control" id="pi-dob">
+                            </div>
+                        </div>
+                        <button type="button" class="btn-primary" style="margin-top: 24px;" onclick="saveProfile()"><i class="fas fa-save"></i> Save Changes</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><h3>Primary Shipping Address</h3></div>
+                    <div class="form-grid">
+                        <div class="form-group full">
+                            <label>Street Address</label>
+                            <input type="text" class="form-control" placeholder="e.g. Baner, Mahalunge area">
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" class="form-control" placeholder="Pune">
+                        </div>
+                        <div class="form-group">
+                            <label>Pincode</label>
+                            <input type="text" class="form-control" placeholder="411045">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-primary" style="margin-top: 24px;"><i class="fas fa-map-marker-alt"></i> Update Address</button>
+                </div>
             </div>
-        </div>
 
-        <button class="btn-logout" id="logout-btn">
-            <i class="fas fa-sign-out-alt"></i> Disconnect Account
-        </button>
+            <div id="tab-orders" class="tab-pane">
+                <div class="card">
+                    <div class="card-header"><h3>Recent Orders</h3></div>
+                    
+                    <div id="orders-container">
+                        </div>
+                    
+                </div>
+            </div>
 
+            <div id="tab-settings" class="tab-pane">
+                <div class="card">
+                    <div class="card-header"><h3>App Preferences</h3></div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-icon" id="theme-icon"><i class="fas fa-moon"></i></div>
+                            <div class="setting-text">
+                                <h3>Light Mode</h3>
+                                <p>Switch to a brighter storefront aesthetic</p>
+                            </div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="lightModeToggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-icon"><i class="fas fa-bell"></i></div>
+                            <div class="setting-text">
+                                <h3>Order Notifications</h3>
+                                <p>Get alerts for shipping updates</p>
+                            </div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="setting-text">
+                        <h3>Account Actions</h3>
+                        <p>Manage your active session</p>
+                    </div>
+                    <button class="btn-logout" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+                </div>
+            </div>
+
+        </main>
     </div>
 
     <script>
+        // --- TAB SWITCHING LOGIC ---
+        function switchTab(tabId, element) {
+            // Update Menu UI
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            
+            // Update Content UI
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. THEME TOGGLE LOGIC
+            
+            // --- 1. THEME TOGGLE LOGIC ---
             const toggle = document.getElementById('lightModeToggle');
             const html = document.documentElement;
             const themeIcon = document.querySelector('#theme-icon i');
             
-            // Check current status (Default is Dark, we toggle Light)
             if(localStorage.getItem('rj_theme') === 'light') {
                 toggle.checked = true;
                 themeIcon.className = 'fas fa-sun';
@@ -170,26 +353,68 @@
                 }
             });
 
-            // 2. LOAD USER INFO
-            const user = localStorage.getItem('rj_loggedInUser');
-            const email = localStorage.getItem('rj_userEmail');
-            const logoutBtn = document.getElementById('logout-btn');
-
-            if(user) {
-                document.getElementById('set-username').innerText = user;
-                if(email) document.getElementById('set-email').innerText = email;
-                logoutBtn.style.display = 'flex';
+            // --- 2. LOAD USER DATA ---
+            const user = localStorage.getItem('rj_loggedInUser') || 'Somnath'; // Using placeholder for demo
+            const email = localStorage.getItem('rj_userEmail') || 'somnath@nextgencricket.com';
+            
+            document.getElementById('display-name').innerText = user;
+            document.getElementById('display-email').innerText = email;
+            
+            // Pre-fill form
+            if (user) {
+                const names = user.split(' ');
+                document.getElementById('pi-first').value = names[0] || '';
+                document.getElementById('pi-last').value = names[1] || '';
             }
+            document.getElementById('pi-email').value = email;
 
-            // 3. LOGOUT LOGIC
-            logoutBtn.addEventListener('click', () => {
-                if(confirm("Are you sure you want to disconnect your account?")) {
+            // --- 3. MOCK ORDERS INJECTION ---
+            const ordersContainer = document.getElementById('orders-container');
+            const mockOrders = [
+                { id: 'ORD-84729', date: '10 Jun 2026', total: '₹3,299', status: 'Delivered', class: 'status-delivered', items: 'Premium Kashmir Willow Bat', img: 'https://via.placeholder.com/150/111111/ffffff?text=BAT' },
+                { id: 'ORD-84730', date: '02 Jun 2026', total: '₹4,500', status: 'Processing', class: 'status-processing', items: 'Pro Sprint Shoes (Size: UK 8)', img: 'https://via.placeholder.com/150/111111/E10600?text=SHOES' }
+            ];
+
+            ordersContainer.innerHTML = mockOrders.map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-id">${order.id}</div>
+                            <div class="order-date">Placed on ${order.date}</div>
+                        </div>
+                        <div class="status-badge ${order.class}">${order.status}</div>
+                    </div>
+                    <div class="order-body">
+                        <img src="${order.img}" alt="Product" class="order-img">
+                        <div class="order-details">
+                            <h4>${order.items}</h4>
+                            <div class="order-price">${order.total}</div>
+                        </div>
+                        <button class="btn-primary" style="padding: 10px 20px; font-size: 13px;">View</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // --- 4. LOGOUT LOGIC ---
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                if(confirm("Are you sure you want to sign out?")) {
                     localStorage.removeItem('rj_loggedInUser');
                     localStorage.removeItem('rj_userEmail');
                     window.location.href = 'index.html';
                 }
             });
         });
+
+        // --- 5. SAVE PROFILE (MOCK) ---
+        function saveProfile() {
+            const first = document.getElementById('pi-first').value;
+            const last = document.getElementById('pi-last').value;
+            if(first) {
+                localStorage.setItem('rj_loggedInUser', `${first} ${last}`.trim());
+                document.getElementById('display-name').innerText = `${first} ${last}`.trim();
+                alert("Profile Updated Successfully!");
+            }
+        }
     </script>
 </body>
 </html>
