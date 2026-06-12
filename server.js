@@ -141,6 +141,21 @@ app.post('/api/products/add', upload.array('productImages', 3), async (req, res)
         res.status(500).json({ success: false, message: err.message });
     }
 });
+// Ensure this route exists in your server.js
+app.post('/api/products/add', async (req, res) => {
+    try {
+        console.log("Received product data:", req.body); // Debugging: check terminal logs
+        
+        // Assuming you have a Mongoose model named 'Product'
+        const newProduct = new Product(req.body);
+        await newProduct.save();
+        
+        res.status(201).json({ success: true, message: "Product created successfully" });
+    } catch (err) {
+        console.error("Database error:", err);
+        res.status(500).json({ success: false, message: "Server error: " + err.message });
+    }
+});
 // UPDATE product stock/sizes (alternative endpoint)
 app.post('/api/products/update', async (req, res) => {
     try {
