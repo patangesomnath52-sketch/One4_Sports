@@ -4,7 +4,7 @@ const multer = require('multer');
 const { v2: cloudinary } = require('cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cors = require('cors');
-
+const path = require('path')
 const app = express();
 // Change these lines at the top of server.js
 app.use(express.json({ limit: '50mb' }));
@@ -58,15 +58,22 @@ const productSchema = new mongoose.Schema({
 });
 
 const Product = mongoose.model('Product', productSchema);
-
 const orderSchema = new mongoose.Schema({
     orderId: String,
     customer: String,
     phone: String,
     total: Number,
     status: { type: String, default: 'Processing' },
-    date: { type: Date, default: Date.now }
+    date: { type: Date, default: Date.now },
+    items: [{
+        name: String,
+        price: Number,
+        quantity: Number,
+        size: String,
+        image: String
+    }] // Ensure this closing brace and bracket match
 });
+const Order = mongoose.model('Order', orderSchema); // Ensure this is defined
 
 const Order = mongoose.model('Order', orderSchema);
 
