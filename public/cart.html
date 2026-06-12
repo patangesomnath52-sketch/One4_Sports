@@ -202,11 +202,23 @@
         </div>
     </div>
 </div>
-
 <script>
-    // Keep existing cart state
-    let cart = JSON.parse(localStorage.getItem('rj_cart')) || []; 
+    // 1. SAFE PARSE: Prevents the page from going blank if data is corrupted
+    let cart = [];
+    try {
+        const savedCart = localStorage.getItem('rj_cart');
+        if (savedCart) {
+            cart = JSON.parse(savedCart);
+            // Ensure the cart is actually an array, not a random object
+            if (!Array.isArray(cart)) cart = []; 
+        }
+    } catch (e) {
+        console.error("Cart data corrupted. Resetting cart.");
+        cart = [];
+        localStorage.setItem('rj_cart', '[]'); // Reset to an empty array
+    }
 
+    // 2. Render Cart Logic
     function renderCart() {
         const cartList = document.getElementById('cart-list');
         const summaryContainer = document.getElementById('summary-container');
@@ -257,7 +269,6 @@
             cart[index].quantity += change;
             saveAndRender();
         } else { 
-            // If quantity drops below 1, prompt for removal
             if(confirm("Remove this item from your bag?")) {
                 removeItem(index); 
             }
@@ -282,44 +293,40 @@
         renderCart(); 
     }
 
-   async function proceedToCheckout() { 
+    // 3. SECURE CHECKOUT (Sends to Database)
+    async function proceedToCheckout() { 
         const customerName = localStorage.getItem('rj_loggedInUser');
         const customerEmail = localStorage.getItem('rj_userEmail');
 
-        // 1. Enforce Login
+        // Enforce Login
         if (!customerName) {
             window.location.href = 'signin.html?redirect=cart.html';
             return;
         }
 
-        // 2. Calculate Total
+        // Calculate Total
         let orderTotal = 0;
         cart.forEach(item => { orderTotal += (Number(item.price) * item.quantity); });
 
-        // 3. Generate a Random Order ID (e.g. ORD-84729)
+        // Generate Order ID
         const generateOrderId = () => 'ORD-' + Math.floor(10000 + Math.random() * 90000);
 
-        // 4. Create the Order Payload
+        // Build Payload
         const newOrder = {
             orderId: generateOrderId(),
             customer: customerName,
-            email: customerEmail || 'N/A', // Send email if available
+            email: customerEmail || 'N/A',
             total: orderTotal,
             status: 'Processing',
             date: new Date().toISOString()
-            // Note: If you want to save the actual items bought, you need to update 
-            // your Order Schema in server.js to accept an array of items. 
-            // For now, this matches your current schema exactly.
         };
 
-        // 5. Change Button State
         const btn = document.querySelector('.checkout-btn');
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
         btn.disabled = true;
 
         try {
-            // 6. Send to the Server
             const response = await fetch('/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -329,10 +336,9 @@
             const result = await response.json();
 
             if (response.ok) {
-                // Success! Clear the cart and redirect to the dashboard
                 localStorage.removeItem('rj_cart');
                 alert(`Order Placed Successfully! Your Order ID is ${newOrder.orderId}`);
-                window.location.href = 'settings.html'; // Or whatever you named the Customer Dashboard
+                window.location.href = 'settings.html'; // Redirect to Dashboard
             } else {
                 alert(`Checkout Failed: ${result.message}`);
                 btn.innerHTML = originalText;
@@ -345,6 +351,8 @@
             btn.disabled = false;
         }
     }
+
+    window.addEventListener('DOMContentLoaded', renderCart);
 </script>
 </body>
 </html>
