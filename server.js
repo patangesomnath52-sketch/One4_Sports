@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
@@ -15,26 +16,39 @@ mongoose.connect(MONGO_URI)
     .then(() => console.log("✅ MongoDB Connected!"))
     .catch(err => console.error("❌ MongoDB connection error:", err));
 
-// API ROUTES
+// API Routes (Keeping your original logic)
 app.get('/api/products', async (req, res) => {
     const products = await mongoose.model('Product').find().sort({ createdAt: -1 });
     res.json({ success: true, products });
 });
 
-// ORDER ROUTES
 app.get('/api/orders', async (req, res) => {
     const orders = await mongoose.model('Order').find().sort({ date: -1 });
     res.json({ success: true, orders });
 });
 
-// --- THE FIX FOR "NOT FOUND" ---
-// This tells Express to serve your built React files
-app.use(express.static(path.join(__dirname, 'frontend/build')));
+// --- THE FOOLPROOF PRODUCTION BRIDGE ---
+const potentialPaths = [
+    path.join(__dirname, 'frontend', 'build'),
+    path.join(__dirname, 'client', 'build'),
+    path.join(__dirname, 'build')
+];
 
-// This ensures all other traffic is sent to React
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
-});
+let foundPath = null;
+for (const p of potentialPaths) {
+    if (fs.existsSync(p)) {
+        foundPath = p;
+        break;
+    }
+}
+
+if (foundPath) {
+    console.log(`✅ Serving frontend from: ${foundPath}`);
+    app.use(express.static(foundPath));
+    app.get('*', (req, res) => res.sendFile(path.join(foundPath, 'index.html')));
+} else {
+    console.error("❌ CRITICAL: Could not find build folder! Searched in:", potentialPaths);
+}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
