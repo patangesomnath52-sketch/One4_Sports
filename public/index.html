@@ -575,9 +575,21 @@ function showSocialToast() {
 }
 
 // Start the loop after the products have loaded
-function startSocialLoop() {
-    setInterval(showSocialToast, 12000); // Pops up every 12 seconds
+// Start the loop after the products have loaded
+function startFomoLoop() {
+    console.log("Fomo loop started..."); // Check console to see if this logs
+    
+    // Run the toast trigger every 12 seconds indefinitely
+    setInterval(() => {
+        triggerLiveCop();
+    }, 12000); 
 }
+
+// Ensure it starts only after the feed is ready
+window.addEventListener('DOMContentLoaded', () => {
+    // We wait 5 seconds to ensure everything is loaded, then fire the loop
+    setTimeout(startFomoLoop, 5000); 
+});
 </script>
 <div id="social-toast">
     <i class="fas fa-shopping-cart" style="color:var(--accent);"></i>
