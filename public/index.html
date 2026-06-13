@@ -207,6 +207,95 @@
     max-width: 1400px; 
     margin: 0 auto; 
 }
+/* Drop Feed Grid */
+.drop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    padding: 20px 5%;
+}
+
+/* The "Drop" Card */
+.drop-card {
+    background: #0d0d0d;
+    border-radius: 24px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.drop-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    border-color: var(--accent);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.drop-img-wrap {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    height: 350px;
+}
+
+.drop-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.drop-card:hover .drop-img-wrap img { transform: scale(1.1); }
+
+.hype-tag {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: var(--accent);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    z-index: 2;
+}
+
+.drop-info { padding: 20px 10px; }
+.drop-name { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
+.drop-price { color: var(--accent); font-weight: 800; font-size: 18px; }
+
+.tracking-container { margin-top: 20px; padding: 10px 0; }
+.timeline { display: flex; justify-content: space-between; position: relative; margin-top: 15px; }
+.timeline::before { content: ''; position: absolute; top: 10px; left: 0; right: 0; height: 2px; background: #333; z-index: 1; }
+.step { position: relative; z-index: 2; text-align: center; }
+.step-dot { width: 20px; height: 20px; border-radius: 50%; background: #333; margin: 0 auto 8px; border: 4px solid var(--bg-base); }
+.step.active .step-dot { background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+.step-text { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+/* Entrance Animation */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.drop-card {
+    animation: fadeInUp 0.6s ease forwards;
+    opacity: 0; /* Starts invisible */
+}
+
+/* Delay each card slightly for a "staggered" reveal */
+.drop-card:nth-child(1) { animation-delay: 0.1s; }
+.drop-card:nth-child(2) { animation-delay: 0.2s; }
+.drop-card:nth-child(3) { animation-delay: 0.3s; }
+.drop-card button {
+    transition: all 0.3s ease;
+}
+.drop-card button:hover {
+    background: var(--accent) !important;
+    color: white !important;
+    transform: scale(1.03);
+}
   </style>
 </head>
 <body>
@@ -280,6 +369,11 @@
         <div>
             <div class="section-subtitle">Catalog</div>
             <h2 class="section-title">Shop By Category</h2>
+        </div>
+        <div class="section-header" style="margin-bottom: 30px;">
+        <h2 class="section-title">Latest Drops</h2>
+    </div>
+    <div class="drop-grid" id="drop-grid">
         </div>
         <a href="#" style="color: var(--text-muted); font-weight: 700; text-decoration: none; text-transform: uppercase; font-size: 14px; letter-spacing: 1px;">View All <i class="fas fa-arrow-right"></i></a>
     </div>
@@ -409,34 +503,43 @@
     });
     
 </script>
-<script>
-    // 1. Function to pull the data from the Admin's "box"
-    function loadProductsToWebsite() {
-        const storedProducts = localStorage.getItem('one4sports_products');
-        
-        if (!storedProducts) {
-            console.log("No products found in LocalStorage.");
-            return;
+<script>async function renderDropFeed() {
+    const gridContainer = document.getElementById('drop-grid');
+    if (!gridContainer) return;
+
+    // Optional: Show a "Skeleton" loader
+    gridContainer.innerHTML = '<div style="color:var(--text-muted); text-align:center;">Loading new drops...</div>';
+
+    try {
+        const response = await fetch('/api/products');
+        const data = await response.json();
+
+        if (data.success && data.products.length > 0) {
+            gridContainer.innerHTML = data.products.map(p => `
+                <div class="drop-card">
+                    <div class="drop-img-wrap">
+                        <span class="hype-tag" style="background:${p.stockStatus === 'out-of-stock' ? '#333' : 'var(--accent)'}">
+                            ${p.stockStatus === 'out-of-stock' ? 'Sold Out' : 'New Drop'}
+                        </span>
+                        <img src="${p.images[0] || 'https://via.placeholder.com/400'}" alt="${p.name}">
+                    </div>
+                    <div class="drop-info">
+                        <h3 class="drop-name">${p.name}</h3>
+                        <div class="drop-price">₹${p.price.toLocaleString()}</div>
+                        <button onclick="window.location.href='product.html?id=${p.productId}'">
+                            VIEW DROP
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            gridContainer.innerHTML = '<p style="text-align:center; color:white;">Stay tuned for the next drop.</p>';
         }
-
-        const products = JSON.parse(storedProducts);
-        const gridContainer = document.getElementById('product-grid'); // Ensure this ID exists in your HTML
-        
-        if (!gridContainer) return;
-
-        gridContainer.innerHTML = products.map(p => `
-            <div class="product-card">
-                <img src="${p.images[0] || ''}" alt="${p.name}" style="width:100%; height:200px; object-fit:cover;">
-                <h3>${p.name}</h3>
-                <p>₹${p.price}</p>
-                <button>Add to Cart</button>
-            </div>
-        `).join('');
+    } catch (err) {
+        console.error("Drop Feed Error:", err);
+        gridContainer.innerHTML = '<p style="text-align:center; color:var(--accent);">Error loading drops. Please refresh.</p>';
     }
-
-    // 2. Run this when the page loads
-    window.onload = loadProductsToWebsite;
+}
 </script>
-
 </body>
 </html>

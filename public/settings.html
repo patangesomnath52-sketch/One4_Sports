@@ -313,76 +313,14 @@
     </div>
 
     
-    <script>
-        function trackOrder(orderId) {
-    const supportNumber = "918055475552"; // Your WhatsApp number
-    const message = encodeURIComponent(
-        `Hi One4Sports team! 👋\n\n` +
-        `I would like to check the status of my order: *#${orderId}*\n` +
-        `Could you please provide a tracking update?`
-    );
-    
-    // Redirects the user to WhatsApp with the order ID pre-filled
-    window.open(`https://wa.me/${supportNumber}?text=${message}`, '_blank');
+    <script>// --- TRACKING FUNCTION ---
+function trackOrder(orderId) {
+    const supportNumber = "918055475552";
+    const msg = `Yo One4Sports! 🤙 Checking on the drop for order #${orderId}. What's the vibe? Is it on the way?`;
+    window.open(`https://wa.me/${supportNumber}?text=${encodeURIComponent(msg)}`, '_blank');
 }
-        // --- 1. TAB LOGIC ---
-        function switchTab(tabId, element) {
-            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-            element.classList.add('active');
-            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-        }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- 2. THEME ENGINE ---
-            const toggle = document.getElementById('lightModeToggle');
-            const html = document.documentElement;
-            const themeIcon = document.querySelector('#theme-icon i');
-            
-            if(localStorage.getItem('rj_theme') === 'light') {
-                toggle.checked = true;
-                themeIcon.className = 'fas fa-sun';
-            }
-
-            toggle.addEventListener('change', (e) => {
-                if(e.target.checked) {
-                    html.classList.add('light-mode');
-                    localStorage.setItem('rj_theme', 'light');
-                    themeIcon.className = 'fas fa-sun';
-                } else {
-                    html.classList.remove('light-mode');
-                    localStorage.setItem('rj_theme', 'dark');
-                    themeIcon.className = 'fas fa-moon';
-                }
-            });
-
-            // --- 3. IDENTITY HYDRATION ---
-            const user = localStorage.getItem('rj_loggedInUser') || 'Guest';
-            const email = localStorage.getItem('rj_userEmail') || 'guest@one4sports.com';
-            
-            document.getElementById('display-name').innerText = user;
-            document.getElementById('display-email').innerText = email;
-            document.getElementById('pi-email').value = email;
-
-            if (user !== 'Guest') {
-                const names = user.split(' ');
-                document.getElementById('pi-first').value = names[0] || '';
-                document.getElementById('pi-last').value = names[1] || '';
-            }
-
-            // --- 4. REAL ORDER FETCHING ---
-            fetchMyOrders();
-
-            // --- 5. LOGOUT ---
-            document.getElementById('logout-btn').addEventListener('click', () => {
-                if(confirm("Terminate current session?")) {
-                    localStorage.removeItem('rj_loggedInUser');
-                    localStorage.removeItem('rj_userEmail');
-                    window.location.href = 'index.html';
-                }
-            });
-        });
+// --- UPDATED FETCH FUNCTION ---
 async function fetchMyOrders() {
     const ordersContainer = document.getElementById('orders-container');
     ordersContainer.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);"><i class="fas fa-circle-notch fa-spin fa-2x" style="color: var(--accent);"></i><br><br>Decrypting order history...</div>';
@@ -402,17 +340,15 @@ async function fetchMyOrders() {
                 return;
             }
             
-            // Generate the cards with the working button
             ordersContainer.innerHTML = myOrders.map(order => {
                 let badgeClass = 'status-processing';
                 if(order.status === 'Delivered') badgeClass = 'status-delivered';
-                if(order.status === 'Cancelled') badgeClass = 'status-cancelled';
 
                 return `
                 <div class="order-card">
                     <div class="order-header">
                         <div>
-                            <div class="order-id"><i class="fas fa-receipt" style="color: var(--accent); font-size: 14px;"></i> #${order.orderId || 'PENDING'}</div>
+                            <div class="order-id"><i class="fas fa-receipt" style="color: var(--accent); font-size: 14px;"></i> #${order.orderId}</div>
                             <div class="order-date">Secured on ${new Date(order.date).toLocaleDateString()}</div>
                         </div>
                         <div class="status-pill ${badgeClass}">${order.status}</div>
@@ -426,10 +362,8 @@ async function fetchMyOrders() {
             }).join('');
         }
     } catch (err) {
-        ordersContainer.innerHTML = '<div style="text-align:center; color: var(--danger); padding: 20px; font-weight: 800;"><i class="fas fa-wifi"></i> Connection Severed. Check Network.</div>';
+        ordersContainer.innerHTML = '<div style="text-align:center; color: var(--danger); padding: 20px; font-weight: 800;"><i class="fas fa-wifi"></i> Connection Severed.</div>';
     }
-}
-        
-    </script>
+}</script>
 </body>
 </html>
