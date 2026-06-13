@@ -297,23 +297,20 @@
     transform: scale(1.03);
 }
 #social-toast {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    background: #0d0d0d;
-    border: 1px solid var(--border-color);
-    padding: 12px 20px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    transform: translateX(-150%);
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: 9999;
-    color: white;
+    position: fixed !important;
+    bottom: 20px !important;
+    left: 20px !important;
+    background: #ff2a2a !important; /* Changed to red temporarily to see it */
+    color: white !important;
+    padding: 20px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    z-index: 999999 !important; /* Forces it to the top of everything */
+    opacity: 1 !important;
+    visibility: visible !important;
 }
-#social-toast.show { transform: translateX(0); }
   </style>
 </head>
 <body>
