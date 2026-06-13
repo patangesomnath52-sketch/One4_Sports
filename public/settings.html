@@ -366,5 +366,22 @@
     }
 }
 </script>
+<script>
+    // ... [Your window.switchTab, window.trackOrder, and fetchMyOrders code] ...
+
+    // ADD THIS BLOCK AT THE VERY BOTTOM OF THE SCRIPT
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("Page loaded, initializing dashboard...");
+        
+        // 1. Fetch the orders
+        fetchMyOrders();
+
+        // 2. Load User Identity
+        const user = localStorage.getItem('rj_loggedInUser');
+        if (user) {
+            document.getElementById('display-name').innerText = user;
+        }
+    });
+</script>
 </body>
 </html>
