@@ -283,7 +283,10 @@
                             <span class="slider"></span>
                         </label>
                     </div>
-
+<label class="switch">
+    <input type="checkbox" id="alertToggle">
+    <span class="slider"></span>
+</label>
                     <div class="setting-row">
                         <div class="setting-info">
                             <div class="setting-icon"><i class="fab fa-whatsapp"></i></div>
@@ -328,7 +331,38 @@
         window.open(`https://wa.me/${supportNumber}?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
-    // 2. FETCH DATA: The engine for your "Gear Drops"
+    // 2. PREFERENCE LOGIC
+    function setupPreferences() {
+        // Theme Toggle
+        const toggle = document.getElementById('lightModeToggle');
+        const themeIcon = document.querySelector('#theme-icon i');
+        const html = document.documentElement;
+
+        if (toggle) {
+            if (localStorage.getItem('rj_theme') === 'light') {
+                toggle.checked = true;
+                if(themeIcon) themeIcon.className = 'fas fa-sun';
+            }
+            toggle.addEventListener('change', (e) => {
+                const isLight = e.target.checked;
+                html.classList.toggle('light-mode', isLight);
+                localStorage.setItem('rj_theme', isLight ? 'light' : 'dark');
+                if(themeIcon) themeIcon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+            });
+        }
+
+        // Drop Alerts Toggle
+        const alertToggle = document.getElementById('alertToggle');
+        if (alertToggle) {
+            alertToggle.checked = localStorage.getItem('rj_dropAlerts') === 'true';
+            alertToggle.addEventListener('change', (e) => {
+                localStorage.setItem('rj_dropAlerts', e.target.checked);
+                alert(e.target.checked ? "You're on the list! 🚀" : "Alerts silenced. 🤫");
+            });
+        }
+    }
+
+    // 3. FETCH DATA
     async function fetchMyOrders() {
         const ordersContainer = document.getElementById('orders-container');
         if(!ordersContainer) return;
@@ -348,36 +382,34 @@
                     o.customer && o.customer.toLowerCase() === myName.toLowerCase()
                 );
                 
-                if (myOrders.length === 0) {
-                    ordersContainer.innerHTML = '<div style="text-align:center;">No drops secured yet.</div>';
-                } else {
-                    ordersContainer.innerHTML = myOrders.map(order => `
+                ordersContainer.innerHTML = myOrders.length === 0 
+                    ? '<div style="text-align:center;">No drops secured yet.</div>' 
+                    : myOrders.map(order => `
                         <div class="order-card">
                             <div class="order-id">#${order.orderId}</div>
                             <div class="order-total">₹${Number(order.total).toLocaleString()}</div>
                             <button class="track-btn" onclick="trackOrder('${order.orderId}')">Track Shipment</button>
                         </div>
                     `).join('');
-                }
             }
         } catch (err) {
             ordersContainer.innerHTML = '<div>Connection error. Try refreshing.</div>';
         }
     }
 
-    // 3. PAGE INITIALIZATION: This triggers everything once
+    // 4. INITIALIZATION: The only trigger you need
     document.addEventListener('DOMContentLoaded', () => {
-        // Theme
-        if(localStorage.getItem('rj_theme') === 'light') document.documentElement.classList.add('light-mode');
+        // Initialize Theme/Preferences
+        setupPreferences();
         
         // Load User
         const user = localStorage.getItem('rj_loggedInUser');
-        if(user) document.getElementById('display-name').innerText = user;
+        if(user && document.getElementById('display-name')) document.getElementById('display-name').innerText = user;
         
-        // Execute Drop Fetch
+        // Load Orders
         fetchMyOrders();
         
-        console.log("Dashboard initialized successfully.");
+        console.log("Dashboard initialized perfectly.");
     });
 </script>
 </body>
