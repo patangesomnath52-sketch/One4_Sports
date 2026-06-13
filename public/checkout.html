@@ -253,10 +253,8 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         if (cartItems.length === 0) { window.location.href = 'index.html'; return; }
-        
         const userName = localStorage.getItem('rj_loggedInUser');
         if(userName) document.getElementById('c-name').value = userName;
-        
         renderSummary();
     });
 
@@ -268,20 +266,17 @@
         document.getElementById('m-final').innerText = `₹${actualTotal.toLocaleString()}`;
     }
 
-async function placeOrder() {
-    // 1. Submit to Database first
-    const response = await fetch('/api/place-order', { method: 'POST', body: JSON.stringify(orderData) });
-    const result = await response.json();
+    // THIS IS THE FUNCTION YOUR BUTTON MUST CALL: onclick="placeOrder()"
+    async function placeOrder() {
+        // 1. Capture data directly from your HTML input fields
+        const name = document.getElementById('c-name').value;
+        const phone = document.getElementById('c-phone').value;
+        const address = document.getElementById('c-address').value;
+        const city = document.getElementById('c-city').value;
+        const state = document.getElementById('c-state').value;
+        const pin = document.getElementById('c-pin').value;
 
-    if (result.success) {
-        // 2. Open WhatsApp in a NEW tab so the user doesn't lose the site
-        const msg = `Yo One4Sports! Secured order #${result.orderId}. Checking on the drop!`;
-        window.open(`https://wa.me/918055475552?text=${encodeURIComponent(msg)}`, '_blank');
-
-        // 3. Force redirect to success page
-        window.location.href = "success.html";
-    }
-}
+        if(!name || !phone || !address) { alert("Please fill in your delivery details!"); return; }
 
         const orderId = 'RJ' + Math.floor(100000 + Math.random() * 900000);
         
@@ -310,17 +305,21 @@ async function placeOrder() {
             });
 
             if (response.ok) {
+                // 2. Build WhatsApp Message
                 const itemsSummary = cartItems.map(i => `${i.name} (UK${i.size}) x${i.quantity}`).join(', ');
                 const waMsg = encodeURIComponent(
                     `🔥 *नवीन ऑर्डर (One4Sports)*\n\n🆔 ID: #${orderId}\n👤 ग्राहक: ${name}\n📞 फोन: ${phone}\n📍 पत्ता: ${address}, ${city}, ${state} - ${pin}\n🛒 वस्तू: ${itemsSummary}\n💰 एकूण: ₹${finalTotal.toLocaleString()}`
                 );
-                window.open(`https://wa.me/918055475552?text=${waMsg}`, '_blank');
+                
+                // 3. Clear cart and Redirect
                 localStorage.removeItem('rj_cart');
+                window.open(`https://wa.me/918055475552?text=${waMsg}`, '_blank');
                 window.location.href = `success.html?order=${orderId}`;
             } else {
                 alert("Database error. Please try again.");
             }
         } catch (err) {
+            console.error(err);
             alert("Network error. Check connection.");
         }
     }
