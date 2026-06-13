@@ -521,19 +521,23 @@
     
 </script>
 <script>
-    // Global variable to hold products for the social toast
+    // 1. GLOBAL STATE
     window.loadedProducts = [];
 
+    // 2. DROP FEED RENDERING (STRICTLY PRODUCTS)
     async function renderDropFeed() {
         const gridContainer = document.getElementById('drop-grid');
-        if (!gridContainer) return;
+        
+        // Defensive check: only run if the container exists on the page
+        if (!gridContainer) return; 
 
         try {
+            // Ensure this endpoint returns ONLY products in your server.js
             const response = await fetch('/api/products');
             const data = await response.json();
 
-            if (data.success && data.products.length > 0) {
-                // SAVE TO GLOBAL VARIABLE HERE
+            // Validate we received an array of products
+            if (data.success && Array.isArray(data.products)) {
                 window.loadedProducts = data.products; 
                 
                 gridContainer.innerHTML = data.products.map(p => `
@@ -542,11 +546,11 @@
                             <span class="hype-tag" style="background:${p.stockStatus === 'out-of-stock' ? '#333' : 'var(--accent)'}">
                                 ${p.stockStatus === 'out-of-stock' ? 'Sold Out' : 'New Drop'}
                             </span>
-                            <img src="${p.images[0] || 'https://via.placeholder.com/400'}" alt="${p.name}">
+                            <img src="${p.images?.[0] || 'https://via.placeholder.com/400'}" alt="${p.name}">
                         </div>
                         <div class="drop-info">
                             <h3 class="drop-name">${p.name}</h3>
-                            <div class="drop-price">₹${p.price.toLocaleString()}</div>
+                            <div class="drop-price">₹${p.price?.toLocaleString() || '0'}</div>
                             <button onclick="window.location.href='product.html?id=${p.productId}'">VIEW DROP</button>
                         </div>
                     </div>
@@ -554,39 +558,46 @@
             }
         } catch (err) {
             console.error("Drop Feed Error:", err);
+            gridContainer.innerHTML = '<p style="text-align:center; color:var(--accent);">Error loading drops.</p>';
         }
     }
 
+    // 3. FOMO TOAST LOGIC
     const cities = ["Pune", "Baner", "Mahalunge", "Mumbai", "Nanded", "Nashik"];
 
-    // Renamed to match the function call in your loop
     function triggerLiveCop() {
         const toast = document.getElementById('social-toast');
         const text = document.getElementById('toast-text');
         
-        if (window.loadedProducts && window.loadedProducts.length > 0) {
+        if (window.loadedProducts?.length > 0 && toast && text) {
             const p = window.loadedProducts[Math.floor(Math.random() * window.loadedProducts.length)];
             const city = cities[Math.floor(Math.random() * cities.length)];
             
             text.innerHTML = `<strong>${city}:</strong> Just secured ${p.name}!`;
-            
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 4000);
         }
     }
 
-    function startFomoLoop() {
-        // Trigger immediately once, then set the interval
-        triggerLiveCop();
-        setInterval(triggerLiveCop, 12000); 
-    }
-
+    // 4. INITIALIZATION
     window.addEventListener('DOMContentLoaded', () => {
-        checkLoginStatus();
-        updateCartCount();
+        // Run core site functions
+        if(typeof checkLoginStatus === 'function') checkLoginStatus();
+        if(typeof updateCartCount === 'function') updateCartCount();
+        
+        // Run specific feed logic
         renderDropFeed().then(() => {
-            startFomoLoop();
+            // Only start loop if products loaded
+            setInterval(triggerLiveCop, 12000); 
         });
+    });
+
+    // 5. NAVBAR & UI HELPERS (Keep existing)
+    window.addEventListener('scroll', () => {
+        const header = document.querySelector('.rj-header-wrapper');
+        if(header) {
+            header.style.background = window.scrollY > 50 ? 'rgba(5, 5, 5, 0.9)' : 'rgba(5, 5, 5, 0.7)';
+        }
     });
 </script>
 <div id="social-toast">
