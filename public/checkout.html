@@ -251,32 +251,56 @@
     let cartItems = JSON.parse(localStorage.getItem('rj_cart')) || [];
     let finalTotal = 0;
 
+    // 1. Initialize Page
     document.addEventListener('DOMContentLoaded', () => {
         if (cartItems.length === 0) { window.location.href = 'index.html'; return; }
+        
+        // Auto-fill user name
         const userName = localStorage.getItem('rj_loggedInUser');
         if(userName) document.getElementById('c-name').value = userName;
+        
         renderSummary();
+        renderCartList();
     });
 
+    // 2. Render Calculations & UI
     function renderSummary() {
         let actualTotal = 0;
         cartItems.forEach(item => { actualTotal += (parseFloat(item.price) * (item.quantity || 1)); });
         finalTotal = actualTotal;
         document.getElementById('t-final').innerText = `₹${actualTotal.toLocaleString()}`;
         document.getElementById('m-final').innerText = `₹${actualTotal.toLocaleString()}`;
+        document.getElementById('sub-total').innerText = `₹${actualTotal.toLocaleString()}`;
     }
 
-    // THIS IS THE FUNCTION YOUR BUTTON MUST CALL: onclick="placeOrder()"
+    function renderCartList() {
+        const container = document.getElementById('checkout-items');
+        container.innerHTML = cartItems.map(item => `
+            <div class="s-item">
+                <img src="${item.image || 'default.jpg'}" class="s-img">
+                <div class="s-info">
+                    <div class="s-name">${item.name}</div>
+                    <div>Size: ${item.size || 'N/A'} | Qty: ${item.quantity}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // 3. Main Order Processing Logic
     async function placeOrder() {
-        // 1. Capture data directly from your HTML input fields
+        // Capture inputs using correct IDs
         const name = document.getElementById('c-name').value;
         const phone = document.getElementById('c-phone').value;
-        const address = document.getElementById('c-address').value;
-        const city = document.getElementById('c-city').value;
-        const state = document.getElementById('c-state').value;
-        const pin = document.getElementById('c-pin').value;
+        const address = document.getElementById('s-address').value;
+        const city = document.getElementById('s-city').value;
+        const state = document.getElementById('s-state').value;
+        const pin = document.getElementById('s-pin').value;
 
-        if(!name || !phone || !address) { alert("Please fill in your delivery details!"); return; }
+        // Simple validation
+        if(!name || !phone || !address || !city) { 
+            alert("Please fill in all delivery details!"); 
+            return; 
+        }
 
         const orderId = 'RJ' + Math.floor(100000 + Math.random() * 900000);
         
@@ -285,6 +309,7 @@
             customer: name,
             phone: phone,
             email: localStorage.getItem('rj_userEmail') || 'N/A',
+            address: `${address}, ${city}, ${state} - ${pin}`,
             total: finalTotal,
             status: 'Processing',
             date: new Date().toISOString(),
@@ -305,22 +330,22 @@
             });
 
             if (response.ok) {
-                // 2. Build WhatsApp Message
+                // Construct WA Message
                 const itemsSummary = cartItems.map(i => `${i.name} (UK${i.size}) x${i.quantity}`).join(', ');
                 const waMsg = encodeURIComponent(
                     `🔥 *नवीन ऑर्डर (One4Sports)*\n\n🆔 ID: #${orderId}\n👤 ग्राहक: ${name}\n📞 फोन: ${phone}\n📍 पत्ता: ${address}, ${city}, ${state} - ${pin}\n🛒 वस्तू: ${itemsSummary}\n💰 एकूण: ₹${finalTotal.toLocaleString()}`
                 );
                 
-                // 3. Clear cart and Redirect
+                // Finalize
                 localStorage.removeItem('rj_cart');
                 window.open(`https://wa.me/918055475552?text=${waMsg}`, '_blank');
                 window.location.href = `success.html?order=${orderId}`;
             } else {
-                alert("Database error. Please try again.");
+                alert("Database connection failed. Please try again.");
             }
         } catch (err) {
             console.error(err);
-            alert("Network error. Check connection.");
+            alert("Network error. Please check your connection.");
         }
     }
 </script>
