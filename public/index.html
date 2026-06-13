@@ -296,6 +296,24 @@
     color: white !important;
     transform: scale(1.03);
 }
+#social-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: #0d0d0d;
+    border: 1px solid var(--border-color);
+    padding: 12px 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transform: translateX(-150%);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 9999;
+    color: white;
+}
+#social-toast.show { transform: translateX(0); }
   </style>
 </head>
 <body>
@@ -540,6 +558,33 @@
         gridContainer.innerHTML = '<p style="text-align:center; color:var(--accent);">Error loading drops. Please refresh.</p>';
     }
 }
+const cities = ["Pune", "Baner", "Mahalunge", "Mumbai", "Nanded", "Nashik"];
+
+function showSocialToast() {
+    const toast = document.getElementById('social-toast');
+    const text = document.getElementById('toast-text');
+    
+    // Only show if we have products
+    if (window.loadedProducts && window.loadedProducts.length > 0) {
+        const p = window.loadedProducts[Math.floor(Math.random() * window.loadedProducts.length)];
+        const city = cities[Math.floor(Math.random() * cities.length)];
+        
+        text.innerHTML = `<strong>${city}:</strong> Just secured ${p.name}!`;
+        
+        toast.classList.add('show');
+        // Auto-hide after 4 seconds
+        setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+}
+
+// Start the loop after the products have loaded
+function startSocialLoop() {
+    setInterval(showSocialToast, 12000); // Pops up every 12 seconds
+}
 </script>
+<div id="social-toast">
+    <i class="fas fa-shopping-cart" style="color:var(--accent);"></i>
+    <div id="toast-text" style="font-size: 13px; font-weight: 700;">Just secured a drop!</div>
+</div>
 </body>
 </html>
