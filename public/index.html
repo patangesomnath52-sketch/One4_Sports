@@ -298,18 +298,19 @@
 }
 #social-toast {
     position: fixed !important;
-    bottom: 20px !important;
+    bottom: -100px !important; /* Hide off-screen initially */
     left: 20px !important;
-    background: #ff2a2a !important; /* Changed to red temporarily to see it */
+    background: #ff2a2a !important;
     color: white !important;
     padding: 20px !important;
     border-radius: 12px !important;
     display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    z-index: 999999 !important; /* Forces it to the top of everything */
-    opacity: 1 !important;
-    visibility: visible !important;
+    transition: bottom 0.5s ease !important; /* Animate the bottom position */
+    z-index: 999999 !important;
+}
+
+#social-toast.show {
+    bottom: 20px !important; /* Slide up into view */
 }
   </style>
 </head>
@@ -518,78 +519,74 @@
     });
     
 </script>
-<script>async function renderDropFeed() {
-    const gridContainer = document.getElementById('drop-grid');
-    if (!gridContainer) return;
+<script>
+    // Global variable to hold products for the social toast
+    window.loadedProducts = [];
 
-    // Optional: Show a "Skeleton" loader
-    gridContainer.innerHTML = '<div style="color:var(--text-muted); text-align:center;">Loading new drops...</div>';
+    async function renderDropFeed() {
+        const gridContainer = document.getElementById('drop-grid');
+        if (!gridContainer) return;
 
-    try {
-        const response = await fetch('/api/products');
-        const data = await response.json();
+        try {
+            const response = await fetch('/api/products');
+            const data = await response.json();
 
-        if (data.success && data.products.length > 0) {
-            gridContainer.innerHTML = data.products.map(p => `
-                <div class="drop-card">
-                    <div class="drop-img-wrap">
-                        <span class="hype-tag" style="background:${p.stockStatus === 'out-of-stock' ? '#333' : 'var(--accent)'}">
-                            ${p.stockStatus === 'out-of-stock' ? 'Sold Out' : 'New Drop'}
-                        </span>
-                        <img src="${p.images[0] || 'https://via.placeholder.com/400'}" alt="${p.name}">
+            if (data.success && data.products.length > 0) {
+                // SAVE TO GLOBAL VARIABLE HERE
+                window.loadedProducts = data.products; 
+                
+                gridContainer.innerHTML = data.products.map(p => `
+                    <div class="drop-card">
+                        <div class="drop-img-wrap">
+                            <span class="hype-tag" style="background:${p.stockStatus === 'out-of-stock' ? '#333' : 'var(--accent)'}">
+                                ${p.stockStatus === 'out-of-stock' ? 'Sold Out' : 'New Drop'}
+                            </span>
+                            <img src="${p.images[0] || 'https://via.placeholder.com/400'}" alt="${p.name}">
+                        </div>
+                        <div class="drop-info">
+                            <h3 class="drop-name">${p.name}</h3>
+                            <div class="drop-price">₹${p.price.toLocaleString()}</div>
+                            <button onclick="window.location.href='product.html?id=${p.productId}'">VIEW DROP</button>
+                        </div>
                     </div>
-                    <div class="drop-info">
-                        <h3 class="drop-name">${p.name}</h3>
-                        <div class="drop-price">₹${p.price.toLocaleString()}</div>
-                        <button onclick="window.location.href='product.html?id=${p.productId}'">
-                            VIEW DROP
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        } else {
-            gridContainer.innerHTML = '<p style="text-align:center; color:white;">Stay tuned for the next drop.</p>';
+                `).join('');
+            }
+        } catch (err) {
+            console.error("Drop Feed Error:", err);
         }
-    } catch (err) {
-        console.error("Drop Feed Error:", err);
-        gridContainer.innerHTML = '<p style="text-align:center; color:var(--accent);">Error loading drops. Please refresh.</p>';
     }
-}
-const cities = ["Pune", "Baner", "Mahalunge", "Mumbai", "Nanded", "Nashik"];
 
-function showSocialToast() {
-    const toast = document.getElementById('social-toast');
-    const text = document.getElementById('toast-text');
-    
-    // Only show if we have products
-    if (window.loadedProducts && window.loadedProducts.length > 0) {
-        const p = window.loadedProducts[Math.floor(Math.random() * window.loadedProducts.length)];
-        const city = cities[Math.floor(Math.random() * cities.length)];
+    const cities = ["Pune", "Baner", "Mahalunge", "Mumbai", "Nanded", "Nashik"];
+
+    // Renamed to match the function call in your loop
+    function triggerLiveCop() {
+        const toast = document.getElementById('social-toast');
+        const text = document.getElementById('toast-text');
         
-        text.innerHTML = `<strong>${city}:</strong> Just secured ${p.name}!`;
-        
-        toast.classList.add('show');
-        // Auto-hide after 4 seconds
-        setTimeout(() => toast.classList.remove('show'), 4000);
+        if (window.loadedProducts && window.loadedProducts.length > 0) {
+            const p = window.loadedProducts[Math.floor(Math.random() * window.loadedProducts.length)];
+            const city = cities[Math.floor(Math.random() * cities.length)];
+            
+            text.innerHTML = `<strong>${city}:</strong> Just secured ${p.name}!`;
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        }
     }
-}
 
-// Start the loop after the products have loaded
-// Start the loop after the products have loaded
-function startFomoLoop() {
-    console.log("Fomo loop started..."); // Check console to see if this logs
-    
-    // Run the toast trigger every 12 seconds indefinitely
-    setInterval(() => {
+    function startFomoLoop() {
+        // Trigger immediately once, then set the interval
         triggerLiveCop();
-    }, 12000); 
-}
+        setInterval(triggerLiveCop, 12000); 
+    }
 
-// Ensure it starts only after the feed is ready
-window.addEventListener('DOMContentLoaded', () => {
-    // We wait 5 seconds to ensure everything is loaded, then fire the loop
-    setTimeout(startFomoLoop, 5000); 
-});
+    window.addEventListener('DOMContentLoaded', () => {
+        checkLoginStatus();
+        updateCartCount();
+        renderDropFeed().then(() => {
+            startFomoLoop();
+        });
+    });
 </script>
 <div id="social-toast">
     <i class="fas fa-shopping-cart" style="color:var(--accent);"></i>
