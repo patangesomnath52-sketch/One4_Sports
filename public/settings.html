@@ -313,54 +313,58 @@
     </div>
 
     <script>
-    // 1. Tab Logic - Wrapped to ensure it's globally accessible
+    // 1. GLOBAL FUNCTIONS FIRST (Ensures they are found by the browser)
     window.switchTab = function(tabId, element) {
-        console.log("Switching to:", tabId);
         document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
         element.classList.add('active');
         document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
         document.getElementById('tab-' + tabId).classList.add('active');
     };
 
-    // 2. Tracking Logic
     window.trackOrder = function(orderId) {
-        const supportNumber = "918055475552";
-        const msg = `Yo One4Sports! 🤙 Checking on the drop for order #${orderId}. What's the vibe? Is it on the way?`;
-        window.open(`https://wa.me/${supportNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+        const msg = `Yo One4Sports! 🤙 Checking on order #${orderId}. What's the vibe?`;
+        window.open(`https://wa.me/918055475552?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
-    document.addEventListener('DOMContentLoaded', () => {
-        // Theme Engine
-        const toggle = document.getElementById('lightModeToggle');
-        const html = document.documentElement;
-        const themeIcon = document.querySelector('#theme-icon i');
+    // 2. DATA FETCHING FUNCTION
+   async function fetchMyOrders() {
+    const ordersContainer = document.getElementById('orders-container');
+    const myName = localStorage.getItem('rj_loggedInUser');
+    
+    console.log("Fetching orders for user:", myName); // DEBUG LOG
+    
+    try {
+        const res = await fetch('/api/orders');
+        const data = await res.json();
         
-        if(localStorage.getItem('rj_theme') === 'light') {
-            toggle.checked = true;
-            themeIcon.className = 'fas fa-sun';
-        }
+        console.log("Server response data:", data); // DEBUG LOG
 
-        toggle.addEventListener('change', (e) => {
-            if(e.target.checked) {
-                html.classList.add('light-mode');
-                localStorage.setItem('rj_theme', 'light');
-                themeIcon.className = 'fas fa-sun';
-            } else {
-                html.classList.remove('light-mode');
-                localStorage.setItem('rj_theme', 'dark');
-                themeIcon.className = 'fas fa-moon';
+        if (data.success) {
+            // Case sensitive filter: 'Somnath' !== 'somnath'
+            const myOrders = data.orders.filter(o => 
+                o.customer.toLowerCase() === myName.toLowerCase()
+            );
+            
+            console.log("Filtered orders count:", myOrders.length); // DEBUG LOG
+            
+            if (myOrders.length === 0) {
+                ordersContainer.innerHTML = '<div style="text-align:center;">No orders found for ' + myName + '.</div>';
+                return;
             }
-        });
-
-        // Hydration & Init
-        const user = localStorage.getItem('rj_loggedInUser') || 'Guest';
-        document.getElementById('display-name').innerText = user;
-        
-        // Fetch orders
-        fetchMyOrders();
-    });
-
-    // ... your fetchMyOrders and other functions here ...
+            
+            ordersContainer.innerHTML = myOrders.map(order => `
+                <div class="order-card">
+                    <div class="order-id">#${order.orderId}</div>
+                    <div class="order-total">₹${Number(order.total).toLocaleString()}</div>
+                    <button class="track-btn" onclick="trackOrder('${order.orderId}')">Track Shipment</button>
+                </div>
+            `).join('');
+        }
+    } catch (err) {
+        console.error("Fetch error:", err);
+        ordersContainer.innerHTML = '<div>Error loading orders.</div>';
+    }
+}
 </script>
 </body>
 </html>
