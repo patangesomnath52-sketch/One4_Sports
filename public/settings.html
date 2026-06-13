@@ -312,58 +312,55 @@
         </main>
     </div>
 
-    
-    <script>// --- TRACKING FUNCTION ---
-function trackOrder(orderId) {
-    const supportNumber = "918055475552";
-    const msg = `Yo One4Sports! 🤙 Checking on the drop for order #${orderId}. What's the vibe? Is it on the way?`;
-    window.open(`https://wa.me/${supportNumber}?text=${encodeURIComponent(msg)}`, '_blank');
-}
+    <script>
+    // 1. Tab Logic - Wrapped to ensure it's globally accessible
+    window.switchTab = function(tabId, element) {
+        console.log("Switching to:", tabId);
+        document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+        element.classList.add('active');
+        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+    };
 
-// --- UPDATED FETCH FUNCTION ---
-async function fetchMyOrders() {
-    const ordersContainer = document.getElementById('orders-container');
-    ordersContainer.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);"><i class="fas fa-circle-notch fa-spin fa-2x" style="color: var(--accent);"></i><br><br>Decrypting order history...</div>';
-    
-    try {
-        const res = await fetch('/api/orders');
-        const data = await res.json();
+    // 2. Tracking Logic
+    window.trackOrder = function(orderId) {
+        const supportNumber = "918055475552";
+        const msg = `Yo One4Sports! 🤙 Checking on the drop for order #${orderId}. What's the vibe? Is it on the way?`;
+        window.open(`https://wa.me/${supportNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Theme Engine
+        const toggle = document.getElementById('lightModeToggle');
+        const html = document.documentElement;
+        const themeIcon = document.querySelector('#theme-icon i');
         
-        if (data.success) {
-            const myName = localStorage.getItem('rj_loggedInUser');
-            const myOrders = data.orders.filter(o => o.customer === myName);
-            
-            document.getElementById('stat-order-count').innerText = myOrders.length;
-
-            if (myOrders.length === 0) {
-                ordersContainer.innerHTML = '<div style="text-align:center; padding: 50px; background: rgba(0,0,0,0.2); border-radius: 16px; border: 1px dashed var(--border-color);"><i class="fas fa-ghost fa-3x" style="color: var(--border-color); margin-bottom: 15px;"></i><br><h3 style="margin-bottom: 5px;">No Drops Secured</h3><p style="color: var(--text-muted); font-size: 14px;">Your locker is currently empty.</p></div>';
-                return;
-            }
-            
-            ordersContainer.innerHTML = myOrders.map(order => {
-                let badgeClass = 'status-processing';
-                if(order.status === 'Delivered') badgeClass = 'status-delivered';
-
-                return `
-                <div class="order-card">
-                    <div class="order-header">
-                        <div>
-                            <div class="order-id"><i class="fas fa-receipt" style="color: var(--accent); font-size: 14px;"></i> #${order.orderId}</div>
-                            <div class="order-date">Secured on ${new Date(order.date).toLocaleDateString()}</div>
-                        </div>
-                        <div class="status-pill ${badgeClass}">${order.status}</div>
-                    </div>
-                    <div class="order-total">
-                        <button class="track-btn" onclick="trackOrder('${order.orderId}')">Track Shipment</button>
-                        <div>₹${Number(order.total).toLocaleString()}</div>
-                    </div>
-                </div>
-                `;
-            }).join('');
+        if(localStorage.getItem('rj_theme') === 'light') {
+            toggle.checked = true;
+            themeIcon.className = 'fas fa-sun';
         }
-    } catch (err) {
-        ordersContainer.innerHTML = '<div style="text-align:center; color: var(--danger); padding: 20px; font-weight: 800;"><i class="fas fa-wifi"></i> Connection Severed.</div>';
-    }
-}</script>
+
+        toggle.addEventListener('change', (e) => {
+            if(e.target.checked) {
+                html.classList.add('light-mode');
+                localStorage.setItem('rj_theme', 'light');
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                html.classList.remove('light-mode');
+                localStorage.setItem('rj_theme', 'dark');
+                themeIcon.className = 'fas fa-moon';
+            }
+        });
+
+        // Hydration & Init
+        const user = localStorage.getItem('rj_loggedInUser') || 'Guest';
+        document.getElementById('display-name').innerText = user;
+        
+        // Fetch orders
+        fetchMyOrders();
+    });
+
+    // ... your fetchMyOrders and other functions here ...
+</script>
 </body>
 </html>
