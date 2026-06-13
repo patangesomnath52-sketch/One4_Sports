@@ -162,6 +162,43 @@
             .rj-links.active { right: 0; }
             .main-image { height: 350px; }
         }
+        /* The container that holds the image */
+.product-card {
+    perspective: 1000px; /* Essential for 3D effect */
+    transition: transform 0.5s ease;
+}
+
+/* The actual image */
+.product-img {
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+/* On hover, tilt the image and zoom */
+.product-card:hover .product-img {
+    transform: rotateY(10deg) rotateX(5deg) scale(1.05);
+    box-shadow: -20px 20px 30px rgba(0,0,0,0.4);
+}
+/* 3D Tilt Effect for Product Gallery */
+.image-gallery {
+    perspective: 1000px; /* Gives the 3D depth */
+    transition: all 0.5s ease;
+    cursor: pointer;
+}
+
+.image-gallery img {
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    border-radius: 12px;
+}
+
+/* On hover, tilt and scale up */
+.image-gallery:hover img {
+    transform: rotateY(10deg) rotateX(5deg) scale(1.03);
+    box-shadow: -20px 25px 40px rgba(0,0,0,0.3);
+}
     </style>
 </head>
 <body>
