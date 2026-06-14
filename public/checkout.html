@@ -329,17 +329,25 @@
                 body: JSON.stringify(orderData)
             });
 
-            if (response.ok) {
+          if (response.ok) {
                 // Construct WA Message
                 const itemsSummary = cartItems.map(i => `${i.name} (UK${i.size}) x${i.quantity}`).join(', ');
                 const waMsg = encodeURIComponent(
                     `🔥 *नवीन ऑर्डर (One4Sports)*\n\n🆔 ID: #${orderId}\n👤 ग्राहक: ${name}\n📞 फोन: ${phone}\n📍 पत्ता: ${address}, ${city}, ${state} - ${pin}\n🛒 वस्तू: ${itemsSummary}\n💰 एकूण: ₹${finalTotal.toLocaleString()}`
                 );
                 
-                // Finalize
+                // Finalize: Clear cart
                 localStorage.removeItem('rj_cart');
+                
+                // Open WhatsApp
                 window.open(`https://wa.me/918055475552?text=${waMsg}`, '_blank');
-                window.location.href = `success.html?order=${orderId}`;
+
+                // Delay the redirect by 600ms to allow the browser to process the pop-up
+                setTimeout(() => {
+                    window.location.href = `success.html?order=${orderId}`;
+                }, 600); 
+            
+                
             } else {
                 alert("Database connection failed. Please try again.");
             }
@@ -348,7 +356,7 @@
             alert("Network error. Please check your connection.");
         }
     }
-   window.location.href = `success.html?order=${orderId}`;
+  
 </script>
 </body>
 </html>
