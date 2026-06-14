@@ -248,6 +248,18 @@
 
 <div id="toast"><i class="fas fa-exclamation-circle" style="color: var(--accent); margin-right: 8px;"></i> <span id="toast-msg">Message</span></div>
 <script>
+    function applyDiscount() {
+    const isDiscountActive = localStorage.getItem('rj_discountActive');
+    let subtotal = finalTotal; // Your current total
+    
+    if (isDiscountActive === 'true') {
+        finalTotal = subtotal - 100;
+        
+        // Show the user they got the discount
+        document.getElementById('discount-msg').innerText = "Referral Discount Applied: -₹100";
+        document.getElementById('discount-msg').style.color = "var(--success)";
+    }
+}
     let cartItems = JSON.parse(localStorage.getItem('rj_cart')) || [];
     let finalTotal = 0;
 
@@ -295,13 +307,37 @@
         const city = document.getElementById('s-city').value;
         const state = document.getElementById('s-state').value;
         const pin = document.getElementById('s-pin').value;
-
+// Inside your placeOrder() function in checkout.html
+if (response.ok) {
+    // ... your success code ...
+    localStorage.removeItem('rj_discountActive');
+    localStorage.removeItem('rj_referredBy');
+    window.location.href = `success.html`;
+}
         // Simple validation
         if(!name || !phone || !address || !city) { 
             alert("Please fill in all delivery details!"); 
             return; 
         }
-
+function calculateTotalWithDiscount() {
+    let actualTotal = 0;
+    cartItems.forEach(item => { actualTotal += (parseFloat(item.price) * (item.quantity || 1)); });
+    
+    // Check for referral
+    const referrer = localStorage.getItem('rj_referredBy');
+    let discount = 0;
+    
+    if (referrer) {
+        discount = 100; // The ₹100 discount
+        console.log("Referral discount applied: -₹100");
+    }
+    
+    finalTotal = Math.max(0, actualTotal - discount); // Prevent negative totals
+    
+    // Update your UI
+    document.getElementById('t-final').innerText = `₹${finalTotal.toLocaleString()}`;
+    // ... update other total fields
+}
         const orderId = 'RJ' + Math.floor(100000 + Math.random() * 900000);
         
         const orderData = {
@@ -310,7 +346,10 @@
             phone: phone,
             email: localStorage.getItem('rj_userEmail') || 'N/A',
             address: `${address}, ${city}, ${state} - ${pin}`,
-            total: finalTotal,
+            referredBy: localStorage.getItem('rj_referredBy') || 'None',
+    total: finalTotal,
+    // ...
+            
             status: 'Processing',
             date: new Date().toISOString(),
             items: cartItems.map(item => ({
@@ -319,6 +358,7 @@
                 quantity: item.quantity,
                 size: item.size || 'Standard',
                 image: item.image
+                
             }))
         };
 

@@ -517,6 +517,20 @@
     window.addEventListener('DOMContentLoaded', () => {
         checkLoginStatus();
         updateCartCount();
+
+// 1. Detect the referral link
+const urlParams = new URLSearchParams(window.location.search);
+const refCode = urlParams.get('ref');
+
+if (refCode) {
+    localStorage.setItem('rj_referredBy', refCode);
+    
+    // 2. If not logged in, auto-redirect to signin
+    if (!localStorage.getItem('rj_loggedInUser')) {
+        alert("You've got a discount waiting! Sign in to claim it.");
+        window.location.href = 'signin.html';
+    }
+}
     });
     
 </script>

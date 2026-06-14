@@ -341,6 +341,18 @@
             }
             toggleLoading('google-btn', false);
         }
+        // After user is verified:
+localStorage.setItem('rj_loggedInUser', userData.name);
+localStorage.setItem('rj_userEmail', userData.email);
+
+// Check for pending referral
+const pendingRef = localStorage.getItem('rj_referredBy');
+if (pendingRef) {
+    localStorage.setItem('rj_discountActive', 'true'); // Discount is now "activated"
+    alert("Referral discount activated! ₹100 will be deducted at checkout.");
+}
+
+window.location.href = 'index.html'; // Redirect to home
     };
 </script>
 </body>

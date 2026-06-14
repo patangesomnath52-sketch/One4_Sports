@@ -178,6 +178,57 @@
             .form-grid { grid-template-columns: 1fr; }
             .form-group.full { grid-column: span 1; }
         }
+        /* Referral Card Styling */
+.ref-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    margin-top: 20px;
+    transition: 0.3s;
+}
+
+.ref-container:hover {
+    border-color: var(--accent);
+}
+
+.ref-input-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.ref-input-group input {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 12px 16px;
+    border-radius: 12px;
+    flex: 1;
+    font-family: monospace;
+    font-size: 14px;
+    color: var(--text-main) !important; /* Forces text to be white */
+    background: rgba(255,255,255,0.05) !important;
+}
+
+.btn-share {
+    background: #25D366; /* WhatsApp Green */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.btn-share:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
     </style>
 </head>
 <body>
@@ -235,7 +286,32 @@
                         </div>
                     </div>
                 </div>
-
+<div class="bento-card" style="border: 1px solid var(--accent);">
+    <div class="card-header">
+        <i class="fas fa-users" style="color: var(--accent);"></i>
+        <h3>Refer & Earn</h3>
+    </div>
+    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+        Invite your squad to One4Sports. When they secure their first drop using your link, both of you get <b>₹100 credit</b> for the next gear drop.
+    </p>
+    
+   <div class="ref-container">
+    <div class="card-header">
+        <i class="fas fa-gift" style="color: var(--accent);"></i>
+        <h3>Refer & Earn Credit</h3>
+    </div>
+    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 5px;">
+        Share your unique link. When your squad secures their first drop, you both get <b>₹50</b>.
+    </p>
+    
+    <div class="ref-input-group">
+        <input type="text" id="ref-link" readonly>
+        <button class="btn-share" onclick="shareOnWhatsApp()">
+            <i class="fab fa-whatsapp"></i> Share
+        </button>
+    </div>
+</div>
+</div>
                 <div class="bento-card">
                     <div class="card-header">
                         <i class="fas fa-id-card"></i>
@@ -313,8 +389,17 @@
     </div>
 
 
-   <script>
-    // 1. GLOBAL FUNCTIONS: Attached to window so the buttons can find them
+<script>
+function shareOnWhatsApp() {
+    const link = document.getElementById('ref-link').value;
+    // Ensure the link is absolute
+    const msg = encodeURIComponent(`Yo! Use my link to get ₹100 off your first drop at One4Sports: ${link}`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+}
+</script>
+
+  <script>
+    // 1. GLOBAL FUNCTIONS
     window.switchTab = function(tabId, element) {
         document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
         element.classList.add('active');
@@ -324,22 +409,35 @@
 
     window.trackOrder = function(orderId) {
         const supportNumber = "918055475552";
-        const msg = `Yo One4Sports! 🤙 Checking on order #${orderId}. What's the vibe?`;
+        const msg = `Hi One4Sports team, I am checking the status of my order #${orderId}. Could you please provide an update on the current shipping status?`;
         window.open(`https://wa.me/${supportNumber}?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
-    // 2. PREFERENCE LOGIC
+    window.shareOnWhatsApp = function() {
+        const link = document.getElementById('ref-link').value;
+        const msg = encodeURIComponent(`Yo! Check out One4Sports for premium gear. Use my link to get a discount: ${link}`);
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+    };
+
+    // 2. REFERRAL LOGIC
+    function initReferral() {
+        const userName = localStorage.getItem('rj_loggedInUser') || "Athlete";
+        const refCode = userName.toLowerCase().replace(/\s+/g, '-') + "-" + Math.floor(Math.random() * 900 + 100);
+        const fullLink = `${window.location.origin}/index.html?ref=${refCode}`;
+        const inputField = document.getElementById('ref-link');
+        if (inputField) {
+            inputField.value = fullLink;
+        }
+    }
+
+    // 3. PREFERENCE & USER LOGIC
     function setupPreferences() {
-        // Theme Toggle
         const toggle = document.getElementById('lightModeToggle');
         const themeIcon = document.querySelector('#theme-icon i');
         const html = document.documentElement;
 
         if (toggle) {
-            if (localStorage.getItem('rj_theme') === 'light') {
-                toggle.checked = true;
-                if(themeIcon) themeIcon.className = 'fas fa-sun';
-            }
+            toggle.checked = localStorage.getItem('rj_theme') === 'light';
             toggle.addEventListener('change', (e) => {
                 const isLight = e.target.checked;
                 html.classList.toggle('light-mode', isLight);
@@ -348,65 +446,58 @@
             });
         }
 
-        // Drop Alerts Toggle
-        const alertToggle = document.getElementById('alertToggle');
-        if (alertToggle) {
-            alertToggle.checked = localStorage.getItem('rj_dropAlerts') === 'true';
-            alertToggle.addEventListener('change', (e) => {
-                localStorage.setItem('rj_dropAlerts', e.target.checked);
-                alert(e.target.checked ? "You're on the list! 🚀" : "Alerts silenced. 🤫");
-            });
-        }
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            if(confirm("Disconnect session?")) {
+                localStorage.removeItem('rj_loggedInUser');
+                localStorage.removeItem('rj_userEmail');
+                window.location.href = 'index.html';
+            }
+        });
+
+        document.querySelector('.btn-primary').addEventListener('click', () => {
+            const newFirst = document.getElementById('pi-first').value;
+            const newLast = document.getElementById('pi-last').value;
+            if(newFirst) {
+                const fullName = `${newFirst} ${newLast}`.trim();
+                localStorage.setItem('rj_loggedInUser', fullName);
+                document.getElementById('display-name').innerText = fullName;
+                alert("Identity synced!");
+            }
+        });
     }
 
-    // 3. FETCH DATA
     async function fetchMyOrders() {
         const ordersContainer = document.getElementById('orders-container');
         if(!ordersContainer) return;
-
         const myName = localStorage.getItem('rj_loggedInUser');
-        if (!myName) {
-            ordersContainer.innerHTML = '<div style="text-align:center;">Please log in to see your gear drops.</div>';
-            return;
-        }
+        if (!myName) return;
 
         try {
             const res = await fetch('/api/orders');
             const data = await res.json();
-            
             if (data.success) {
-                const myOrders = data.orders.filter(o => 
-                    o.customer && o.customer.toLowerCase() === myName.toLowerCase()
-                );
-                
-                ordersContainer.innerHTML = myOrders.length === 0 
-                    ? '<div style="text-align:center;">No drops secured yet.</div>' 
-                    : myOrders.map(order => `
-                        <div class="order-card">
-                            <div class="order-id">#${order.orderId}</div>
-                            <div class="order-total">₹${Number(order.total).toLocaleString()}</div>
-                            <button class="track-btn" onclick="trackOrder('${order.orderId}')">Track Shipment</button>
-                        </div>
-                    `).join('');
+                const myOrders = data.orders.filter(o => o.customer?.toLowerCase() === myName.toLowerCase());
+                ordersContainer.innerHTML = myOrders.length === 0 ? '<div style="text-align:center;">No drops secured.</div>' : 
+                myOrders.map(o => `<div class="order-card"><div class="order-id">#${o.orderId}</div><div class="order-total">₹${Number(o.total).toLocaleString()}</div><button class="track-btn" onclick="trackOrder('${o.orderId}')">Track Shipment</button></div>`).join('');
             }
-        } catch (err) {
-            ordersContainer.innerHTML = '<div>Connection error. Try refreshing.</div>';
-        }
+        } catch (err) { ordersContainer.innerHTML = '<div>Connection error.</div>'; }
     }
 
-    // 4. INITIALIZATION: The only trigger you need
+    // 4. INIT
     document.addEventListener('DOMContentLoaded', () => {
-        // Initialize Theme/Preferences
+        initReferral();
         setupPreferences();
         
-        // Load User
         const user = localStorage.getItem('rj_loggedInUser');
-        if(user && document.getElementById('display-name')) document.getElementById('display-name').innerText = user;
+        if(user) document.getElementById('display-name').innerText = user;
         
-        // Load Orders
+        const email = localStorage.getItem('rj_userEmail');
+        if(email) {
+            document.getElementById('display-email').innerText = email;
+            document.getElementById('pi-email').value = email;
+        }
+        
         fetchMyOrders();
-        
-        console.log("Dashboard initialized perfectly.");
     });
 </script>
 </body>
