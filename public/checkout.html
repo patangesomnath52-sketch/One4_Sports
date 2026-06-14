@@ -248,26 +248,12 @@
 
 <div id="toast"><i class="fas fa-exclamation-circle" style="color: var(--accent); margin-right: 8px;"></i> <span id="toast-msg">Message</span></div>
 <script>
-    function applyDiscount() {
-    const isDiscountActive = localStorage.getItem('rj_discountActive');
-    let subtotal = finalTotal; // Your current total
-    
-    if (isDiscountActive === 'true') {
-        finalTotal = subtotal - 100;
-        
-        // Show the user they got the discount
-        document.getElementById('discount-msg').innerText = "Referral Discount Applied: -₹100";
-        document.getElementById('discount-msg').style.color = "var(--success)";
-    }
-}
     let cartItems = JSON.parse(localStorage.getItem('rj_cart')) || [];
     let finalTotal = 0;
 
-    // 1. Initialize Page
     document.addEventListener('DOMContentLoaded', () => {
         if (cartItems.length === 0) { window.location.href = 'index.html'; return; }
         
-        // Auto-fill user name
         const userName = localStorage.getItem('rj_loggedInUser');
         if(userName) document.getElementById('c-name').value = userName;
         
@@ -275,14 +261,20 @@
         renderCartList();
     });
 
-    // 2. Render Calculations & UI
     function renderSummary() {
-        let actualTotal = 0;
-        cartItems.forEach(item => { actualTotal += (parseFloat(item.price) * (item.quantity || 1)); });
-        finalTotal = actualTotal;
-        document.getElementById('t-final').innerText = `₹${actualTotal.toLocaleString()}`;
-        document.getElementById('m-final').innerText = `₹${actualTotal.toLocaleString()}`;
-        document.getElementById('sub-total').innerText = `₹${actualTotal.toLocaleString()}`;
+        let subtotal = 0;
+        cartItems.forEach(item => { subtotal += (parseFloat(item.price) * (item.quantity || 1)); });
+        
+        // Referral Discount Logic
+        const isDiscountActive = localStorage.getItem('rj_discountActive') === 'true';
+        let discount = isDiscountActive ? 100 : 0;
+        finalTotal = Math.max(0, subtotal - discount);
+
+        document.getElementById('sub-total').innerText = `₹${subtotal.toLocaleString()}`;
+        document.getElementById('saved-amt').innerText = `-₹${discount.toLocaleString()}`;
+        document.getElementById('t-final').innerText = `₹${finalTotal.toLocaleString()}`;
+        document.getElementById('m-final').innerText = `₹${finalTotal.toLocaleString()}`;
+        document.getElementById('savings-msg').innerText = `🔥 You saved ₹${discount} today!`;
     }
 
     function renderCartList() {
@@ -298,68 +290,31 @@
         `).join('');
     }
 
-    // 3. Main Order Processing Logic
     async function placeOrder() {
-        // Capture inputs using correct IDs
         const name = document.getElementById('c-name').value;
         const phone = document.getElementById('c-phone').value;
         const address = document.getElementById('s-address').value;
         const city = document.getElementById('s-city').value;
         const state = document.getElementById('s-state').value;
         const pin = document.getElementById('s-pin').value;
-// Inside your placeOrder() function in checkout.html
-if (response.ok) {
-    // ... your success code ...
-    localStorage.removeItem('rj_discountActive');
-    localStorage.removeItem('rj_referredBy');
-    window.location.href = `success.html`;
-}
-        // Simple validation
+
         if(!name || !phone || !address || !city) { 
             alert("Please fill in all delivery details!"); 
             return; 
         }
-function calculateTotalWithDiscount() {
-    let actualTotal = 0;
-    cartItems.forEach(item => { actualTotal += (parseFloat(item.price) * (item.quantity || 1)); });
-    
-    // Check for referral
-    const referrer = localStorage.getItem('rj_referredBy');
-    let discount = 0;
-    
-    if (referrer) {
-        discount = 100; // The ₹100 discount
-        console.log("Referral discount applied: -₹100");
-    }
-    
-    finalTotal = Math.max(0, actualTotal - discount); // Prevent negative totals
-    
-    // Update your UI
-    document.getElementById('t-final').innerText = `₹${finalTotal.toLocaleString()}`;
-    // ... update other total fields
-}
+
         const orderId = 'RJ' + Math.floor(100000 + Math.random() * 900000);
-        
         const orderData = {
-            orderId: orderId,
+            orderId,
             customer: name,
-            phone: phone,
+            phone,
             email: localStorage.getItem('rj_userEmail') || 'N/A',
             address: `${address}, ${city}, ${state} - ${pin}`,
             referredBy: localStorage.getItem('rj_referredBy') || 'None',
-    total: finalTotal,
-    // ...
-            
+            total: finalTotal,
             status: 'Processing',
             date: new Date().toISOString(),
-            items: cartItems.map(item => ({
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity,
-                size: item.size || 'Standard',
-                image: item.image
-                
-            }))
+            items: cartItems
         };
 
         try {
@@ -369,34 +324,26 @@ function calculateTotalWithDiscount() {
                 body: JSON.stringify(orderData)
             });
 
-          if (response.ok) {
-                // Construct WA Message
-                const itemsSummary = cartItems.map(i => `${i.name} (UK${i.size}) x${i.quantity}`).join(', ');
-                const waMsg = encodeURIComponent(
-                    `🔥 *नवीन ऑर्डर (One4Sports)*\n\n🆔 ID: #${orderId}\n👤 ग्राहक: ${name}\n📞 फोन: ${phone}\n📍 पत्ता: ${address}, ${city}, ${state} - ${pin}\n🛒 वस्तू: ${itemsSummary}\n💰 एकूण: ₹${finalTotal.toLocaleString()}`
-                );
+            if (response.ok) {
+                const waMsg = encodeURIComponent(`🔥 *New Order (One4Sports)*\nID: #${orderId}\nCustomer: ${name}\nTotal: ₹${finalTotal.toLocaleString()}`);
                 
-                // Finalize: Clear cart
+                // Cleanup
                 localStorage.removeItem('rj_cart');
+                localStorage.removeItem('rj_discountActive');
+                localStorage.removeItem('rj_referredBy');
                 
-                // Open WhatsApp
                 window.open(`https://wa.me/918055475552?text=${waMsg}`, '_blank');
-
-                // Delay the redirect by 600ms to allow the browser to process the pop-up
+                
                 setTimeout(() => {
                     window.location.href = `success.html?order=${orderId}`;
-                }, 600); 
-            
-                
+                }, 500);
             } else {
-                alert("Database connection failed. Please try again.");
+                alert("Database connection failed.");
             }
         } catch (err) {
-            console.error(err);
-            alert("Network error. Please check your connection.");
+            alert("Network error. Please try again.");
         }
     }
-  
 </script>
 </body>
 </html>
