@@ -43,7 +43,7 @@ const Product = mongoose.model('Product', new mongoose.Schema({
     category: String, 
     images: [String],
     availableSizes: [String], 
-    stockStatus: { type: String, default: 'in-stock' } // Keep only this for status
+    stockStatus: { type: String, default: 'in-stock' }
 }));
 
 const Order = mongoose.model('Order', new mongoose.Schema({
@@ -70,7 +70,7 @@ const newProduct = await Product.findOneAndUpdate(
 // In server.js, ensure this route returns the latest data
 app.get('/api/products', async (req, res) => {
     try {
-        const products = await Product.find({}); // Fetch fresh from DB
+        const products = await Product.find({});
         res.json({ success: true, products });
     } catch (e) {
         res.status(500).json({ success: false });
