@@ -519,14 +519,11 @@
         }
     });
 
- 
 
-    // SINGLE Initialization Event
-    window.addEventListener('DOMContentLoaded', () => {
         checkLoginStatus();
         updateCartCount();
-        renderCategoryProducts('footwear');
-    });
+        loadProducts();
+ 
 // In your category page script
 async function renderCategoryProducts(categoryName) {
     try {
