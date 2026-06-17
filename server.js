@@ -57,18 +57,34 @@ app.get('/api/products', async (req, res) => {
 });
 
 app.get('/api/products/:id', async (req, res) => {
-    try { const product = await Product.findOne({ productId: req.params.id });
-    res.json({ success: true, product }); }
-    catch (err) { res.status(500).json({ success: false, message: "Server error" }); }
+    try {
+        const product = await Product.findOne({ productId: req.params.id });
+        if (!product) return res.status(404).json({ success: false, message: "Not found" });
+        res.json({ success: true, product });
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
 });
 
-app.post('/api/products/add', upload.array('productImages', 3), async (req, res) => {
+app.post('/api/products/add', async (req, res) => {
     try {
-        const { productId, name, price, category, availableSizes, stockStatus, images } = req.body;
-        const finalImages = [...(images ? JSON.parse(images) : []), ...(req.files ? req.files.map(f => f.path) : [])];
-        const updated = await Product.findOneAndUpdate({ productId }, { name, price, category, isOutOfStock: stockStatus === 'out-of-stock', availableSizes: availableSizes?.split(','), stockStatus, images: finalImages }, { upsert: true, new: true });
-        res.json({ success: true, product: updated });
-    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+        // Ensure images is actually being passed from the frontend
+        const { productId, name, price, category, stockStatus, availableSizes, images } = req.body;
+        
+        // Log to see if images are arriving correctly
+        console.log("Received product with", images.length, "images");
+
+        const newProduct = await Product.findOneAndUpdate(
+            { productId: productId },
+            { name, price, category, stockStatus, availableSizes, images },
+            { upsert: true, new: true }
+        );
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Database Error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
 });
 
 app.get('/api/orders', async (req, res) => {

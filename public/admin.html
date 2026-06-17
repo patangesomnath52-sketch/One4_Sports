@@ -598,16 +598,16 @@
                 const isSoldOut = document.getElementById('edit-soldout-toggle').checked;
                 const selectedSizes = isSoldOut ? [] : Array.from(document.querySelectorAll('.edit-size-cb:checked')).map(cb => cb.value);
 
-                const updateData = {
-                    productId: document.getElementById('edit-product-id').value,
-                    name: document.getElementById('edit-product-name').value,
-                    price: document.getElementById('edit-product-price').value,
-                    category: document.getElementById('edit-product-category').value,
-                    stockStatus: isSoldOut ? 'out-of-stock' : 'in-stock',
-                    availableSizes: selectedSizes,
-                    images: finalImages
-                };
-
+           // Ensure this part is exactly as follows in your dashboard script
+const updateData = {
+    productId: document.getElementById('edit-product-id').value,
+    name: document.getElementById('edit-product-name').value,
+    price: parseFloat(document.getElementById('edit-product-price').value),
+    category: document.getElementById('edit-product-category').value,
+    stockStatus: isSoldOut ? 'out-of-stock' : 'in-stock',
+    availableSizes: selectedSizes,
+    images: finalImages // This must be an array of base64 strings
+};
                 const res = await fetch('/api/products/add', { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' },
