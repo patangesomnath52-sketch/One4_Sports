@@ -1,3 +1,4 @@
+
 const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -8,7 +9,8 @@ const path = require('path');
 
 const app = express();
 
-app.use(express.json({ limit: '50mb' }));
+// Add these lines at the top of your server.js, BEFORE your routes
+app.use(express.json({ limit: '50mb' })); 
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
 
