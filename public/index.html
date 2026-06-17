@@ -513,10 +513,7 @@
         }
     }
 
-    // Initialize
-    window.addEventListener('DOMContentLoaded', () => {
-        checkLoginStatus();
-        updateCartCount();
+   
 
 // 1. Detect the referral link
 const urlParams = new URLSearchParams(window.location.search);
@@ -531,31 +528,51 @@ if (refCode) {
         window.location.href = 'signin.html';
     }
 }
-    });
+    
     // In index.html, force the browser to ignore cache when fetching products
 async function renderDropFeed() {
     const gridContainer = document.getElementById('drop-grid');
     if (!gridContainer) return;
 
     try {
-        // Add { cache: "no-store" } to force a fresh pull from the server
         const response = await fetch('/api/products', { cache: "no-store" });
         const data = await response.json();
 
         if (data.success && data.products.length > 0) {
-            window.loadedProducts = data.products;
             gridContainer.innerHTML = data.products.map(p => `
-                <div class="drop-card">
-                    <span class="hype-tag" style="background:${p.stockStatus === 'out-of-stock' ? '#333' : 'var(--accent)'}">
-                        ${p.stockStatus === 'out-of-stock' ? 'Sold Out' : 'New Drop'}
-                    </span>
+                <div class="drop-card" onclick="window.location.href='product.html?id=${p.productId}'">
+                    <div class="drop-img-wrap">
+                        <span class="hype-tag" style="background:${p.stockStatus === 'out-of-stock' ? '#333' : 'var(--accent)'}">
+                            ${p.stockStatus === 'out-of-stock' ? 'Sold Out' : 'New Drop'}
+                        </span>
+                        <img src="${p.images[0] || 'placeholder.jpg'}" alt="${p.name}">
                     </div>
+                    <div class="drop-info">
+                        <div class="drop-name">${p.name}</div>
+                        <div class="drop-price">₹${Number(p.price).toLocaleString()}</div>
+                    </div>
+                </div>
             `).join('');
         }
     } catch (err) {
         console.error("Drop Feed Error:", err);
     }
 }
+// Wallet Management
+const Wallet = {
+    addPoints: (amount) => {
+        let points = parseInt(localStorage.getItem('rj_points') || 0);
+        points += amount;
+        localStorage.setItem('rj_points', points);
+        showToast(`+${amount} Points added to your wallet!`);
+    },
+    getPoints: () => parseInt(localStorage.getItem('rj_points') || 0)
+};
+window.addEventListener('DOMContentLoaded', () => {
+    checkLoginStatus();
+    updateCartCount();
+    renderDropFeed(); // <--- ADD THIS LINE HERE
+});
 </script>
 
 </body>

@@ -52,7 +52,11 @@ const Order = mongoose.model('Order', new mongoose.Schema({
     date: { type: Date, default: Date.now },
     items: [{ name: String, price: Number, quantity: Number, size: String, image: String }]
 }));
-
+const User = mongoose.model('User', new mongoose.Schema({
+    email: { type: String, unique: true },
+    referralCode: { type: String, unique: true },
+    points: { type: Number, default: 0 }
+}));
 // Routes
 // In server.js, ensure this route returns the latest data
 app.get('/api/products', async (req, res) => {
@@ -104,7 +108,42 @@ app.post('/api/orders', async (req, res) => {
     try { await new Order(req.body).save(); res.status(201).json({ success: true }); }
     catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
+app.post('/api/add-referral-points', async (req, res) => {
+    const { referrerCode, points } = req.body;
+    try {
+        // Find user by referralCode and update points
+        await User.findOneAndUpdate({ referralCode }, { $inc: { points: points } });
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Could not update points" });
+    }
+});
+app.post('/api/complete-purchase', async (req, res) => {
+    const { total, referredBy, purchaserEmail } = req.body;
+    
+    try {
+        // 1. Calculate points securely on the server
+        const purchasePoints = Math.floor(total * 0.05);
 
+        // 2. Add points to the purchaser
+        await User.findOneAndUpdate(
+            { email: purchaserEmail }, 
+            { $inc: { points: purchasePoints } }
+        );
+
+        // 3. Add referral points if a code exists
+        if (referredBy) {
+            await User.findOneAndUpdate(
+                { referralCode: referredBy }, 
+                { $inc: { points: 50 } } // Bonus for referral
+            );
+        }
+
+        res.json({ success: true, pointsEarned: purchasePoints });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
 app.get('*', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'index.html')); });
 
 const PORT = process.env.PORT || 3000;

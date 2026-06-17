@@ -341,19 +341,24 @@
             }
             toggleLoading('google-btn', false);
         }
-        // After user is verified:
-localStorage.setItem('rj_loggedInUser', userData.name);
-localStorage.setItem('rj_userEmail', userData.email);
-
-// Check for pending referral
-const pendingRef = localStorage.getItem('rj_referredBy');
-if (pendingRef) {
-    localStorage.setItem('rj_discountActive', 'true'); // Discount is now "activated"
-    alert("Referral discount activated! ₹100 will be deducted at checkout.");
+        
+        // Add this to your signup.html or wherever you handle registration
+function generateReferralCode(name) {
+    return name.substring(0,3).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
 }
 
+// When a new user registers:
+const referralCode = generateReferralCode(userName);
+const referredBy = localStorage.getItem('rj_referredBy'); // Detected from URL on homepage
+
+// Save these to your database for the user:
+// { name: userName, referralCode: referralCode, referredBy: referredBy, points: 0 }
+// Example of what to do in your signup route:
+const newCode = email.substring(0, 3).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
+await User.create({ email, referralCode: newCode, points: 0 });
 window.location.href = 'index.html'; // Redirect to home
     };
+
 </script>
 </body>
 </html>

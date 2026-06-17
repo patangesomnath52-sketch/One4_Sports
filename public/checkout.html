@@ -289,61 +289,98 @@
             </div>
         `).join('');
     }
+async function completePurchase() {
+    const total = calculateTotal(); // Your existing function
+    const referredBy = localStorage.getItem('rj_referredBy'); // The person who referred them
+    const purchaserEmail = localStorage.getItem('rj_userEmail'); // The current user
+function onPurchaseSuccess(totalAmount) {
+    const points = Math.floor(totalAmount * 0.05); // 5% cashback
+    Wallet.addPoints(points);
+}
+    try {
+        const response = await fetch('/api/complete-purchase', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                total, 
+                referredBy, 
+                purchaserEmail 
+            })
+        });
 
-    async function placeOrder() {
-        const name = document.getElementById('c-name').value;
-        const phone = document.getElementById('c-phone').value;
-        const address = document.getElementById('s-address').value;
-        const city = document.getElementById('s-city').value;
-        const state = document.getElementById('s-state').value;
-        const pin = document.getElementById('s-pin').value;
-
-        if(!name || !phone || !address || !city) { 
-            alert("Please fill in all delivery details!"); 
-            return; 
+        const result = await response.json();
+        if (result.success) {
+            showToast(`Purchase Successful! You earned ${result.pointsEarned} points.`);
+            // Clear cart, etc.
         }
-
-        const orderId = 'RJ' + Math.floor(100000 + Math.random() * 900000);
-        const orderData = {
-            orderId,
-            customer: name,
-            phone,
-            email: localStorage.getItem('rj_userEmail') || 'N/A',
-            address: `${address}, ${city}, ${state} - ${pin}`,
-            referredBy: localStorage.getItem('rj_referredBy') || 'None',
-            total: finalTotal,
-            status: 'Processing',
-            date: new Date().toISOString(),
-            items: cartItems
-        };
-
-        try {
-            const response = await fetch('/api/orders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderData)
-            });
-
-            if (response.ok) {
-                const waMsg = encodeURIComponent(`🔥 *New Order (One4Sports)*\nID: #${orderId}\nCustomer: ${name}\nTotal: ₹${finalTotal.toLocaleString()}`);
-                
-                // Cleanup
-                localStorage.removeItem('rj_cart');
-                localStorage.removeItem('rj_discountActive');
-                localStorage.removeItem('rj_referredBy');
-                
-                window.open(`https://wa.me/918055475552?text=${waMsg}`, '_blank');
-                
-                setTimeout(() => {
-                    window.location.href = `success.html?order=${orderId}`;
-                }, 500);
-            } else {
-                alert("Database connection failed.");
-            }
-        } catch (err) {
-            alert("Network error. Please try again.");
-        }
+    } catch (err) {
+        console.error("Purchase error:", err);
     }
+}
+   async function placeOrder() {
+    const name = document.getElementById('c-name').value;
+    const phone = document.getElementById('c-phone').value;
+    const address = document.getElementById('s-address').value;
+    const city = document.getElementById('s-city').value;
+    const state = document.getElementById('s-state').value;
+    const pin = document.getElementById('s-pin').value;
+
+    if(!name || !phone || !address || !city) { 
+        alert("Please fill in all delivery details!"); 
+        return; 
+    }
+
+    const orderId = 'RJ' + Math.floor(100000 + Math.random() * 900000);
+    const orderData = {
+        orderId,
+        customer: name,
+        phone,
+        email: localStorage.getItem('rj_userEmail') || 'N/A',
+        address: `${address}, ${city}, ${state} - ${pin}`,
+        referredBy: localStorage.getItem('rj_referredBy') || 'None',
+        total: finalTotal,
+        status: 'Processing',
+        date: new Date().toISOString(),
+        items: cartItems
+    };
+
+    try {
+        // 1. Send Order to DB
+        const orderRes = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        });
+
+        // 2. Process Referral/Loyalty Points via the new secure API
+        await fetch('/api/complete-purchase', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                total: finalTotal, 
+                referredBy: localStorage.getItem('rj_referredBy'), 
+                purchaserEmail: localStorage.getItem('rj_userEmail') 
+            })
+        });
+
+        if (orderRes.ok) {
+            const waMsg = encodeURIComponent(`🔥 *New Order (One4Sports)*\nID: #${orderId}\nCustomer: ${name}\nTotal: ₹${finalTotal.toLocaleString()}`);
+            
+            // Cleanup
+            localStorage.removeItem('rj_cart');
+            localStorage.removeItem('rj_discountActive');
+            localStorage.removeItem('rj_referredBy');
+            
+            window.open(`https://wa.me/918055475552?text=${waMsg}`, '_blank');
+            window.location.href = `success.html?order=${orderId}`;
+        } else {
+            alert("Database connection failed.");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Network error. Please try again.");
+    }
+}
 </script>
 </body>
 </html>
