@@ -532,7 +532,30 @@ if (refCode) {
     }
 }
     });
-    
+    // In index.html, force the browser to ignore cache when fetching products
+async function renderDropFeed() {
+    const gridContainer = document.getElementById('drop-grid');
+    if (!gridContainer) return;
+
+    try {
+        // Add { cache: "no-store" } to force a fresh pull from the server
+        const response = await fetch('/api/products', { cache: "no-store" });
+        const data = await response.json();
+
+        if (data.success && data.products.length > 0) {
+            window.loadedProducts = data.products;
+            gridContainer.innerHTML = data.products.map(p => `
+                <div class="drop-card">
+                    <span class="hype-tag" style="background:${p.stockStatus === 'out-of-stock' ? '#333' : 'var(--accent)'}">
+                        ${p.stockStatus === 'out-of-stock' ? 'Sold Out' : 'New Drop'}
+                    </span>
+                    </div>
+            `).join('');
+        }
+    } catch (err) {
+        console.error("Drop Feed Error:", err);
+    }
+}
 </script>
 
 </body>
