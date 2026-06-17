@@ -65,7 +65,14 @@ app.get('/api/products/:id', async (req, res) => {
         res.status(500).json({ success: false, message: e.message });
     }
 });
-
+// In your index.html, update the fetch call inside renderDropFeed()
+async function renderDropFeed() {
+    // ...
+    // Add the cache: 'no-cache' header to force a fresh pull from the server
+    const response = await fetch('/api/products', { cache: 'no-cache' }); 
+    const data = await response.json();
+    // ...
+}
 app.post('/api/products/add', async (req, res) => {
     try {
         // Ensure images is actually being passed from the frontend

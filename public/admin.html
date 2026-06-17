@@ -632,7 +632,14 @@ const updateData = {
             document.getElementById('edit-panel').style.display = 'none';
             loadProductListForDropdown();
         });
-
+// In your index.html, update the fetch call inside renderDropFeed()
+async function renderDropFeed() {
+    // ...
+    // Add the cache: 'no-cache' header to force a fresh pull from the server
+    const response = await fetch('/api/products', { cache: 'no-cache' }); 
+    const data = await response.json();
+    // ...
+}
     </script>
 </body>
 </html>
