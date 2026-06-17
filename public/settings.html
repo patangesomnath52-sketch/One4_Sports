@@ -274,8 +274,8 @@
                     <div class="stat-box">
                         <div class="stat-icon"><i class="fas fa-fire"></i></div>
                         <div class="stat-info">
-                            <h4>Hype Points</h4>
-                            <h3>1,250</h3>
+                           <h4>Hype Points</h4>
+<h3 id="display-points">0</h3>
                         </div>
                     </div>
                     <div class="stat-box">
@@ -292,7 +292,7 @@
         <h3>Refer & Earn</h3>
     </div>
     <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
-        Invite your squad to One4Sports. When they secure their first drop using your link, both of you get <b>₹100 credit</b> for the next gear drop.
+        Invite your squad to One4Sports. When they secure their first drop using your link, both of you get <b>Points credit</b> for the next gear drop.
     </p>
     
    <div class="ref-container">
@@ -301,7 +301,7 @@
         <h3>Refer & Earn Credit</h3>
     </div>
     <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 5px;">
-        Share your unique link. When your squad secures their first drop, you both get <b>₹50</b>.
+        Share your unique link. When your squad secures their first drop, you  get <b>Points</b>.
     </p>
     
     <div class="ref-input-group">
@@ -391,10 +391,10 @@
 
 <script>
 function shareOnWhatsApp() {
-    const link = document.getElementById('ref-link').value;
-    // Ensure the link is absolute
-    const msg = encodeURIComponent(`Yo! Use my link to get ₹100 off your first drop at One4Sports: ${link}`);
-    window.open(`https://wa.me/?text=${msg}`, '_blank');
+    
+const link = document.getElementById('ref-link').value;
+const msg = encodeURIComponent(`🔥 I just leveled up my gear game at One4Sports! Use my link to get a  discount points on your first order: ${link}`);
+window.open(`https://wa.me/?text=${msg}`, '_blank');
 }
 </script>
 
@@ -482,11 +482,28 @@ function shareOnWhatsApp() {
             }
         } catch (err) { ordersContainer.innerHTML = '<div>Connection error.</div>'; }
     }
+async function fetchUserData() {
+    const email = localStorage.getItem('rj_userEmail');
+    if (!email) return;
 
+    try {
+        // You need to ensure you have a route like this in your server.js
+        const res = await fetch(`/api/user-data?email=${encodeURIComponent(email)}`);
+        const data = await res.json();
+        
+        if (data.success) {
+            document.getElementById('display-points').innerText = data.user.points.toLocaleString();
+        }
+    } catch (err) {
+        console.error("Could not sync points:", err);
+    }
+}
+   
     // 4. INIT
     document.addEventListener('DOMContentLoaded', () => {
         initReferral();
         setupPreferences();
+        fetchUserData(); // Fetches live points from MongoDB
         
         const user = localStorage.getItem('rj_loggedInUser');
         if(user) document.getElementById('display-name').innerText = user;

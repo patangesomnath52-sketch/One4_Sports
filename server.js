@@ -55,6 +55,7 @@ const Order = mongoose.model('Order', new mongoose.Schema({
 const User = mongoose.model('User', new mongoose.Schema({
     email: { type: String, unique: true },
     referralCode: { type: String, unique: true },
+    referredBy: String, // <--- Add this
     points: { type: Number, default: 0 }
 }));
 // Routes
@@ -118,6 +119,24 @@ app.post('/api/add-referral-points', async (req, res) => {
         res.status(500).json({ error: "Could not update points" });
     }
 });
+app.post('/api/register-user', async (req, res) => {
+    const { email, name, referredBy } = req.body;
+    try {
+        const existing = await User.findOne({ email });
+        if (!existing) {
+            const newCode = name.substring(0,3).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
+            await User.create({ 
+                email, 
+                referralCode: newCode, 
+                referredBy: referredBy, // Link the referrer here
+                points: 0 
+            });
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Sync failed" });
+    }
+});
 app.post('/api/complete-purchase', async (req, res) => {
     const { total, referredBy, purchaserEmail } = req.body;
     
@@ -144,6 +163,17 @@ app.post('/api/complete-purchase', async (req, res) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 });
+app.get('/api/user-data', async (req, res) => {
+    const { email } = req.query;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ success: false });
+        res.json({ success: true, user });
+    } catch (err) {
+        res.status(500).json({ success: false });
+    }
+});
+
 app.get('*', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'index.html')); });
 
 const PORT = process.env.PORT || 3000;

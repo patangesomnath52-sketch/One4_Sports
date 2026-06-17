@@ -292,21 +292,37 @@
     };
 
     // 2. SHARED ROUTING & SAVING LOGIC
-    const handleSuccessfulLogin = (user) => {
-        const email = user.email;
-        // Save User Data (Fallback to 'User' if displayName is null for Email login)
-        localStorage.setItem('rj_loggedInUser', user.displayName || email.split('@')[0]);
-        localStorage.setItem('rj_userEmail', email);
+    const handleSuccessfulLogin = async (user) => {
+    const email = user.email;
+    const name = user.displayName || email.split('@')[0];
 
-        // Smart Routing
-        if (adminEmails.includes(email)) {
-            window.location.href = 'admin.html';
-        } else {
-            const params = new URLSearchParams(window.location.search);
-            const redirect = params.get('redirect') || 'index.html';
-            window.location.href = redirect;
-        }
-    };
+    // 1. Sync/Register User with Backend (to ensure they have a Referral Code)
+    try {
+        await fetch('/api/register-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                email: email,
+                name: name,
+                referredBy: localStorage.getItem('rj_referredBy') // Pass the referral code from URL
+            })
+        });
+    } catch (err) {
+        console.error("User sync failed, continuing anyway...");
+    }
+
+    // 2. Save Session
+    localStorage.setItem('rj_loggedInUser', name);
+    localStorage.setItem('rj_userEmail', email);
+
+    // 3. Routing
+    if (adminEmails.includes(email)) {
+        window.location.href = 'admin.html';
+    } else {
+        const params = new URLSearchParams(window.location.search);
+        window.location.href = params.get('redirect') || 'index.html';
+    }
+};
 
     // 3. EMAIL/PASSWORD LOGIN
     document.getElementById('email-form').addEventListener('submit', async (e) => {
@@ -347,9 +363,7 @@ function generateReferralCode(name) {
     return name.substring(0,3).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
 }
 
-// When a new user registers:
-const referralCode = generateReferralCode(userName);
-const referredBy = localStorage.getItem('rj_referredBy'); // Detected from URL on homepage
+
 
 // Save these to your database for the user:
 // { name: userName, referralCode: referralCode, referredBy: referredBy, points: 0 }
