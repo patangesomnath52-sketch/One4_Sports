@@ -38,9 +38,12 @@ mongoose.connect(MONGO_URI)
 // Models
 const Product = mongoose.model('Product', new mongoose.Schema({
     productId: { type: String, unique: true, required: true },
-    name: String, price: Number, category: String, images: [String],
-    isOutOfStock: { type: Boolean, default: false },
-    availableSizes: [String], stockStatus: String
+    name: String, 
+    price: Number, 
+    category: String, 
+    images: [String],
+    availableSizes: [String], 
+    stockStatus: { type: String, default: 'in-stock' } // Keep only this for status
 }));
 
 const Order = mongoose.model('Order', new mongoose.Schema({
@@ -49,7 +52,20 @@ const Order = mongoose.model('Order', new mongoose.Schema({
     date: { type: Date, default: Date.now },
     items: [{ name: String, price: Number, quantity: Number, size: String, image: String }]
 }));
-
+const newProduct = await Product.findOneAndUpdate(
+    { productId: productId },
+    { 
+        $set: { // Use $set to only update provided fields
+            name, 
+            price, 
+            category, 
+            stockStatus, // Ensure this string ('in-stock' or 'out-of-stock') is passed from frontend
+            availableSizes, 
+            images 
+        }
+    },
+    { upsert: true, new: true }
+);
 // Routes
 // In server.js, ensure this route returns the latest data
 app.get('/api/products', async (req, res) => {

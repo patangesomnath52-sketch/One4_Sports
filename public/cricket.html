@@ -373,26 +373,27 @@
     function toggleFilters() {
         document.getElementById('sidebar').classList.toggle('active');
     }
-
-    // Backend Fetch Logic
-    async function loadProducts() {
-        try {
-            const res = await fetch('/api/products');
-            const data = await res.json();
-            if(data.success) {
-                // Filter specifically for Cricket category
-                allProducts = data.products.filter(p => p.category === 'Cricket');
-                renderBrandFilters(); 
-                applyFilters(); 
-            } else {
-                showError("Failed to fetch database records.");
-            }
-        } catch (err) {
-            showError("Backend disconnected. Start your Node server.");
+ async function loadProducts() {
+    const grid = document.getElementById('product-grid');
+    try {
+        // Use { cache: "no-store" } to force fresh data from your MongoDB
+        const res = await fetch('/api/products', { cache: "no-store" });
+        const data = await res.json();
+        
+        if(data.success) {
+            // Filter products for this specific page (e.g., 'Footwear')
+            allProducts = data.products.filter(p => p.category === 'Footwear');
+            renderBrandFilters(); 
+            applyFilters(); 
+        } else {
+            showError("Failed to fetch database records.");
         }
+    } catch (err) {
+        showError("Backend disconnected.");
     }
-
-    function renderBrandFilters() {
+}
+    // Backend Fetch Logic
+       function renderBrandFilters() {
         const container = document.getElementById('dynamic-brand-filters');
         const uniqueBrands = [...new Set(allProducts.map(p => {
             return (p.brand || (p.name ? p.name.split(' ')[0] : 'Brand')).toUpperCase();
@@ -410,52 +411,49 @@
         `).join('');
     }
 
-    function applyFilters() {
-        const grid = document.getElementById('product-grid');
-        const countDisplay = document.getElementById('product-count');
+   function applyFilters() {
+    const grid = document.getElementById('product-grid');
+    const countDisplay = document.getElementById('product-count');
+    
+    // 1. Get the filter status
+    const excludeSoldOut = document.getElementById('instock-filter').checked;
+
+    const filteredProducts = allProducts.filter(p => {
+        // 2. Fix: Check p.stockStatus instead of p.stock
+        const isSoldOut = p.stockStatus === 'out-of-stock';
+        const stockMatch = excludeSoldOut ? !isSoldOut : true;
+        return stockMatch;
+    });
+
+    countDisplay.innerText = `${filteredProducts.length} Drops Found`;
+
+    // 3. Render loop
+    grid.innerHTML = filteredProducts.map(p => {
+        const imgUrl = p.images && p.images.length > 0 ? p.images[0] : '';
+        const safeName = p.name.replace(/'/g, "\\'"); 
         
-        const selectedBrands = Array.from(document.querySelectorAll('.brand-filter:checked')).map(cb => cb.value.toUpperCase());
-        const excludeSoldOut = document.getElementById('instock-filter').checked;
-
-        const filteredProducts = allProducts.filter(p => {
-            const productBrand = (p.brand || (p.name ? p.name.split(' ')[0] : 'Brand')).toUpperCase();
-            const brandMatch = selectedBrands.length === 0 ? true : selectedBrands.includes(productBrand);
-            const stockMatch = excludeSoldOut ? (p.stock > 0 || !p.isOutOfStock) : true;
-            return brandMatch && stockMatch;
-        });
-
-        countDisplay.innerText = `${filteredProducts.length} Drops Found`;
-
-        if (filteredProducts.length === 0) {
-            grid.innerHTML = "<div class='loading-text'><i class='fas fa-ghost' style='display:block; font-size: 32px; margin-bottom: 15px; color: var(--border-color);'></i> No drops match your filters.</div>";
-            return;
-        }
-
-        grid.innerHTML = filteredProducts.map(p => {
-            const imgUrl = p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/400x400/111111/ffffff?text=Image+Missing';
-            const brandName = p.brand || (p.name ? p.name.split(' ')[0] : 'Brand');
-            const safeName = p.name.replace(/'/g, "\\'"); 
-            const isSoldOut = p.stock === 0 || p.isOutOfStock;
-            
-            return `
-            <div class="card" onclick="window.location.href='product.html?id=${p.productId}'">
-                <div class="img-wrapper">
-                    ${isSoldOut ? `<div class="badge sold-out-badge">SOLD OUT</div>` : `<div class="badge premium-badge">NEW DROP</div>`}
-                    <img src="${imgUrl}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/400x400/111111/ffffff?text=Image+Missing'">
-                </div>
-                <div class="info">
-                    <div class="brand">${brandName}</div>
-                    <div class="name">${p.name}</div>
-                    <div class="price">₹${Number(p.price).toLocaleString()}</div>
-                    <button class="quick-add-btn" onclick="addToCart(event, '${p.productId}', '${safeName}', ${p.price}, '${imgUrl}')" ${isSoldOut ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
-                        <i class="fas fa-shopping-cart"></i> ${isSoldOut ? 'Out of Stock' : 'Add to Cart'}
-                    </button>
-                </div>
+        // Fix: Use the same status check here
+        const isSoldOut = p.stockStatus === 'out-of-stock';
+        
+        return `
+        <div class="card" onclick="window.location.href='product.html?id=${p.productId}'">
+            <div class="img-wrapper">
+                ${isSoldOut ? `<div class="badge sold-out-badge">SOLD OUT</div>` : `<div class="badge premium-badge">NEW DROP</div>`}
+                <img src="${imgUrl}" alt="${p.name}">
             </div>
-            `;
-        }).join('');
-    }
-
+            <div class="info">
+                <div class="name">${p.name}</div>
+                <div class="price">₹${Number(p.price).toLocaleString()}</div>
+                <button class="quick-add-btn" 
+                    onclick="addToCart(event, '${p.productId}', '${safeName}', ${p.price}, '${imgUrl}')" 
+                    ${isSoldOut ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
+                    ${isSoldOut ? 'Out of Stock' : 'Add to Cart'}
+                </button>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
     function showError(msg) {
         document.getElementById('product-grid').innerHTML = `<div class='loading-text'><i class='fas fa-exclamation-triangle' style='color: var(--accent); margin-right: 10px;'></i> ${msg}</div>`;
     }
