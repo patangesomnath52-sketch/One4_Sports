@@ -65,14 +65,35 @@ app.get('/api/products/:id', async (req, res) => {
         res.status(500).json({ success: false, message: e.message });
     }
 });
-// In your index.html, update the fetch call inside renderDropFeed()
-async function renderDropFeed() {
-    // ...
-    // Add the cache: 'no-cache' header to force a fresh pull from the server
-    const response = await fetch('/api/products', { cache: 'no-cache' }); 
-    const data = await response.json();
-    // ...
+async function loadProductDetails() {
+    if (!productId) { 
+        document.getElementById('loader').innerHTML = "<div>Product ID missing</div>"; 
+        return; 
+    }
+    
+    try {
+        // Change to absolute path if hosting separately, 
+        // otherwise keep as relative /api/products/${productId}
+        const res = await fetch(`/api/products/${productId}`);
+        
+        if (!res.ok) throw new Error(`Server returned ${res.status}`);
+        
+        const data = await res.json();
+        
+        if (data.success) { 
+            currentProduct = data.product; 
+            renderProduct(currentProduct); 
+            document.getElementById('reviewsSection').style.display = 'block'; 
+            renderReviewsUI(); 
+        } else {
+            throw new Error(data.message || "Unknown error");
+        }
+    } catch (err) { 
+        console.error("Fetch Error:", err); // Check F12 Console for this!
+        document.getElementById('loader').innerHTML = `<i class='fas fa-exclamation-triangle'></i><div>Connection Failed: ${err.message}</div>`;
+    }
 }
+
 app.post('/api/products/add', async (req, res) => {
     try {
         // Ensure images is actually being passed from the frontend
