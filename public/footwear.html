@@ -498,15 +498,7 @@
 
     // SINGLE Initialization Event
     window.addEventListener('DOMContentLoaded', () => {
-        checkLoginStatus();
-        updateCartCount();
-        loadProducts();
-    });
-
-</script>
-<script>
-    window.addEventListener('DOMContentLoaded', () => {
-        const productGrid = document.getElementById('product-grid'); // Ensure your Footwear HTML has this ID
+         const productGrid = document.getElementById('product-grid'); // Ensure your Footwear HTML has this ID
         const storedProducts = localStorage.getItem('one4sports_products');
 
         if (storedProducts) {
@@ -526,7 +518,48 @@
             `).join('');
         }
     });
-    
+
+ 
+
+    // SINGLE Initialization Event
+    window.addEventListener('DOMContentLoaded', () => {
+        checkLoginStatus();
+        updateCartCount();
+        renderCategoryProducts('footwear');
+    });
+// In your category page script
+async function renderCategoryProducts(categoryName) {
+    try {
+        // Use cache: 'no-store' to ensure you get the latest edited status
+        const response = await fetch('/api/products', { cache: "no-store" });
+        const data = await response.json();
+
+        if (data.success) {
+            // Filter by category
+            const filtered = data.products.filter(p => p.category === categoryName);
+            
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = filtered.map(p => `
+                <div class="product-card">
+                    <img src="${p.images[0]}" alt="${p.name}">
+                    <h3>${p.name}</h3>
+                    <!-- THIS IS THE CRITICAL PART: Dynamic status check -->
+                    <p class="status-badge ${p.stockStatus === 'in-stock' ? 'available' : 'out-of-stock'}">
+                        ${p.stockStatus === 'in-stock' ? 'Available' : 'Sold Out'}
+                    </p>
+                    <a href="product.html?id=${p.productId}">View Product</a>
+                </div>
+            `).join('');
+        }
+    } catch (err) {
+        console.error("Failed to load category products:", err);
+    }
+}
 </script>
+
+    
+       
+    
+
 </body>
 </html>
