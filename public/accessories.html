@@ -384,25 +384,22 @@
     }
 
     // Backend Fetch Logic
-   async function loadProducts() {
-    const grid = document.getElementById('product-grid');
-    try {
-        // Use { cache: "no-store" } to force fresh data from your MongoDB
-        const res = await fetch('/api/products', { cache: "no-store" });
-        const data = await res.json();
-        
-        if(data.success) {
-            // Filter products for this specific page (e.g., 'Footwear')
-            allProducts = data.products.filter(p => p.category === 'Footwear');
-            renderBrandFilters(); 
-            applyFilters(); 
-        } else {
-            showError("Failed to fetch database records.");
+    async function loadProducts() {
+        try {
+            const res = await fetch('/api/products');
+            const data = await res.json();
+            if(data.success) {
+                // Filter specifically for Accessories category
+                allProducts = data.products.filter(p => p.category === 'Accessories');
+                renderBrandFilters(); 
+                applyFilters(); 
+            } else {
+                showError("Failed to fetch database records.");
+            }
+        } catch (err) {
+            showError("Backend disconnected. Start your Node server.");
         }
-    } catch (err) {
-        showError("Backend disconnected.");
     }
-}
 
     function renderBrandFilters() {
         const container = document.getElementById('dynamic-brand-filters');
