@@ -538,22 +538,23 @@ async function renderDropFeed() {
         const response = await fetch('/api/products', { cache: "no-store" });
         const data = await response.json();
 
-        if (data.success && data.products.length > 0) {
-            gridContainer.innerHTML = data.products.map(p => `
-                <div class="drop-card" onclick="window.location.href='product.html?id=${p.productId}'">
-                    <div class="drop-img-wrap">
-                        <span class="hype-tag" style="background:${p.stockStatus === 'out-of-stock' ? '#333' : 'var(--accent)'}">
-                            ${p.stockStatus === 'out-of-stock' ? 'Sold Out' : 'New Drop'}
-                        </span>
-                        <img src="${p.images[0] || 'placeholder.jpg'}" alt="${p.name}">
-                    </div>
-                    <div class="drop-info">
-                        <div class="drop-name">${p.name}</div>
-                        <div class="drop-price">₹${Number(p.price).toLocaleString()}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
+       if (data.success && data.products.length > 0) {
+    // .slice(0, 3) ensures only the first 3 products are shown
+    gridContainer.innerHTML = data.products.slice(0, 3).map(p => `
+        <div class="drop-card" onclick="window.location.href='product.html?id=${p.productId}'">
+            <div class="drop-img-wrap">
+                <span class="hype-tag" style="background:${p.stockStatus === 'out-of-stock' ? '#333' : 'var(--accent)'}">
+                    ${p.stockStatus === 'out-of-stock' ? 'Sold Out' : 'New Drop'}
+                </span>
+                <img src="${p.images[0] || 'placeholder.jpg'}" alt="${p.name}">
+            </div>
+            <div class="drop-info">
+                <div class="drop-name">${p.name}</div>
+                <div class="drop-price">₹${Number(p.price).toLocaleString()}</div>
+            </div>
+        </div>
+    `).join('');
+}
     } catch (err) {
         console.error("Drop Feed Error:", err);
     }
