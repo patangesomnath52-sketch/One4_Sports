@@ -1,4 +1,3 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -6,20 +5,10 @@ const { v2: cloudinary } = require('cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cors = require('cors');
 const path = require('path');
-const express = require('express');
-const app = express();
 
-// IMPORTANT: allow large JSON payloads (for base64 images)
+const app = express(); // ✅ only one app declaration
 
-
-// ... your other routes ...
-
-const reviewsRouter = require('./reviews');
-app.use('/api/reviews', reviewsRouter);
-
-
-
-// Add these lines at the top of your server.js, BEFORE your routes
+// ===== MIDDLEWARE (MUST BE BEFORE ROUTES) =====
 app.use(express.json({ limit: '50mb' })); 
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
@@ -27,7 +16,7 @@ app.use(cors());
 // Static Files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Cloudinary
+// ===== CLOUDINARY (optional – only if you use file uploads) =====
 cloudinary.config({
     cloud_name: 'dcxsebtas',
     api_key: '872585929966168',
@@ -39,22 +28,27 @@ const storage = new CloudinaryStorage({
 });
 const upload = multer({ storage: storage });
 
-// Database
+// ===== DATABASE =====
 const MONGO_URI = "mongodb+srv://Ram_Jadhav:Ram%401234@cluster0.5ii6lfb.mongodb.net/rjsports?retryWrites=true&w=majority";
 mongoose.connect(MONGO_URI)
     .then(() => console.log("✅ MongoDB Connected!"))
     .catch(err => console.error("❌ MongoDB connection error:", err));
 
-// Models
-const Product = mongoose.model('Product', new mongoose.Schema({
+// ===== MODELS =====
+// Updated Product schema to store sizes as array of objects {size, status}
+const productSchema = new mongoose.Schema({
     productId: { type: String, unique: true, required: true },
     name: String, 
     price: Number, 
     category: String, 
     images: [String],
-    availableSizes: [String], 
+    sizes: [{
+        size: String,
+        status: { type: String, default: 'Available' }
+    }],
     stockStatus: { type: String, default: 'in-stock' }
-}));
+});
+const Product = mongoose.model('Product', productSchema);
 
 const Order = mongoose.model('Order', new mongoose.Schema({
     orderId: String, customer: String, phone: String, email: String, total: Number,
@@ -62,14 +56,17 @@ const Order = mongoose.model('Order', new mongoose.Schema({
     date: { type: Date, default: Date.now },
     items: [{ name: String, price: Number, quantity: Number, size: String, image: String }]
 }));
+
 const User = mongoose.model('User', new mongoose.Schema({
     email: { type: String, unique: true },
     referralCode: { type: String, unique: true },
-    referredBy: String, // <--- Add this
+    referredBy: String,
     points: { type: Number, default: 0 }
 }));
-// Routes
-// In server.js, ensure this route returns the latest data
+
+// ===== ROUTES =====
+
+// PRODUCTS
 app.get('/api/products', async (req, res) => {
     try {
         const products = await Product.find({});
@@ -91,18 +88,15 @@ app.get('/api/products/:id', async (req, res) => {
 
 app.post('/api/products/add', async (req, res) => {
     try {
-        // Ensure images is actually being passed from the frontend
-        const { productId, name, price, category, stockStatus, availableSizes, images } = req.body;
-        
-        // Log to see if images are arriving correctly
-        console.log("Received product with", images.length, "images");
+        const { productId, name, price, category, stockStatus, sizes, images } = req.body;
+        // images should be an array of base64 strings (or Cloudinary URLs)
+        console.log("Received product with", images ? images.length : 0, "images and", sizes ? sizes.length : 0, "sizes");
 
         const newProduct = await Product.findOneAndUpdate(
-            { productId: productId },
-            { name, price, category, stockStatus, availableSizes, images },
+            { productId },
+            { name, price, category, stockStatus, sizes, images },
             { upsert: true, new: true }
         );
-        
         res.json({ success: true });
     } catch (error) {
         console.error("Database Error:", error);
@@ -110,25 +104,36 @@ app.post('/api/products/add', async (req, res) => {
     }
 });
 
+// ORDERS
 app.get('/api/orders', async (req, res) => {
-    try { const orders = await Order.find().sort({ date: -1 }); res.json({ success: true, orders }); }
-    catch (err) { res.status(500).json({ success: false, message: "Failed" }); }
+    try { 
+        const orders = await Order.find().sort({ date: -1 }); 
+        res.json({ success: true, orders }); 
+    } catch (err) { 
+        res.status(500).json({ success: false, message: "Failed" }); 
+    }
 });
 
 app.post('/api/orders', async (req, res) => {
-    try { await new Order(req.body).save(); res.status(201).json({ success: true }); }
-    catch (err) { res.status(500).json({ success: false, message: err.message }); }
+    try { 
+        await new Order(req.body).save(); 
+        res.status(201).json({ success: true }); 
+    } catch (err) { 
+        res.status(500).json({ success: false, message: err.message }); 
+    }
 });
+
+// REFERRAL & POINTS
 app.post('/api/add-referral-points', async (req, res) => {
     const { referrerCode, points } = req.body;
     try {
-        // Find user by referralCode and update points
         await User.findOneAndUpdate({ referralCode }, { $inc: { points: points } });
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: "Could not update points" });
     }
 });
+
 app.post('/api/register-user', async (req, res) => {
     const { email, name, referredBy } = req.body;
     try {
@@ -138,7 +143,7 @@ app.post('/api/register-user', async (req, res) => {
             await User.create({ 
                 email, 
                 referralCode: newCode, 
-                referredBy: referredBy, // Link the referrer here
+                referredBy, 
                 points: 0 
             });
         }
@@ -147,32 +152,21 @@ app.post('/api/register-user', async (req, res) => {
         res.status(500).json({ error: "Sync failed" });
     }
 });
+
 app.post('/api/complete-purchase', async (req, res) => {
     const { total, referredBy, purchaserEmail } = req.body;
-    
     try {
-        // 1. Calculate points securely on the server
         const purchasePoints = Math.floor(total * 0.05);
-
-        // 2. Add points to the purchaser
-        await User.findOneAndUpdate(
-            { email: purchaserEmail }, 
-            { $inc: { points: purchasePoints } }
-        );
-
-        // 3. Add referral points if a code exists
+        await User.findOneAndUpdate({ email: purchaserEmail }, { $inc: { points: purchasePoints } });
         if (referredBy) {
-            await User.findOneAndUpdate(
-                { referralCode: referredBy }, 
-                { $inc: { points: 50 } } // Bonus for referral
-            );
+            await User.findOneAndUpdate({ referralCode: referredBy }, { $inc: { points: 50 } });
         }
-
         res.json({ success: true, pointsEarned: purchasePoints });
     } catch (err) {
         res.status(500).json({ success: false, message: "Server error" });
     }
 });
+
 app.get('/api/user-data', async (req, res) => {
     const { email } = req.query;
     try {
@@ -184,7 +178,15 @@ app.get('/api/user-data', async (req, res) => {
     }
 });
 
-app.get('*', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'index.html')); });
+// ===== REVIEWS ROUTES (new) =====
+const reviewsRouter = require('./reviews');
+app.use('/api/reviews', reviewsRouter);
 
+// ===== CATCH-ALL FOR SPA =====
+app.get('*', (req, res) => { 
+    res.sendFile(path.join(__dirname, 'public', 'index.html')); 
+});
+
+// ===== START SERVER =====
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

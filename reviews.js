@@ -5,7 +5,6 @@ const router = express.Router();
 
 const REVIEWS_FILE = path.join(__dirname, 'reviews.json');
 
-// Helper: read reviews from JSON file
 function readReviews() {
     try {
         if (!fs.existsSync(REVIEWS_FILE)) return [];
@@ -16,12 +15,11 @@ function readReviews() {
     }
 }
 
-// Helper: write reviews to JSON file
 function writeReviews(reviews) {
     fs.writeFileSync(REVIEWS_FILE, JSON.stringify(reviews, null, 2));
 }
 
-// GET /api/reviews?productId=xxx
+// GET reviews for a product
 router.get('/', (req, res) => {
     const productId = req.query.productId;
     if (!productId) {
@@ -32,7 +30,7 @@ router.get('/', (req, res) => {
     res.json({ success: true, reviews: filtered });
 });
 
-// POST /api/reviews
+// POST a new review
 router.post('/', (req, res) => {
     const { productId, userName, userEmail, rating, comment, imageDataUrl } = req.body;
     if (!productId || !userName || !rating || !comment) {
@@ -54,7 +52,7 @@ router.post('/', (req, res) => {
     res.json({ success: true, review: newReview });
 });
 
-// DELETE /api/reviews/:id
+// DELETE a review by id
 router.delete('/:id', (req, res) => {
     const id = parseFloat(req.params.id);
     let reviews = readReviews();
