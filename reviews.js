@@ -1,3 +1,4 @@
+// reviews.js
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -19,18 +20,14 @@ function writeReviews(reviews) {
     fs.writeFileSync(REVIEWS_FILE, JSON.stringify(reviews, null, 2));
 }
 
-// GET reviews for a product
 router.get('/', (req, res) => {
     const productId = req.query.productId;
-    if (!productId) {
-        return res.status(400).json({ success: false, message: 'productId required' });
-    }
+    if (!productId) return res.status(400).json({ success: false, message: 'productId required' });
     const all = readReviews();
     const filtered = all.filter(r => r.productId === productId);
     res.json({ success: true, reviews: filtered });
 });
 
-// POST a new review
 router.post('/', (req, res) => {
     const { productId, userName, userEmail, rating, comment, imageDataUrl } = req.body;
     if (!productId || !userName || !rating || !comment) {
@@ -52,14 +49,11 @@ router.post('/', (req, res) => {
     res.json({ success: true, review: newReview });
 });
 
-// DELETE a review by id
 router.delete('/:id', (req, res) => {
     const id = parseFloat(req.params.id);
     let reviews = readReviews();
     const index = reviews.findIndex(r => r.id === id);
-    if (index === -1) {
-        return res.status(404).json({ success: false, message: 'Review not found' });
-    }
+    if (index === -1) return res.status(404).json({ success: false, message: 'Review not found' });
     reviews.splice(index, 1);
     writeReviews(reviews);
     res.json({ success: true });
