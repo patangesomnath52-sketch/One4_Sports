@@ -6,226 +6,426 @@
     <title>Product Details | One4Sports</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <script>
-        if(localStorage.getItem('rj_theme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-        }
-    </script>
     <style>
-        /* (your existing styles – keep them unchanged) */
-        /* ... copy your CSS here ... */
-        :root { /* ... */ }
-        /* ... all styles from your original file ... */
+        /* ---------- YOUR EXISTING STYLES (unchanged) ---------- */
+        :root {
+            --bg-color: #050505;
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --accent: #ff2a2a;
+            --accent-glow: rgba(255, 42, 42, 0.5);
+            --card-bg: #111111;
+            --nav-bg: rgba(5, 5, 5, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+        :root.light-mode {
+            --bg-color: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #E10600;
+            --accent-glow: rgba(225, 6, 0, 0.3);
+            --card-bg: #ffffff;
+            --nav-bg: rgba(255, 255, 255, 0.8);
+            --border-color: #e2e8f0;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Assistant',sans-serif; -webkit-tap-highlight-color:transparent; }
+        body { background:var(--bg-color); color:var(--text-main); min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; }
+        .rj-header-wrapper { background:var(--nav-bg); backdrop-filter:blur(16px); border-bottom:1px solid var(--border-color); position:sticky; top:0; z-index:9999; }
+        .rj-navbar { display:flex; align-items:center; justify-content:space-between; padding:15px 5%; max-width:1400px; margin:0 auto; }
+        .brand-logo { text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:4px; }
+        .brand-img { height:75px; width:auto; object-fit:contain; }
+        .brand-text { font-size:10px; font-weight:600; color:var(--text-main); letter-spacing:2px; text-transform:uppercase; }
+        .rj-links { display:flex; gap:40px; align-items:center; }
+        .rj-links a { text-decoration:none; color:var(--text-main); font-weight:800; font-size:14px; text-transform:uppercase; letter-spacing:1px; transition:0.3s; position:relative; }
+        .rj-links a::after { content:''; position:absolute; bottom:-5px; left:0; width:0; height:2px; background:var(--accent); transition:width 0.3s; }
+        .rj-links a:hover::after { width:100%; }
+        .header-actions { display:flex; align-items:center; gap:25px; }
+        .auth-btn { text-decoration:none; color:var(--text-main); font-weight:700; font-size:14px; display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.05); padding:8px 16px; border-radius:50px; border:1px solid var(--border-color); transition:0.2s; cursor:pointer; }
+        .auth-btn:hover { background:var(--accent); border-color:var(--accent); }
+        .cart-icon { position:relative; text-decoration:none; font-size:20px; color:var(--text-main); transition:0.3s; }
+        .cart-icon:hover { color:var(--accent); transform:scale(1.1); }
+        .cart-badge { position:absolute; top:-10px; right:-12px; background:var(--accent); color:white; font-size:12px; height:20px; min-width:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; box-shadow:0 0 10px var(--accent-glow); }
+        .rj-menu-toggle { display:none; background:none; border:none; font-size:24px; color:var(--text-main); cursor:pointer; }
+        .back-bar { max-width:1400px; margin:0 auto; padding:20px 5% 0; width:100%; }
+        .btn-back { display:inline-flex; align-items:center; gap:8px; color:var(--text-muted); text-decoration:none; font-weight:700; font-size:14px; text-transform:uppercase; letter-spacing:1px; transition:0.3s; }
+        .btn-back:hover { color:var(--text-main); transform:translateX(-5px); }
+        .product-container { max-width:1400px; margin:20px auto 40px; padding:0 5%; display:flex; gap:60px; flex:1; width:100%; align-items:flex-start; }
+        .image-gallery { flex:1; display:flex; flex-direction:column; gap:20px; position:sticky; top:100px; }
+        .main-image { width:100%; height:600px; background:#111; border-radius:24px; border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+        .main-image img { width:100%; height:100%; object-fit:contain; transition:transform 0.3s; }
+        .thumbnail-row { display:flex; gap:15px; overflow-x:auto; padding-bottom:5px; }
+        .thumb { min-width:100px; width:100px; height:100px; border-radius:16px; border:2px solid transparent; cursor:pointer; overflow:hidden; background:#111; transition:0.3s; opacity:0.6; }
+        .thumb img { width:100%; height:100%; object-fit:cover; }
+        .thumb.active { border-color:var(--accent); opacity:1; }
+        .product-info { flex:1.2; display:flex; flex-direction:column; }
+        .p-category { background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:50px; font-size:12px; font-weight:800; text-transform:uppercase; width:fit-content; margin-bottom:20px; border:1px solid var(--border-color); }
+        .p-title { font-size:clamp(32px,4vw,48px); font-weight:900; line-height:1.1; margin-bottom:20px; text-transform:uppercase; }
+        .p-desc { color:var(--text-muted); font-size:16px; line-height:1.6; margin-bottom:30px; font-weight:600; }
+        .price-section { display:flex; align-items:baseline; gap:15px; margin-bottom:30px; padding-bottom:30px; border-bottom:1px solid var(--border-color); }
+        .current-price { font-size:42px; font-weight:900; color:var(--accent); }
+        .mrp-price { font-size:20px; color:var(--text-muted); text-decoration:line-through; font-weight:700; }
+        .discount-badge { background:rgba(16,185,129,0.1); color:var(--success); padding:6px 12px; border-radius:8px; font-weight:800; font-size:14px; }
+        .size-section { margin-bottom:40px; }
+        .size-header h4 { font-size:16px; font-weight:800; margin-bottom:15px; color:var(--text-muted); }
+        .size-grid { display:flex; flex-wrap:wrap; gap:12px; }
+        .size-btn { background:rgba(255,255,255,0.05); border:1px solid var(--border-color); color:var(--text-main); padding:14px 24px; border-radius:12px; font-weight:800; cursor:pointer; transition:0.3s; }
+        .size-btn.selected { background:white; color:black; border-color:white; }
+        .btn-add-cart { width:100%; background:var(--accent); color:white; border:none; padding:20px; border-radius:16px; font-size:16px; font-weight:900; text-transform:uppercase; cursor:pointer; transition:0.3s; display:flex; justify-content:center; align-items:center; gap:12px; margin-bottom:40px; box-shadow:0 0 20px var(--accent-glow); }
+        .btn-add-cart:disabled { opacity:0.5; cursor:not-allowed; background:#333; box-shadow:none; }
+        .features-box { background:var(--card-bg); border:1px solid var(--border-color); border-radius:16px; padding:25px; }
+        .reviews-wrapper { max-width:1400px; margin:0 auto 80px; padding:0 5%; width:100%; }
+        .reviews-card { background:var(--card-bg); border:1px solid var(--border-color); border-radius:28px; padding:40px; margin-top:20px; }
+        .reviews-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; margin-bottom:35px; border-bottom:1px solid var(--border-color); padding-bottom:25px; }
+        .rating-summary h3 { font-size:28px; font-weight:900; margin-bottom:8px; }
+        .stars-large { display:flex; align-items:center; gap:10px; font-size:24px; color:var(--warning); }
+        .avg-rating { font-size:42px; font-weight:900; margin-right:10px; color:var(--text-main); }
+        .reviews-list { display:flex; flex-direction:column; gap:30px; margin-bottom:45px; max-height:600px; overflow-y:auto; padding-right:10px; }
+        .review-item { background:rgba(255,255,255,0.02); border-radius:20px; padding:20px; border:1px solid var(--border-color); transition:0.2s; }
+        .reviewer-info { display:flex; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:10px; }
+        .reviewer-name { font-weight:800; font-size:16px; display:flex; align-items:center; gap:8px; }
+        .reviewer-name i { color:var(--accent); }
+        .review-stars { color:var(--warning); font-size:14px; letter-spacing:2px; }
+        .review-date { color:var(--text-muted); font-size:12px; font-weight:600; }
+        .review-comment { color:var(--text-main); font-size:15px; line-height:1.5; margin:12px 0; font-weight:500; }
+        .review-image { margin-top:12px; max-width:180px; border-radius:16px; overflow:hidden; border:1px solid var(--border-color); cursor:pointer; transition:0.2s; }
+        .review-image img { width:100%; height:auto; display:block; }
+        .delete-review { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:16px; transition:0.2s; padding:5px; }
+        .delete-review:hover { color:var(--accent); }
+        .review-form { background:rgba(255,255,255,0.03); border-radius:24px; padding:30px; border:1px solid var(--border-color); margin-top:20px; }
+        .review-form h4 { font-size:20px; font-weight:800; margin-bottom:20px; text-transform:uppercase; }
+        .star-picker { display:flex; gap:8px; margin-bottom:20px; font-size:28px; cursor:pointer; }
+        .star-picker i { color:var(--text-muted); transition:0.1s; }
+        .star-picker i.active { color:var(--warning); text-shadow:0 0 5px rgba(245,158,11,0.5); }
+        .review-input { width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:16px; padding:14px; color:var(--text-main); font-size:15px; margin-bottom:20px; resize:vertical; font-family:inherit; }
+        .file-label { display:inline-flex; align-items:center; gap:12px; background:rgba(255,255,255,0.05); padding:10px 18px; border-radius:40px; cursor:pointer; font-weight:700; font-size:14px; margin-bottom:15px; border:1px solid var(--border-color); width:fit-content; }
+        .image-preview { margin-top:15px; position:relative; width:100px; }
+        .image-preview img { width:100px; height:100px; object-fit:cover; border-radius:16px; border:1px solid var(--border-color); }
+        .remove-img { position:absolute; top:-8px; right:-8px; background:var(--accent); border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; color:white; }
+        .submit-review { background:var(--accent); border:none; padding:14px 28px; border-radius:40px; color:white; font-weight:800; font-size:14px; cursor:pointer; transition:0.3s; display:inline-flex; align-items:center; gap:10px; }
+        .submit-review:disabled { opacity:0.5; cursor:not-allowed; }
+        .login-prompt { background:rgba(255,255,255,0.05); padding:20px; border-radius:24px; text-align:center; border:1px dashed var(--accent); }
+        .login-prompt a { color:var(--accent); font-weight:800; text-decoration:none; }
+        .loading-overlay { position:fixed; inset:0; background:var(--bg-color); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:10000; }
+        #toast { visibility:hidden; min-width:250px; background:var(--card-bg); border:1px solid var(--accent); color:white; text-align:center; border-radius:12px; padding:16px; position:fixed; z-index:10000; left:50%; bottom:-50px; transform:translateX(-50%); font-weight:800; opacity:0; transition:0.4s; }
+        #toast.show { visibility:visible; opacity:1; bottom:40px; }
+        .rj-footer { border-top:1px solid var(--border-color); padding:80px 5% 40px; margin-top:auto; background:#000; width:100%; }
+        .rj-footer-content { max-width:1400px; margin:0 auto; display:grid; grid-template-columns:2fr 1fr 1fr; gap:60px; }
+        .huge-logo { font-size:clamp(40px,6vw,80px); font-weight:900; letter-spacing:-2px; line-height:1; margin-bottom:20px; text-transform:uppercase; }
+        .huge-logo span { color:var(--accent); }
+        .social-links { display:flex; gap:15px; margin-top:20px; }
+        .social-btn { width:45px; height:45px; border-radius:50%; background:rgba(255,255,255,0.05); display:flex; justify-content:center; align-items:center; color:white; text-decoration:none; transition:0.3s; border:1px solid var(--border-color); }
+        .social-btn:hover { background:var(--accent); transform:translateY(-3px); }
+        @media (max-width:992px) { .product-container { flex-direction:column; } .image-gallery { position:relative; top:0; } .reviews-card { padding:25px; } .rj-footer-content { grid-template-columns:1fr; gap:40px; } }
+        @media (max-width:768px) { .rj-menu-toggle { display:block; } .rj-links { position:fixed; top:0; right:-100%; width:100%; height:100vh; background:rgba(5,5,5,0.95); backdrop-filter:blur(20px); flex-direction:column; justify-content:center; transition:right 0.4s; z-index:10000; } .rj-links.active { right:0; } .main-image { height:350px; } }
+        .error-box { text-align:center; padding:60px 20px; max-width:500px; margin:auto; }
+        .error-box h2 { font-size:32px; margin-bottom:16px; color:var(--accent); }
+        .error-box p { font-size:18px; color:var(--text-muted); margin-bottom:24px; }
+        .error-box .btn-home { display:inline-block; background:var(--accent); color:white; padding:14px 32px; border-radius:40px; text-decoration:none; font-weight:800; transition:0.3s; }
+        .error-box .btn-home:hover { transform:scale(1.05); }
     </style>
 </head>
 <body>
 
-<!-- HEADER, BACK BAR, LOADER, PRODUCT CONTAINER, REVIEW SECTION, FOOTER, TOAST -->
-<!-- Keep all HTML exactly as you had, no changes needed -->
+<!-- HEADER -->
+<header class="rj-header-wrapper">
+    <div class="rj-navbar">
+        <a href="index.html" class="brand-logo">
+            <img src="logo.jpg.png" alt="One4Sports" class="brand-img">
+            <span class="brand-text">ONE4SPORTS</span>
+        </a>
+        <nav class="rj-links" id="nav-links">
+            <a href="index.html">Home</a>
+            <a href="cricket.html">Cricket</a>
+            <a href="footwear.html">Footwear</a>
+            <a href="accessories.html">Accessories</a>
+        </nav>
+        <div class="header-actions">
+            <a href="signin.html" id="auth-btn" class="auth-btn"><i class="fas fa-user"></i><span id="auth-text">Sign In</span></a>
+            <a href="cart.html" class="cart-icon"><i class="fas fa-shopping-bag"></i><span id="cart-count" class="cart-badge">0</span></a>
+            <button class="rj-menu-toggle" id="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
+    </div>
+</header>
+
+<!-- BACK BAR -->
+<div class="back-bar"><a href="javascript:history.back()" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Store</a></div>
+
+<!-- LOADER -->
+<div id="loader" class="loading-overlay"><i class="fas fa-circle-notch fa-spin" style="font-size:40px; margin-bottom:20px;"></i><div>Loading...</div></div>
+
+<!-- PRODUCT -->
+<div class="product-container" id="product-content" style="display:none;">
+    <div class="image-gallery" id="image-gallery"></div>
+    <div class="product-info">
+        <div class="p-category" id="p-category">Category</div>
+        <h1 class="p-title" id="p-title">Product Name</h1>
+        <p class="p-desc" id="p-desc">Premium quality athletic gear.</p>
+        <div class="price-section"><span class="current-price" id="p-price">₹0</span><span class="mrp-price" id="p-mrp">₹0</span><span class="discount-badge" id="p-discount">SAVE 40%</span></div>
+        <div class="size-section"><div class="size-header"><h4>Select Variant</h4></div><div class="size-grid" id="size-grid"></div></div>
+        <button class="btn-add-cart" id="add-to-cart-btn"><i class="fas fa-lock"></i> Secure Item in Cart</button>
+        <div class="features-box"><h4>The Details</h4><ul class="features-list"><li><i class="fas fa-shield-check"></i> 100% Authentic One4Sports verified.</li><li><i class="fas fa-bolt"></i> Engineered for high-stress performance.</li><li><i class="fas fa-box-open"></i> Secure Cash on Delivery available.</li><li><i class="fas fa-undo-alt"></i> No return policy.</li></ul></div>
+    </div>
+</div>
+
+<!-- REVIEWS -->
+<div class="reviews-wrapper" id="reviewsSection" style="display:none;">
+    <div class="reviews-card" id="reviewsContainer"></div>
+</div>
+
+<!-- FOOTER -->
+<footer class="rj-footer">
+    <div class="rj-footer-content">
+        <div><div class="huge-logo">One4<span>Sports</span></div><p style="max-width:300px;">Equipping champions with premium gear.</p><div class="social-links"><a href="#" class="social-btn"><i class="fab fa-instagram"></i></a><a href="#" class="social-btn"><i class="fab fa-twitter"></i></a><a href="https://t.me/one4sports" class="social-btn"><i class="fab fa-telegram-plane"></i></a></div></div>
+        <div><h3>Shop</h3><a href="cricket.html">Cricket Gear</a><a href="footwear.html">Performance Footwear</a><a href="accessories.html">Training Accessories</a></div>
+        <div><h3>Support</h3><p><i class="fas fa-map-marker-alt"></i> Shree Nagar, Nanded</p><p><i class="fas fa-phone-alt"></i> +91 8055475552</p><p><i class="fas fa-envelope"></i> support@one4sports.in</p></div>
+    </div>
+    <div class="rj-footer-bottom">&copy; 2026 One4Sports. Built for the next generation.</div>
+</footer>
+
+<div id="toast"><i class="fas fa-check-circle" style="color:#10b981; margin-right:8px;"></i> Notification</div>
 
 <script>
-    // ========== NEW: API BASE URL (change if needed) ==========
-    const API_BASE = ''; // relative to current domain, e.g. '/api'
+    // ============================================================
+    //  GLOBALS
+    // ============================================================
+    const API_BASE = ''; // e.g., '/api' if your server uses that prefix
     const REVIEWS_API = `${API_BASE}/reviews`;
 
     let currentProduct = null;
     let selectedSize = 'Standard';
     let currentRating = 5;
     let uploadedImageBase64 = null;
-    let reviewImageFile = null;
 
+    // ---- FIX: accept both 'id' and 'productId' ----
     const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id');
+    let productId = urlParams.get('id') || urlParams.get('productId');
 
-    // ---------- REVIEWS API FUNCTIONS (replace localStorage) ----------
+    // ============================================================
+    //  UTILITY FUNCTIONS
+    // ============================================================
+    function showToastMessage(msg, isSuccess) {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.innerHTML = `<i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-triangle'}" style="margin-right:8px;"></i> ${msg}`;
+        toast.className = 'show';
+        setTimeout(() => toast.className = toast.className.replace('show',''), 3000);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
+    }
+
+    function renderStarsStatic(rating) {
+        let html = '';
+        for (let i=1; i<=5; i++) {
+            html += `<i class="fa-${i <= Math.round(rating) ? 'solid' : 'regular'} fa-star" style="font-size:14px;"></i>`;
+        }
+        return html;
+    }
+
+    function updateCartCount() {
+        const badge = document.getElementById('cart-count');
+        if (!badge) return;
+        const cart = JSON.parse(localStorage.getItem('rj_cart')) || [];
+        badge.innerText = cart.length;
+    }
+
+    function checkLoginStatus() {
+        const userName = localStorage.getItem('rj_loggedInUser');
+        const authText = document.getElementById('auth-text');
+        const authBtn = document.getElementById('auth-btn');
+        if (userName && authText) {
+            authText.innerText = userName.split(' ')[0];
+            if (authBtn) {
+                authBtn.onclick = (e) => {
+                    e.preventDefault();
+                    if (confirm('Log out?')) {
+                        localStorage.removeItem('rj_loggedInUser');
+                        localStorage.removeItem('rj_userEmail');
+                        window.location.reload();
+                    }
+                };
+            }
+        }
+    }
+
+    // ============================================================
+    //  SIZE & IMAGE SWAP
+    // ============================================================
+    function selectSize(el, size) {
+        document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('selected'));
+        if (el) el.classList.add('selected');
+        selectedSize = size;
+    }
+
+    function swapImage(src, el) {
+        const mainImg = document.getElementById('main-img');
+        if (mainImg) mainImg.src = src;
+        document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+        if (el) el.classList.add('active');
+    }
+
+    // ============================================================
+    //  REVIEWS API (backend)
+    // ============================================================
     async function loadReviewsFromAPI(productId) {
         try {
             const res = await fetch(`${REVIEWS_API}?productId=${encodeURIComponent(productId)}`);
             const data = await res.json();
-            if (data.success) {
-                return data.reviews || [];
-            } else {
-                console.warn('Failed to load reviews:', data.message);
-                return [];
-            }
-        } catch (err) {
-            console.error('Error loading reviews:', err);
+            return data.success ? (data.reviews || []) : [];
+        } catch {
             return [];
         }
     }
 
     async function saveReviewToAPI(reviewData) {
-        try {
-            const res = await fetch(REVIEWS_API, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(reviewData)
-            });
-            const data = await res.json();
-            if (data.success) {
-                return data.review;
-            } else {
-                throw new Error(data.message || 'Server error');
-            }
-        } catch (err) {
-            console.error('Error posting review:', err);
-            throw err;
-        }
+        const res = await fetch(REVIEWS_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(reviewData)
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Server error');
+        return data.review;
     }
 
     async function deleteReviewFromAPI(reviewId) {
-        try {
-            const res = await fetch(`${REVIEWS_API}/${reviewId}`, {
-                method: 'DELETE'
-            });
-            const data = await res.json();
-            if (!data.success) {
-                throw new Error(data.message || 'Deletion failed');
-            }
-            return true;
-        } catch (err) {
-            console.error('Error deleting review:', err);
-            throw err;
-        }
+        const res = await fetch(`${REVIEWS_API}/${reviewId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Deletion failed');
+        return true;
     }
 
-    // ---------- RENDER REVIEWS UI (with API) ----------
+    // ============================================================
+    //  RENDER REVIEWS UI
+    // ============================================================
     async function renderReviewsUI() {
         const container = document.getElementById('reviewsContainer');
         if (!container || !currentProduct) return;
 
         try {
             const reviews = await loadReviewsFromAPI(currentProduct.productId);
-            const totalRatings = reviews.length;
-            const avgRating = totalRatings ? (reviews.reduce((sum, r) => sum + r.rating, 0) / totalRatings).toFixed(1) : 0;
+            const total = reviews.length;
+            const avg = total ? (reviews.reduce((s, r) => s + r.rating, 0) / total).toFixed(1) : 0;
             const loggedUser = localStorage.getItem('rj_loggedInUser');
 
-            let reviewsHtml = `
+            let html = `
                 <div class="reviews-header">
-                    <div class="rating-summary"><h3>⚡ CUSTOMER REVIEWS</h3><div class="stars-large"><span class="avg-rating">${avgRating}</span>${renderStarsStatic(avgRating)}<span style="font-size:14px; margin-left:8px;">(${totalRatings} reviews)</span></div></div>
+                    <div class="rating-summary">
+                        <h3>⚡ CUSTOMER REVIEWS</h3>
+                        <div class="stars-large">
+                            <span class="avg-rating">${avg}</span>${renderStarsStatic(avg)}
+                            <span style="font-size:14px; margin-left:8px;">(${total} reviews)</span>
+                        </div>
+                    </div>
                     <div><i class="fas fa-camera-retro"></i> Share your gear photos</div>
                 </div>
                 <div class="reviews-list" id="reviewsList">
             `;
-            if (reviews.length === 0) {
-                reviewsHtml += `<div style="text-align:center; padding:40px; color:var(--text-muted);">✨ No reviews yet. Be the first to share your experience!</div>`;
+            if (total === 0) {
+                html += `<div style="text-align:center; padding:40px; color:var(--text-muted);">✨ No reviews yet. Be the first!</div>`;
             } else {
                 reviews.forEach(rev => {
                     const isOwner = loggedUser === rev.userName;
-                    reviewsHtml += `
+                    html += `
                         <div class="review-item">
-                            <div class="reviewer-info"><div class="reviewer-name"><i class="fas fa-user-astronaut"></i> ${escapeHtml(rev.userName)}</div><div class="review-stars">${renderStarsStatic(rev.rating)}</div><div class="review-date"><i class="far fa-calendar-alt"></i> ${rev.dateDisplay || 'Recently'}</div>${isOwner ? `<button class="delete-review" onclick="deleteReview(${rev.id})"><i class="fas fa-trash-alt"></i></button>` : ''}</div>
+                            <div class="reviewer-info">
+                                <div class="reviewer-name"><i class="fas fa-user-astronaut"></i> ${escapeHtml(rev.userName)}</div>
+                                <div class="review-stars">${renderStarsStatic(rev.rating)}</div>
+                                <div class="review-date"><i class="far fa-calendar-alt"></i> ${rev.dateDisplay || 'Recently'}</div>
+                                ${isOwner ? `<button class="delete-review" onclick="deleteReview(${rev.id})"><i class="fas fa-trash-alt"></i></button>` : ''}
+                            </div>
                             <div class="review-comment">${escapeHtml(rev.comment)}</div>
                             ${rev.imageDataUrl ? `<div class="review-image" onclick="window.open('${rev.imageDataUrl}', '_blank')"><img src="${rev.imageDataUrl}" alt="customer photo"></div>` : ''}
-                        </div>`;
+                        </div>
+                    `;
                 });
             }
-            reviewsHtml += `</div>`;
+            html += `</div>`;
 
             // Review form (only for logged-in users)
             if (loggedUser) {
-                reviewsHtml += `
+                html += `
                     <div class="review-form">
                         <h4><i class="fas fa-star" style="color:var(--warning);"></i> Share your experience & upload product photo</h4>
-                        <div class="star-picker" id="starPicker">${[1,2,3,4,5].map(s => `<i class="fa-${s <= currentRating ? 'solid' : 'regular'} fa-star" data-rating="${s}"></i>`).join('')}</div>
+                        <div class="star-picker" id="starPicker">
+                            ${[1,2,3,4,5].map(s => `<i class="fa-${s <= currentRating ? 'solid' : 'regular'} fa-star" data-rating="${s}"></i>`).join('')}
+                        </div>
                         <textarea id="reviewComment" class="review-input" rows="3" placeholder="How's the product quality? Share your feedback..."></textarea>
-                        <div><label class="file-label"><i class="fas fa-upload"></i> Upload Received Product Photo <input type="file" id="reviewPhotoInput" accept="image/jpeg,image/png,image/jpg" style="display:none;"></label></div>
+                        <div>
+                            <label class="file-label"><i class="fas fa-upload"></i> Upload Received Product Photo
+                                <input type="file" id="reviewPhotoInput" accept="image/jpeg,image/png,image/jpg" style="display:none;">
+                            </label>
+                        </div>
                         <div id="imagePreviewDiv" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;"></div>
                         <button class="submit-review" id="submitReviewBtn"><i class="fas fa-pen-fancy"></i> POST REVIEW WITH PHOTO</button>
-                    </div>`;
+                    </div>
+                `;
             } else {
-                reviewsHtml += `<div class="login-prompt"><i class="fas fa-lock"></i> <a href="signin.html?redirect=${encodeURIComponent(window.location.href)}">Sign in to review this product & upload photos</a></div>`;
+                html += `<div class="login-prompt"><i class="fas fa-lock"></i> <a href="signin.html?redirect=${encodeURIComponent(window.location.href)}">Sign in to review this product & upload photos</a></div>`;
             }
 
-            container.innerHTML = reviewsHtml;
-            attachReviewEventHandlers();
+            container.innerHTML = html;
+            attachReviewEvents();
             if (loggedUser) attachStarPickerEvents();
-        } catch (err) {
+        } catch {
             container.innerHTML = `<div style="padding:20px; color:var(--accent);">⚠️ Could not load reviews. Please refresh.</div>`;
         }
     }
 
-    // ---------- SUBMIT REVIEW (using API) ----------
-    async function submitReview() {
-        if (!currentProduct) return;
-        const loggedUser = localStorage.getItem('rj_loggedInUser');
-        if (!loggedUser) { 
-            showToastMessage("Sign in to submit a review", false); 
-            window.location.href = `signin.html?redirect=${encodeURIComponent(window.location.href)}`; 
-            return; 
-        }
-        const comment = document.getElementById('reviewComment')?.value.trim();
-        if (!comment || comment.length < 5) { 
-            showToastMessage("Please write a detailed review (min 5 chars)", false); 
-            return; 
-        }
-        const rating = currentRating;
-        let imageData = uploadedImageBase64;
-
-        const reviewData = {
-            productId: currentProduct.productId,
-            userName: loggedUser,
-            userEmail: localStorage.getItem('rj_userEmail') || loggedUser,
-            rating: rating,
-            comment: comment,
-            imageDataUrl: imageData || null
-        };
-
-        try {
-            const savedReview = await saveReviewToAPI(reviewData);
-            // Clear form
-            document.getElementById('reviewComment').value = '';
-            if (document.getElementById('imagePreviewDiv')) document.getElementById('imagePreviewDiv').innerHTML = '';
-            uploadedImageBase64 = null;
-            reviewImageFile = null;
-            currentRating = 5;
-            updateStarPickerUI();
-            showToastMessage("Review posted! +10 pts loyalty", true);
-            // Refresh reviews list
-            renderReviewsUI();
-        } catch (err) {
-            showToastMessage(err.message || "Failed to post review", false);
-        }
+    function attachStarPickerEvents() {
+        const stars = document.querySelectorAll('#starPicker i');
+        stars.forEach(star => {
+            star.onclick = () => {
+                currentRating = parseInt(star.dataset.rating);
+                updateStarPickerUI();
+            };
+        });
     }
 
-    // ---------- DELETE REVIEW (using API) ----------
-    async function deleteReview(reviewId) {
-        const loggedUser = localStorage.getItem('rj_loggedInUser');
-        if (!loggedUser) { showToastMessage("Please sign in", false); return; }
-        if (!confirm("Are you sure you want to delete your review?")) return;
-        try {
-            await deleteReviewFromAPI(reviewId);
-            showToastMessage("Review removed", true);
-            renderReviewsUI();
-        } catch (err) {
-            showToastMessage(err.message || "Deletion failed", false);
-        }
+    function updateStarPickerUI() {
+        const stars = document.querySelectorAll('#starPicker i');
+        stars.forEach((star, idx) => {
+            star.className = idx < currentRating ? 'fa-solid fa-star' : 'fa-regular fa-star';
+        });
     }
 
-    // ---------- HELPER FUNCTIONS (unchanged) ----------
-    function renderStarsStatic(rating) { let html = ''; for(let i=1;i<=5;i++) html += `<i class="fa-${i<=Math.round(rating)?'solid':'regular'} fa-star" style="font-size:14px;"></i>`; return html; }
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
-    function showToastMessage(msg, isSuccess) { const toast = document.getElementById("toast"); toast.innerHTML = `<i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-triangle'}" style="margin-right:8px;"></i> ${msg}`; toast.className = "show"; setTimeout(() => toast.className = toast.className.replace("show",""), 3000); }
-    function updateStarPickerUI() { const stars = document.querySelectorAll('#starPicker i'); stars.forEach((star, idx) => { if (idx < currentRating) star.className = 'fa-solid fa-star'; else star.className = 'fa-regular fa-star'; }); }
-    function attachStarPickerEvents() { const stars = document.querySelectorAll('#starPicker i'); stars.forEach(star => { star.onclick = () => { currentRating = parseInt(star.dataset.rating); updateStarPickerUI(); }; }); }
-    function attachReviewEventHandlers() {
+    function attachReviewEvents() {
         const submitBtn = document.getElementById('submitReviewBtn');
-        if (submitBtn) submitBtn.onclick = () => submitReview();
+        if (submitBtn) submitBtn.onclick = submitReview;
+
         const photoInput = document.getElementById('reviewPhotoInput');
         if (photoInput) {
             photoInput.onchange = async (e) => {
                 const file = e.target.files[0];
                 if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
-                    if (file.size > 3 * 1024 * 1024) { showToastMessage("Max 3MB image", false); return; }
+                    if (file.size > 3 * 1024 * 1024) {
+                        showToastMessage('Max 3MB image', false);
+                        return;
+                    }
                     const compressed = await compressAndStoreImage(file);
                     uploadedImageBase64 = compressed;
                     const previewDiv = document.getElementById('imagePreviewDiv');
-                    previewDiv.innerHTML = `<div class="image-preview"><img src="${compressed}" alt="preview"><div class="remove-img" onclick="clearUploadedImage()"><i class="fas fa-times"></i></div></div>`;
-                } else alert("Only JPEG/PNG images");
+                    if (previewDiv) {
+                        previewDiv.innerHTML = `<div class="image-preview"><img src="${compressed}" alt="preview"><div class="remove-img" onclick="clearUploadedImage()"><i class="fas fa-times"></i></div></div>`;
+                    }
+                } else {
+                    alert('Only JPEG/PNG images');
+                }
             };
         }
     }
-    function clearUploadedImage() { uploadedImageBase64 = null; if(document.getElementById('imagePreviewDiv')) document.getElementById('imagePreviewDiv').innerHTML = ''; document.getElementById('reviewPhotoInput').value = ''; }
+
+    function clearUploadedImage() {
+        uploadedImageBase64 = null;
+        const preview = document.getElementById('imagePreviewDiv');
+        if (preview) preview.innerHTML = '';
+        const input = document.getElementById('reviewPhotoInput');
+        if (input) input.value = '';
+    }
 
     function compressAndStoreImage(file) {
         return new Promise((resolve) => {
@@ -240,7 +440,8 @@
                     if (width > height && width > maxSize) { height = (height * maxSize) / width; width = maxSize; }
                     else if (height > maxSize) { width = (width * maxSize) / height; height = maxSize; }
                     canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
                     const compressed = canvas.toDataURL('image/jpeg', 0.7);
                     resolve(compressed);
                 };
@@ -250,48 +451,228 @@
         });
     }
 
-    // ---------- PRODUCT LOAD (unchanged) ----------
+    // ============================================================
+    //  SUBMIT & DELETE REVIEWS
+    // ============================================================
+    async function submitReview() {
+        if (!currentProduct) return;
+        const loggedUser = localStorage.getItem('rj_loggedInUser');
+        if (!loggedUser) {
+            showToastMessage('Sign in to submit a review', false);
+            window.location.href = `signin.html?redirect=${encodeURIComponent(window.location.href)}`;
+            return;
+        }
+        const comment = document.getElementById('reviewComment')?.value.trim();
+        if (!comment || comment.length < 5) {
+            showToastMessage('Please write a detailed review (min 5 chars)', false);
+            return;
+        }
+        const rating = currentRating;
+        const imageData = uploadedImageBase64;
+
+        const reviewData = {
+            productId: currentProduct.productId,
+            userName: loggedUser,
+            userEmail: localStorage.getItem('rj_userEmail') || loggedUser,
+            rating: rating,
+            comment: comment,
+            imageDataUrl: imageData || null
+        };
+
+        try {
+            await saveReviewToAPI(reviewData);
+            document.getElementById('reviewComment').value = '';
+            if (document.getElementById('imagePreviewDiv')) document.getElementById('imagePreviewDiv').innerHTML = '';
+            uploadedImageBase64 = null;
+            currentRating = 5;
+            updateStarPickerUI();
+            showToastMessage('Review posted! +10 pts loyalty', true);
+            renderReviewsUI();
+        } catch (err) {
+            showToastMessage(err.message || 'Failed to post review', false);
+        }
+    }
+
+    async function deleteReview(reviewId) {
+        const loggedUser = localStorage.getItem('rj_loggedInUser');
+        if (!loggedUser) { showToastMessage('Please sign in', false); return; }
+        if (!confirm('Are you sure you want to delete your review?')) return;
+        try {
+            await deleteReviewFromAPI(reviewId);
+            showToastMessage('Review removed', true);
+            renderReviewsUI();
+        } catch (err) {
+            showToastMessage(err.message || 'Deletion failed', false);
+        }
+    }
+
+    // ============================================================
+    //  PRODUCT LOAD & RENDER
+    // ============================================================
     async function loadProductDetails() {
-        if (!productId) { document.getElementById('loader').innerHTML = "<div>Product ID missing</div>"; return; }
+        // If no productId, show error message with link to store
+        if (!productId) {
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.innerHTML = `
+                    <div class="error-box">
+                        <h2><i class="fas fa-exclamation-triangle"></i> Product Not Found</h2>
+                        <p>No product ID provided. Please go back to the store and select a product.</p>
+                        <a href="index.html" class="btn-home"><i class="fas fa-arrow-left"></i> Back to Store</a>
+                    </div>
+                `;
+            }
+            return;
+        }
+
         try {
             const res = await fetch(`/api/products/${productId}`);
             if (!res.ok) throw new Error(`Server returned ${res.status}`);
             const data = await res.json();
-            if (data.success) { 
-                currentProduct = data.product; 
-                renderProduct(currentProduct); 
-                document.getElementById('reviewsSection').style.display = 'block'; 
-                renderReviewsUI(); 
+            if (data.success) {
+                currentProduct = data.product;
+                renderProduct(currentProduct);
+                document.getElementById('reviewsSection').style.display = 'block';
+                renderReviewsUI();
             } else {
-                throw new Error(data.message || "Unknown error");
+                throw new Error(data.message || 'Unknown error');
             }
-        } catch (err) { 
-            console.error("Fetch Error:", err);
-            document.getElementById('loader').innerHTML = `<i class='fas fa-exclamation-triangle'></i><div>Connection Failed: ${err.message}</div>`;
+        } catch (err) {
+            console.error('Fetch Error:', err);
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.innerHTML = `
+                    <div class="error-box">
+                        <h2><i class="fas fa-exclamation-circle"></i> Connection Error</h2>
+                        <p>We couldn't load this product. Please try again later.</p>
+                        <a href="index.html" class="btn-home"><i class="fas fa-arrow-left"></i> Back to Store</a>
+                    </div>
+                `;
+            }
         }
     }
 
     function renderProduct(p) {
-        // (your existing renderProduct function – keep unchanged)
-        // ...
+        const price = p.price, mrp = Math.round(price * 1.4);
+        document.getElementById('p-category').innerText = p.category || 'Gear';
+        document.getElementById('p-title').innerText = p.name;
+        document.getElementById('p-price').innerText = `₹${price.toLocaleString()}`;
+        document.getElementById('p-mrp').innerText = `₹${mrp.toLocaleString()}`;
+        if (p.description) document.getElementById('p-desc').innerText = p.description;
+
+        // Gallery
+        const gallery = document.getElementById('image-gallery');
+        if (p.images && p.images.length) {
+            const thumbHtml = p.images.map((img, idx) =>
+                `<div class="thumb ${idx===0?'active':''}" onclick="swapImage('${img}', this)"><img src="${img}"></div>`
+            ).join('');
+            gallery.innerHTML = `<div class="main-image"><img src="${p.images[0]}" id="main-img"></div><div class="thumbnail-row">${thumbHtml}</div>`;
+        } else {
+            gallery.innerHTML = `<div class="main-image"><img src="https://via.placeholder.com/800x800" id="main-img"></div>`;
+        }
+
+        // Sizes
+        const sizeGrid = document.getElementById('size-grid');
+        if (p.category === 'Footwear') {
+            sizeGrid.innerHTML = `
+                <button class="size-btn selected" onclick="selectSize(this,'UK 7')">UK 7</button>
+                <button class="size-btn" onclick="selectSize(this,'UK 8')">UK 8</button>
+                <button class="size-btn" onclick="selectSize(this,'UK 9')">UK 9</button>
+                <button class="size-btn" onclick="selectSize(this,'UK 10')">UK 10</button>
+            `;
+            selectedSize = 'UK 7';
+        } else if (p.category === 'Apparel') {
+            sizeGrid.innerHTML = `
+                <button class="size-btn" onclick="selectSize(this,'S')">S</button>
+                <button class="size-btn selected" onclick="selectSize(this,'M')">M</button>
+                <button class="size-btn" onclick="selectSize(this,'L')">L</button>
+                <button class="size-btn" onclick="selectSize(this,'XL')">XL</button>
+            `;
+            selectedSize = 'M';
+        } else {
+            sizeGrid.innerHTML = `<button class="size-btn selected" onclick="selectSize(this,'Standard')">Standard Size</button>`;
+            selectedSize = 'Standard';
+        }
+
+        // Sold out logic
+        const btn = document.getElementById('add-to-cart-btn');
+        const isSoldOut = (p.stockStatus === 'out-of-stock');
+        if (isSoldOut) {
+            btn.innerHTML = '<i class="fas fa-times-circle"></i> Sold Out';
+            btn.disabled = true;
+            btn.style.background = '#333';
+            btn.style.cursor = 'not-allowed';
+            btn.style.boxShadow = 'none';
+        } else {
+            btn.innerHTML = '<i class="fas fa-lock"></i> Secure Item in Cart';
+            btn.disabled = false;
+            btn.style.background = 'var(--accent)';
+        }
+
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('product-content').style.display = 'flex';
     }
 
-    // ---------- CART + AUTH (unchanged) ----------
-    // (your existing cart and auth code)
-    // ...
+    // ============================================================
+    //  DOM READY – INIT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auth & cart
+        checkLoginStatus();
+        updateCartCount();
+        loadProductDetails();
 
-    // ---------- INIT ----------
-    window.addEventListener('DOMContentLoaded', () => { 
-        checkLoginStatus(); 
-        updateCartCount(); 
-        loadProductDetails(); 
+        // Cart button
+        const cartBtn = document.getElementById('add-to-cart-btn');
+        if (cartBtn) {
+            cartBtn.addEventListener('click', function() {
+                if (!currentProduct) return;
+                if (currentProduct.stockStatus === 'out-of-stock') {
+                    showToastMessage('This item is sold out!', false);
+                    return;
+                }
+                if (!localStorage.getItem('rj_loggedInUser')) {
+                    window.location.href = `signin.html?redirect=${encodeURIComponent(window.location.href)}`;
+                    return;
+                }
+                let cart = JSON.parse(localStorage.getItem('rj_cart')) || [];
+                const idx = cart.findIndex(i => i.productId === currentProduct.productId && i.size === selectedSize);
+                if (idx > -1) {
+                    cart[idx].quantity += 1;
+                } else {
+                    cart.push({
+                        productId: currentProduct.productId,
+                        name: currentProduct.name,
+                        price: currentProduct.price,
+                        image: currentProduct.images?.[0] || '',
+                        size: selectedSize,
+                        quantity: 1
+                    });
+                }
+                localStorage.setItem('rj_cart', JSON.stringify(cart));
+                updateCartCount();
+                showToastMessage('Added to cart', true);
+            });
+        }
+
+        // Mobile menu
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const navLinks = document.getElementById('nav-links');
+        if (menuBtn && navLinks) {
+            menuBtn.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+                menuBtn.innerHTML = navLinks.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+                document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : 'auto';
+            });
+        }
     });
 
-    // Expose functions to global scope for inline onclick
-    window.selectSize = selectSize; 
-    window.swapImage = swapImage; 
-    window.deleteReview = deleteReview; 
+    // Expose to global scope for inline onclick
+    window.selectSize = selectSize;
+    window.swapImage = swapImage;
+    window.deleteReview = deleteReview;
     window.clearUploadedImage = clearUploadedImage;
+    window.submitReview = submitReview;
 </script>
 </body>
 </html>

@@ -6,8 +6,18 @@ const { v2: cloudinary } = require('cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cors = require('cors');
 const path = require('path');
-
+const express = require('express');
 const app = express();
+
+// IMPORTANT: allow large JSON payloads (for base64 images)
+
+
+// ... your other routes ...
+
+const reviewsRouter = require('./reviews');
+app.use('/api/reviews', reviewsRouter);
+
+
 
 // Add these lines at the top of your server.js, BEFORE your routes
 app.use(express.json({ limit: '50mb' })); 
