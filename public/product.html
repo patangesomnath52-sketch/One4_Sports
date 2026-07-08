@@ -3,25 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Product Details | One4Sports</title>
+    <title>One4Sports – Product Details</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* ===== YOUR STYLES (same as before – keep them) ===== */
+        /* ===== YOUR EXISTING STYLES (paste them here) ===== */
+        /* I'm omitting them for brevity – use your own styles */
         :root { /* ... */ }
-        /* (all your CSS) */
+        /* ... all your CSS ... */
     </style>
 </head>
 <body>
 
-<!-- HEADER, BACK BAR, LOADER, PRODUCT CONTAINER, REVIEWS, FOOTER, TOAST -->
-<!-- (exactly as before – no changes needed) -->
+<!-- ===== HEADER ===== -->
+<header class="rj-header-wrapper">
+    <div class="rj-navbar">
+        <a href="index.html" class="brand-logo">
+            <img src="logo.jpg.png" alt="One4Sports" class="brand-img">
+            <span class="brand-text">ONE4SPORTS</span>
+        </a>
+        <nav class="rj-links" id="nav-links">
+            <a href="index.html">Home</a>
+            <a href="cricket.html">Cricket</a>
+            <a href="footwear.html">Footwear</a>
+            <a href="accessories.html">Accessories</a>
+        </nav>
+        <div class="header-actions">
+            <a href="signin.html" id="auth-btn" class="auth-btn"><i class="fas fa-user"></i><span id="auth-text">Sign In</span></a>
+            <a href="cart.html" class="cart-icon"><i class="fas fa-shopping-bag"></i><span id="cart-count" class="cart-badge">0</span></a>
+            <button class="rj-menu-toggle" id="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
+    </div>
+</header>
 
+<!-- ===== BACK BAR ===== -->
+<div class="back-bar"><a href="javascript:history.back()" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Store</a></div>
+
+<!-- ===== LOADER ===== -->
+<div id="loader" class="loading-overlay"><i class="fas fa-circle-notch fa-spin" style="font-size:40px; margin-bottom:20px;"></i><div>Loading product...</div></div>
+
+<!-- ===== PRODUCT CONTAINER ===== -->
+<div class="product-container" id="product-content" style="display:none;">
+    <div class="image-gallery" id="image-gallery"></div>
+    <div class="product-info">
+        <div class="p-category" id="p-category">Category</div>
+        <h1 class="p-title" id="p-title">Product Name</h1>
+        <p class="p-desc" id="p-desc">Premium quality gear.</p>
+        <div class="price-section">
+            <span class="current-price" id="p-price">₹0</span>
+            <span class="mrp-price" id="p-mrp">₹0</span>
+            <span class="discount-badge" id="p-discount">SAVE 40%</span>
+        </div>
+        <div class="size-section">
+            <div class="size-header"><h4>Select Variant</h4></div>
+            <div class="size-grid" id="size-grid"></div>
+        </div>
+        <button class="btn-add-cart" id="add-to-cart-btn"><i class="fas fa-lock"></i> Secure Item in Cart</button>
+        <div class="features-box">
+            <h4>The Details</h4>
+            <ul class="features-list">
+                <li><i class="fas fa-shield-check"></i> 100% Authentic One4Sports verified.</li>
+                <li><i class="fas fa-bolt"></i> Engineered for high‑stress performance.</li>
+                <li><i class="fas fa-box-open"></i> Secure Cash on Delivery available.</li>
+                <li><i class="fas fa-undo-alt"></i> No return policy.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- ===== REVIEWS SECTION ===== -->
+<div class="reviews-wrapper" id="reviewsSection" style="display:none;">
+    <div class="reviews-card" id="reviewsContainer"></div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="rj-footer">
+    <div class="rj-footer-content">
+        <div>
+            <div class="huge-logo">One4<span>Sports</span></div>
+            <p style="max-width:300px;">Equipping champions with premium gear.</p>
+            <div class="social-links">
+                <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+                <a href="https://t.me/one4sports" class="social-btn"><i class="fab fa-telegram-plane"></i></a>
+            </div>
+        </div>
+        <div><h3>Shop</h3><a href="cricket.html">Cricket Gear</a><a href="footwear.html">Performance Footwear</a><a href="accessories.html">Training Accessories</a></div>
+        <div><h3>Support</h3><p><i class="fas fa-map-marker-alt"></i> Shree Nagar, Nanded</p><p><i class="fas fa-phone-alt"></i> +91 8055475552</p><p><i class="fas fa-envelope"></i> support@one4sports.in</p></div>
+    </div>
+    <div class="rj-footer-bottom">&copy; 2026 One4Sports. Built for the next generation.</div>
+</footer>
+
+<!-- ===== TOAST ===== -->
+<div id="toast"><i class="fas fa-check-circle" style="color:#10b981; margin-right:8px;"></i> Notification</div>
+
+<!-- ============================================================ -->
+<!-- ===== SCRIPT – ALL LOGIC INCLUDED ===== -->
 <script>
     // ============================================================
     //  GLOBALS
     // ============================================================
-    const API_BASE = ''; // if your API is at a different base, set it, e.g. '/api'
+    const API_BASE = '';
     const REVIEWS_API = `${API_BASE}/reviews`;
 
     let currentProduct = null;
@@ -99,13 +181,13 @@
     }
 
     // ============================================================
-    //  REVIEWS API (backend) – NO localStorage!
+    //  REVIEWS API
     // ============================================================
     async function loadReviewsFromAPI(productId) {
         try {
             const res = await fetch(`${REVIEWS_API}?productId=${encodeURIComponent(productId)}`);
             const data = await res.json();
-            console.log('📦 Reviews from server:', data); // debug
+            console.log('📦 Reviews from server:', data);
             return data.success ? (data.reviews || []) : [];
         } catch (err) {
             console.error('❌ Load reviews error:', err);
@@ -132,7 +214,7 @@
     }
 
     // ============================================================
-    //  RENDER REVIEWS UI – shows ALL reviews for the product
+    //  RENDER REVIEWS UI – shows ALL reviews (public)
     // ============================================================
     async function renderReviewsUI() {
         const container = document.getElementById('reviewsContainer');
@@ -160,7 +242,7 @@
             if (total === 0) {
                 html += `<div style="text-align:center; padding:40px; color:var(--text-muted);">✨ No reviews yet. Be the first!</div>`;
             } else {
-                // ---- SHOW ALL REVIEWS – no filtering by user ----
+                // ---- SHOW ALL REVIEWS - no filtering ----
                 reviews.forEach(rev => {
                     const isOwner = loggedUser === rev.userName;
                     html += `
@@ -210,64 +292,6 @@
         }
     }
 
-    // ============================================================
-    //  SUBMIT & DELETE REVIEWS (using API)
-    // ============================================================
-    async function submitReview() {
-        if (!currentProduct) return;
-        const loggedUser = localStorage.getItem('rj_loggedInUser');
-        if (!loggedUser) {
-            showToastMessage('Sign in to submit a review', false);
-            window.location.href = `signin.html?redirect=${encodeURIComponent(window.location.href)}`;
-            return;
-        }
-        const comment = document.getElementById('reviewComment')?.value.trim();
-        if (!comment || comment.length < 5) {
-            showToastMessage('Please write a detailed review (min 5 chars)', false);
-            return;
-        }
-        const rating = currentRating;
-        const imageData = uploadedImageBase64;
-
-        const reviewData = {
-            productId: currentProduct.productId,
-            userName: loggedUser,
-            userEmail: localStorage.getItem('rj_userEmail') || loggedUser,
-            rating: rating,
-            comment: comment,
-            imageDataUrl: imageData || null
-        };
-
-        try {
-            await saveReviewToAPI(reviewData);
-            document.getElementById('reviewComment').value = '';
-            if (document.getElementById('imagePreviewDiv')) document.getElementById('imagePreviewDiv').innerHTML = '';
-            uploadedImageBase64 = null;
-            currentRating = 5;
-            updateStarPickerUI();
-            showToastMessage('Review posted! +10 pts loyalty', true);
-            renderReviewsUI(); // refresh the list
-        } catch (err) {
-            showToastMessage(err.message || 'Failed to post review', false);
-        }
-    }
-
-    async function deleteReview(reviewId) {
-        const loggedUser = localStorage.getItem('rj_loggedInUser');
-        if (!loggedUser) { showToastMessage('Please sign in', false); return; }
-        if (!confirm('Are you sure you want to delete your review?')) return;
-        try {
-            await deleteReviewFromAPI(reviewId);
-            showToastMessage('Review removed', true);
-            renderReviewsUI();
-        } catch (err) {
-            showToastMessage(err.message || 'Deletion failed', false);
-        }
-    }
-
-    // ============================================================
-    //  STAR PICKER EVENTS
-    // ============================================================
     function attachStarPickerEvents() {
         const stars = document.querySelectorAll('#starPicker i');
         stars.forEach(star => {
@@ -343,18 +367,70 @@
         });
     }
 
+    async function submitReview() {
+        if (!currentProduct) return;
+        const loggedUser = localStorage.getItem('rj_loggedInUser');
+        if (!loggedUser) {
+            showToastMessage('Sign in to submit a review', false);
+            window.location.href = `signin.html?redirect=${encodeURIComponent(window.location.href)}`;
+            return;
+        }
+        const comment = document.getElementById('reviewComment')?.value.trim();
+        if (!comment || comment.length < 5) {
+            showToastMessage('Please write a detailed review (min 5 chars)', false);
+            return;
+        }
+        const rating = currentRating;
+        const imageData = uploadedImageBase64;
+
+        const reviewData = {
+            productId: currentProduct.productId,
+            userName: loggedUser,
+            userEmail: localStorage.getItem('rj_userEmail') || loggedUser,
+            rating: rating,
+            comment: comment,
+            imageDataUrl: imageData || null
+        };
+
+        try {
+            await saveReviewToAPI(reviewData);
+            document.getElementById('reviewComment').value = '';
+            if (document.getElementById('imagePreviewDiv')) document.getElementById('imagePreviewDiv').innerHTML = '';
+            uploadedImageBase64 = null;
+            currentRating = 5;
+            updateStarPickerUI();
+            showToastMessage('Review posted! +10 pts loyalty', true);
+            renderReviewsUI();
+        } catch (err) {
+            showToastMessage(err.message || 'Failed to post review', false);
+        }
+    }
+
+    async function deleteReview(reviewId) {
+        const loggedUser = localStorage.getItem('rj_loggedInUser');
+        if (!loggedUser) { showToastMessage('Please sign in', false); return; }
+        if (!confirm('Are you sure you want to delete your review?')) return;
+        try {
+            await deleteReviewFromAPI(reviewId);
+            showToastMessage('Review removed', true);
+            renderReviewsUI();
+        } catch (err) {
+            showToastMessage(err.message || 'Deletion failed', false);
+        }
+    }
+
     // ============================================================
-    //  PRODUCT LOAD & RENDER
+    //  PRODUCT LOAD & RENDER (with null checks)
     // ============================================================
     async function loadProductDetails() {
         if (!productId) {
             const loader = document.getElementById('loader');
             if (loader) {
                 loader.innerHTML = `
-                    <div class="error-box">
-                        <h2><i class="fas fa-exclamation-triangle"></i> Product Not Found</h2>
-                        <p>No product ID provided. Please go back to the store and select a product.</p>
-                        <a href="index.html" class="btn-home"><i class="fas fa-arrow-left"></i> Back to Store</a>
+                    <div style="text-align:center; padding:60px 20px; max-width:500px; margin:auto;">
+                        <h2 style="color:var(--accent);"><i class="fas fa-exclamation-triangle"></i> Product Not Found</h2>
+                        <p style="color:var(--text-muted); margin:16px 0;">No product ID provided.</p>
+                        <a href="index.html" style="display:inline-block; background:var(--accent); color:white; padding:14px 32px; border-radius:40px; text-decoration:none; font-weight:800;">Back to Store</a>
                     </div>
                 `;
             }
@@ -362,7 +438,7 @@
         }
 
         try {
-            const res = await fetch(`/api/products/${productId}`);
+            const res = await fetch(`/api/products/${encodeURIComponent(productId)}`);
             if (!res.ok) throw new Error(`Server returned ${res.status}`);
             const data = await res.json();
             if (data.success) {
@@ -378,10 +454,10 @@
             const loader = document.getElementById('loader');
             if (loader) {
                 loader.innerHTML = `
-                    <div class="error-box">
-                        <h2><i class="fas fa-exclamation-circle"></i> Connection Error</h2>
-                        <p>We couldn't load this product. Please try again later.</p>
-                        <a href="index.html" class="btn-home"><i class="fas fa-arrow-left"></i> Back to Store</a>
+                    <div style="text-align:center; padding:60px 20px; max-width:500px; margin:auto;">
+                        <h2 style="color:var(--accent);"><i class="fas fa-exclamation-circle"></i> Connection Error</h2>
+                        <p style="color:var(--text-muted); margin:16px 0;">Could not load product. Please try again.</p>
+                        <a href="index.html" style="display:inline-block; background:var(--accent); color:white; padding:14px 32px; border-radius:40px; text-decoration:none; font-weight:800;">Back to Store</a>
                     </div>
                 `;
             }
@@ -389,73 +465,91 @@
     }
 
     function renderProduct(p) {
-        // (same as before – keep your existing render function)
+        // ---- SAFE SETTER helper ----
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = value;
+            else console.warn(`Element #${id} not found`);
+        }
+
         const price = p.price, mrp = Math.round(price * 1.4);
-        document.getElementById('p-category').innerText = p.category || 'Gear';
-        document.getElementById('p-title').innerText = p.name;
-        document.getElementById('p-price').innerText = `₹${price.toLocaleString()}`;
-        document.getElementById('p-mrp').innerText = `₹${mrp.toLocaleString()}`;
-        if (p.description) document.getElementById('p-desc').innerText = p.description;
+        setText('p-category', p.category || 'Gear');
+        setText('p-title', p.name);
+        setText('p-price', `₹${price.toLocaleString()}`);
+        setText('p-mrp', `₹${mrp.toLocaleString()}`);
+        if (p.description) setText('p-desc', p.description);
 
+        // Gallery
         const gallery = document.getElementById('image-gallery');
-        if (p.images && p.images.length) {
-            const thumbHtml = p.images.map((img, idx) =>
-                `<div class="thumb ${idx===0?'active':''}" onclick="swapImage('${img}', this)"><img src="${img}"></div>`
-            ).join('');
-            gallery.innerHTML = `<div class="main-image"><img src="${p.images[0]}" id="main-img"></div><div class="thumbnail-row">${thumbHtml}</div>`;
-        } else {
-            gallery.innerHTML = `<div class="main-image"><img src="https://via.placeholder.com/800x800" id="main-img"></div>`;
+        if (gallery) {
+            if (p.images && p.images.length) {
+                const thumbHtml = p.images.map((img, idx) =>
+                    `<div class="thumb ${idx===0?'active':''}" onclick="swapImage('${img}', this)"><img src="${img}"></div>`
+                ).join('');
+                gallery.innerHTML = `<div class="main-image"><img src="${p.images[0]}" id="main-img"></div><div class="thumbnail-row">${thumbHtml}</div>`;
+            } else {
+                gallery.innerHTML = `<div class="main-image"><img src="https://via.placeholder.com/800x800" id="main-img"></div>`;
+            }
         }
 
+        // Sizes
         const sizeGrid = document.getElementById('size-grid');
-        if (p.category === 'Footwear') {
-            sizeGrid.innerHTML = `
-                <button class="size-btn selected" onclick="selectSize(this,'UK 7')">UK 7</button>
-                <button class="size-btn" onclick="selectSize(this,'UK 8')">UK 8</button>
-                <button class="size-btn" onclick="selectSize(this,'UK 9')">UK 9</button>
-                <button class="size-btn" onclick="selectSize(this,'UK 10')">UK 10</button>
-            `;
-            selectedSize = 'UK 7';
-        } else if (p.category === 'Apparel') {
-            sizeGrid.innerHTML = `
-                <button class="size-btn" onclick="selectSize(this,'S')">S</button>
-                <button class="size-btn selected" onclick="selectSize(this,'M')">M</button>
-                <button class="size-btn" onclick="selectSize(this,'L')">L</button>
-                <button class="size-btn" onclick="selectSize(this,'XL')">XL</button>
-            `;
-            selectedSize = 'M';
-        } else {
-            sizeGrid.innerHTML = `<button class="size-btn selected" onclick="selectSize(this,'Standard')">Standard Size</button>`;
-            selectedSize = 'Standard';
+        if (sizeGrid) {
+            if (p.category === 'Footwear') {
+                sizeGrid.innerHTML = `
+                    <button class="size-btn selected" onclick="selectSize(this,'UK 7')">UK 7</button>
+                    <button class="size-btn" onclick="selectSize(this,'UK 8')">UK 8</button>
+                    <button class="size-btn" onclick="selectSize(this,'UK 9')">UK 9</button>
+                    <button class="size-btn" onclick="selectSize(this,'UK 10')">UK 10</button>
+                `;
+                selectedSize = 'UK 7';
+            } else if (p.category === 'Apparel') {
+                sizeGrid.innerHTML = `
+                    <button class="size-btn" onclick="selectSize(this,'S')">S</button>
+                    <button class="size-btn selected" onclick="selectSize(this,'M')">M</button>
+                    <button class="size-btn" onclick="selectSize(this,'L')">L</button>
+                    <button class="size-btn" onclick="selectSize(this,'XL')">XL</button>
+                `;
+                selectedSize = 'M';
+            } else {
+                sizeGrid.innerHTML = `<button class="size-btn selected" onclick="selectSize(this,'Standard')">Standard Size</button>`;
+                selectedSize = 'Standard';
+            }
         }
 
+        // Cart button
         const btn = document.getElementById('add-to-cart-btn');
-        const isSoldOut = (p.stockStatus === 'out-of-stock');
-        if (isSoldOut) {
-            btn.innerHTML = '<i class="fas fa-times-circle"></i> Sold Out';
-            btn.disabled = true;
-            btn.style.background = '#333';
-            btn.style.cursor = 'not-allowed';
-            btn.style.boxShadow = 'none';
-        } else {
-            btn.innerHTML = '<i class="fas fa-lock"></i> Secure Item in Cart';
-            btn.disabled = false;
-            btn.style.background = 'var(--accent)';
+        if (btn) {
+            const isSoldOut = (p.stockStatus === 'out-of-stock');
+            if (isSoldOut) {
+                btn.innerHTML = '<i class="fas fa-times-circle"></i> Sold Out';
+                btn.disabled = true;
+                btn.style.background = '#333';
+                btn.style.cursor = 'not-allowed';
+                btn.style.boxShadow = 'none';
+            } else {
+                btn.innerHTML = '<i class="fas fa-lock"></i> Secure Item in Cart';
+                btn.disabled = false;
+                btn.style.background = 'var(--accent)';
+            }
         }
 
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('product-content').style.display = 'flex';
+        // Show content, hide loader
+        const loader = document.getElementById('loader');
+        if (loader) loader.style.display = 'none';
+        const content = document.getElementById('product-content');
+        if (content) content.style.display = 'flex';
     }
 
     // ============================================================
-    //  DOM READY – INIT
+    //  DOM READY
     // ============================================================
     document.addEventListener('DOMContentLoaded', function() {
         checkLoginStatus();
         updateCartCount();
         loadProductDetails();
 
-        // Cart button
+        // Cart button click
         const cartBtn = document.getElementById('add-to-cart-btn');
         if (cartBtn) {
             cartBtn.addEventListener('click', function() {
@@ -500,7 +594,7 @@
         }
     });
 
-    // Expose to global scope
+    // Expose functions to global scope
     window.selectSize = selectSize;
     window.swapImage = swapImage;
     window.deleteReview = deleteReview;
