@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "One4Sports E-commerce Platform",
   "main": "server.js",
-  "scripts": {
+  "scripts": { "start": "node server.js" }
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
