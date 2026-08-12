@@ -13,7 +13,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
 
-// Static Files (Serves your frontend from the 'public' folder)
+// Static Files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ===== CLOUDINARY =====
@@ -38,10 +38,12 @@ mongoose.connect(MONGO_URI)
 const productSchema = new mongoose.Schema({
     productId: { type: String, unique: true, required: true },
     name: String,
-    description: String,
+    description: String,   // <-- added description field
     price: Number,
     category: String,
     images: [String],
+    // We'll store sizes as an array of objects { size: "UK 7", status: "Available" }
+    // But we also accept 'availableSizes' from frontend (array of strings) and convert
     sizes: [{
         size: String,
         status: { type: String, default: 'Available' }
@@ -64,6 +66,7 @@ const User = mongoose.model('User', new mongoose.Schema({
     points: { type: Number, default: 0 }
 }));
 
+// ===== REVIEW MODEL (ONLY ONCE!) =====
 const reviewSchema = new mongoose.Schema({
     productId: { type: String, required: true, index: true },
     userName: { type: String, required: true },
@@ -98,14 +101,17 @@ app.get('/api/products/:id', async (req, res) => {
     }
 });
 
+// ADD / UPDATE PRODUCT (handles both 'sizes' array of objects and 'availableSizes' array of strings)
 app.post('/api/products/add', async (req, res) => {
     try {
         const { productId, name, description, price, category, stockStatus, sizes, availableSizes, images } = req.body;
 
+        // Build the sizes array: if 'sizes' provided (array of objects) use that; else convert 'availableSizes' (strings) to objects
         let finalSizes = [];
         if (sizes && Array.isArray(sizes) && sizes.length > 0) {
-            finalSizes = sizes;
+            finalSizes = sizes; // assume already { size, status }
         } else if (availableSizes && Array.isArray(availableSizes) && availableSizes.length > 0) {
+            // Convert string array to { size, status: 'Available' }
             finalSizes = availableSizes.map(s => ({ size: s, status: 'Available' }));
         }
 
@@ -150,6 +156,7 @@ app.post('/api/orders', async (req, res) => {
     }
 });
 
+// Update order status (PATCH)
 app.patch('/api/orders/:orderId/status', async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -265,11 +272,11 @@ app.delete('/api/reviews/:id', async (req, res) => {
     }
 });
 
-// ===== CATCH-ALL ROUTE FOR FRONTEND =====
+// ===== CATCH-ALL =====
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ===== START SERVER (RENDER COMPATIBLE) =====
+// ===== START SERVER =====
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

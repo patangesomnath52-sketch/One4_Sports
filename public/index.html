@@ -63,10 +63,32 @@
             transition: all 0.3s ease;
         }
         
-        .rj-navbar { display: flex; align-items: center; justify-content: space-between; padding: 15px 5%; max-width: 1400px; margin: 0 auto; position: relative; }
+        .rj-navbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 1%; max-width: 1400px; margin: 0 auto; position: relative; }
         
-        .brand-logo { text-decoration: none; font-size: 28px; font-weight: 900; color: var(--text-main); letter-spacing: -1px; z-index: 10000; text-transform: uppercase; }
-        .brand-logo span { color: var(--accent); }
+        .brand-logo { 
+            text-decoration: none; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            gap: 4px;
+            z-index: 10000;
+        }
+
+        .brand-img { 
+            height: 60px; 
+            width: auto;
+            object-fit: contain;
+        }
+
+        .brand-text {
+            font-size: 10px; 
+            font-weight: 600;
+            color: var(--text-main);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            line-height: 0;
+        }
         
         .rj-links { display: flex; gap: 40px; align-items: center; }
         .rj-links a { text-decoration: none; color: var(--text-main); font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; position: relative; }
@@ -102,6 +124,72 @@
         .btn-outline { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border-color); backdrop-filter: blur(10px); }
         .btn-outline:hover { background: white; color: black; transform: translateY(-3px); }
 
+        /* INDEPENDENCE DAY BANNER BANNER ON INDEX */
+        .independence-banner {
+            background: linear-gradient(135deg, rgba(255,153,51,0.15), rgba(19,136,8,0.15)), #111;
+            border-top: 2px solid #FF9933;
+            border-bottom: 2px solid #138808;
+            padding: 25px 5%;
+            margin: 40px auto;
+            max-width: 1400px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .independence-banner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(90deg, #FF9933, #FFFFFF, #138808);
+        }
+
+        .ind-content h3 {
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            margin-bottom: 6px;
+            background: linear-gradient(90deg, #FF9933, #ffffff, #138808);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .ind-content p {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .ind-btn {
+            background: linear-gradient(135deg, #FF9933, #E10600);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s ease;
+            box-shadow: 0 4px 20px rgba(255,153,51,0.3);
+            white-space: nowrap;
+        }
+
+        .ind-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255,153,51,0.5);
+        }
+
         /* SCROLLING MARQUEE TICKER */
         .ticker-wrap { width: 100%; overflow: hidden; background: var(--accent); padding: 12px 0; display: flex; z-index: 10; position: relative; border-top: 1px solid rgba(255,255,255,0.2); border-bottom: 1px solid rgba(255,255,255,0.2); transform: rotate(-1deg) scale(1.02); margin-top: -30px; }
         .ticker { display: flex; white-space: nowrap; animation: ticker 20s linear infinite; }
@@ -109,7 +197,7 @@
         @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
 
         /* BENTO BOX CATEGORIES */
-        .section { padding: 120px 5% 80px; max-width: 1400px; margin: 0 auto; width: 100%; }
+        .section { padding: 80px 5% 80px; max-width: 1400px; margin: 0 auto; width: 100%; }
         .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 50px; }
         .section-title { font-size: 48px; font-weight: 900; text-transform: uppercase; line-height: 1; letter-spacing: -1px; }
         .section-subtitle { color: var(--text-muted); font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
@@ -152,6 +240,7 @@
         @media (max-width: 992px) {
             .category-grid { grid-template-columns: repeat(2, 1fr); }
             .rj-footer-content { grid-template-columns: 1fr; gap: 40px; }
+            .independence-banner { flex-direction: column; align-items: flex-start; }
         }
 
         @media (max-width: 768px) { 
@@ -171,165 +260,92 @@
             .category-grid { grid-template-columns: 1fr; }
             .category-card { height: 400px; }
         }
-        /* Modern Left-Aligned Brand Block */
-.brand-logo { 
-    text-decoration: none; 
-    display: flex; 
-    flex-direction: column; /* Stacks text under the logo */
-    align-items: center; 
-    justify-content: center;
-    gap: 4px;
-    z-index: 10000;
-}
 
-.brand-img { 
-    height: 60px; /* Larger for better visibility */
-    width: auto;
-    object-fit: contain;
-    justify-content:start
-}
+        .drop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            padding: 20px 5%;
+        }
 
-.brand-text {
-    font-size: 10px; /* Bolder text */
-    font-weight: 600;
-    color: var(--text-main);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    line-height: 0;
-}
+        .drop-card {
+            background: #0d0d0d;
+            border-radius: 24px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+            cursor: pointer;
+        }
 
-/* Ensure the navbar keeps the logo in the corner */
-.rj-navbar { 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    padding: 10px 1%; 
-    max-width: 1400px; 
-    margin: 0 auto; 
-}
-/* Drop Feed Grid */
-.drop-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 30px;
-    padding: 20px 5%;
-}
+        .drop-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
 
-/* The "Drop" Card */
-.drop-card {
-    background: #0d0d0d;
-    border-radius: 24px;
-    padding: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    overflow: hidden;
-}
+        .drop-img-wrap {
+            position: relative;
+            border-radius: 18px;
+            overflow: hidden;
+            height: 350px;
+        }
 
-.drop-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    border-color: var(--accent);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-}
+        .drop-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
 
-.drop-img-wrap {
-    position: relative;
-    border-radius: 18px;
-    overflow: hidden;
-    height: 350px;
-}
+        .drop-card:hover .drop-img-wrap img { transform: scale(1.1); }
 
-.drop-img-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s ease;
-}
+        .hype-tag {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--accent);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            z-index: 2;
+        }
 
-.drop-card:hover .drop-img-wrap img { transform: scale(1.1); }
+        .drop-info { padding: 20px 10px; }
+        .drop-name { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
+        .drop-price { color: var(--accent); font-weight: 800; font-size: 18px; }
 
-.hype-tag {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: var(--accent);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 900;
-    text-transform: uppercase;
-    z-index: 2;
-}
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-.drop-info { padding: 20px 10px; }
-.drop-name { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
-.drop-price { color: var(--accent); font-weight: 800; font-size: 18px; }
-
-.tracking-container { margin-top: 20px; padding: 10px 0; }
-.timeline { display: flex; justify-content: space-between; position: relative; margin-top: 15px; }
-.timeline::before { content: ''; position: absolute; top: 10px; left: 0; right: 0; height: 2px; background: #333; z-index: 1; }
-.step { position: relative; z-index: 2; text-align: center; }
-.step-dot { width: 20px; height: 20px; border-radius: 50%; background: #333; margin: 0 auto 8px; border: 4px solid var(--bg-base); }
-.step.active .step-dot { background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-.step-text { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
-/* Entrance Animation */
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.drop-card {
-    animation: fadeInUp 0.6s ease forwards;
-    opacity: 0; /* Starts invisible */
-}
-
-/* Delay each card slightly for a "staggered" reveal */
-.drop-card:nth-child(1) { animation-delay: 0.1s; }
-.drop-card:nth-child(2) { animation-delay: 0.2s; }
-.drop-card:nth-child(3) { animation-delay: 0.3s; }
-.drop-card button {
-    transition: all 0.3s ease;
-}
-.drop-card button:hover {
-    background: var(--accent) !important;
-    color: white !important;
-    transform: scale(1.03);
-}
-#social-toast {
-    position: fixed !important;
-    bottom: -100px !important; /* Hide off-screen initially */
-    left: 20px !important;
-    background: #ff2a2a !important;
-    color: white !important;
-    padding: 20px !important;
-    border-radius: 12px !important;
-    display: flex !important;
-    transition: bottom 0.5s ease !important; /* Animate the bottom position */
-    z-index: 999999 !important;
-}
-
-#social-toast.show {
-    bottom: 20px !important; /* Slide up into view */
-}
+        .drop-card:nth-child(1) { animation-delay: 0.1s; }
+        .drop-card:nth-child(2) { animation-delay: 0.2s; }
+        .drop-card:nth-child(3) { animation-delay: 0.3s; }
   </style>
 </head>
 <body>
 
 <header class="rj-header-wrapper">
     <div class="rj-navbar">
-        
-   <a href="index.html" class="brand-logo">
+        <a href="index.html" class="brand-logo">
             <img src="logo.jpg.png" alt="One4Sports" class="brand-img">
             <span class="brand-text">ONE4SPORTS</span>
         </a>
-       
+        
         <nav class="rj-links" id="nav-links">
             <a href="index.html" style="color:var(--accent)">Home</a>
             <a href="cricket.html">Cricket</a>
             <a href="footwear.html">Footwear</a>
             <a href="accessories.html">Accessories</a>
-                        <a href="settings.html">Settings</a>
+            <a href="settings.html">Settings</a>
         </nav>
 
         <div class="header-actions">
@@ -346,10 +362,8 @@
             <button class="rj-menu-toggle" id="mobile-menu-btn">
                 <i class="fas fa-bars"></i>
             </button>
-            
         </div>
     </div>
-
 </header>
 
 <section class="hero">
@@ -368,7 +382,6 @@
 <!-- Animated Marquee Banner -->
 <div class="ticker-wrap">
     <div class="ticker">
-        <!-- Duplicated items for seamless loop -->
         <div class="ticker-item"><i class="fas fa-fire"></i> Trending Now</div>
         <div class="ticker-item"><i class="fas fa-bolt"></i> Free Shipping Over ₹999</div>
         <div class="ticker-item"><i class="fas fa-star"></i> Premium Quality Gear</div>
@@ -380,21 +393,20 @@
     </div>
 </div>
 
+<!-- Independence Day Sale Dynamic Banner (Active until Aug 15 Midnight) -->
+<div id="independence-banner-container"></div>
+
 <section id="categories" class="section">
     <div class="section-header">
         <div>
             <div class="section-subtitle">Catalog</div>
             <h2 class="section-title">Shop By Category</h2>
         </div>
-        <div class="section-header" style="margin-bottom: 30px;">
-        <h2 class="section-title">Latest Drops</h2>
-    </div>
-    <div class="drop-grid" id="drop-grid">
-        </div>
-        <a href="#" style="color: var(--text-muted); font-weight: 700; text-decoration: none; text-transform: uppercase; font-size: 14px; letter-spacing: 1px;">View All <i class="fas fa-arrow-right"></i></a>
     </div>
     
-    <div class="category-grid">
+    <div class="drop-grid" id="drop-grid"></div>
+
+    <div class="category-grid" style="margin-top: 60px;">
         <a href="cricket.html" class="category-card">
             <img src="https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=800&auto=format&fit=crop" alt="Cricket Gear">
             <div class="category-overlay">
@@ -435,7 +447,6 @@
             <p style="max-width: 300px; margin-bottom: 25px;">Equipping champions with premium, high-performance sports gear built for glory.</p>
             <div class="social-links">
                 <a href="https://www.instagram.com/one4sports?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" class="social-btn"><i class="fab fa-instagram"></i></a>
-                
                 <a href="https://t.me/one4sports" target="_blank" class="social-btn"><i class="fab fa-telegram-plane"></i></a>
             </div>
         </div>
@@ -454,7 +465,6 @@
         </div>
     </div>
     <div class="rj-footer-bottom">&copy; 2026 One4Sports. Built for the next generation.</div>
-    
 </footer>
 
 <script>
@@ -513,67 +523,76 @@
         }
     }
 
-   
+    // Independence Day Sale Auto-Expiry (Until Aug 15 Midnight)
+    function checkIndependenceSale() {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        // Target: August 15, 23:59:59
+        const expiryDate = new Date(currentYear, 7, 15, 23, 59, 59);
 
-// 1. Detect the referral link
-const urlParams = new URLSearchParams(window.location.search);
-const refCode = urlParams.get('ref');
-
-if (refCode) {
-    localStorage.setItem('rj_referredBy', refCode);
-    
-    // 2. If not logged in, auto-redirect to signin
-    if (!localStorage.getItem('rj_loggedInUser')) {
-        alert("You've got a discount waiting! Sign in to claim it.");
-        window.location.href = 'signin.html';
+        if (now <= expiryDate) {
+            const bannerContainer = document.getElementById('independence-banner-container');
+            if (bannerContainer) {
+                bannerContainer.innerHTML = `
+                    <div class="independence-banner">
+                        <div class="ind-content">
+                            <h3><i class="fas fa-flag"></i> Independence Day Footwear Sale Live!</h3>
+                            <p>Every premium shoe flat ₹750! Limited time offer valid until Aug 15 midnight.</p>
+                        </div>
+                        <a href="footwear.html" class="ind-btn">Shop Sale @ ₹750 <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                `;
+            }
+        }
     }
-}
-    
-    // In index.html, force the browser to ignore cache when fetching products
-async function renderDropFeed() {
-    const gridContainer = document.getElementById('drop-grid');
-    if (!gridContainer) return;
 
-    try {
-        const response = await fetch('/api/products', { cache: "no-store" });
-        const data = await response.json();
+    // Referral code logic
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
 
-       if (data.success && data.products.length > 0) {
-    // .slice(0, 3) ensures only the first 3 products are shown
-    gridContainer.innerHTML = data.products.slice(0, 3).map(p => `
-        <div class="drop-card" onclick="window.location.href='product.html?id=${p.productId}'">
-            <div class="drop-img-wrap">
-                <span class="hype-tag" style="background:${p.stockStatus === 'out-of-stock' ? '#333' : 'var(--accent)'}">
-                    ${p.stockStatus === 'out-of-stock' ? 'Sold Out' : 'New Drop'}
-                </span>
-                <img src="${p.images[0] || 'placeholder.jpg'}" alt="${p.name}">
-            </div>
-            <div class="drop-info">
-                <div class="drop-name">${p.name}</div>
-                <div class="drop-price">₹${Number(p.price).toLocaleString()}</div>
-            </div>
-        </div>
-    `).join('');
-}
-    } catch (err) {
-        console.error("Drop Feed Error:", err);
+    if (refCode) {
+        localStorage.setItem('rj_referredBy', refCode);
+        if (!localStorage.getItem('rj_loggedInUser')) {
+            alert("You've got a discount waiting! Sign in to claim it.");
+            window.location.href = 'signin.html';
+        }
     }
-}
-// Wallet Management
-const Wallet = {
-    addPoints: (amount) => {
-        let points = parseInt(localStorage.getItem('rj_points') || 0);
-        points += amount;
-        localStorage.setItem('rj_points', points);
-        showToast(`+${amount} Points added to your wallet!`);
-    },
-    getPoints: () => parseInt(localStorage.getItem('rj_points') || 0)
-};
-window.addEventListener('DOMContentLoaded', () => {
-    checkLoginStatus();
-    updateCartCount();
-   
-});
+    
+    async function renderDropFeed() {
+        const gridContainer = document.getElementById('drop-grid');
+        if (!gridContainer) return;
+
+        try {
+            const response = await fetch('/api/products', { cache: "no-store" });
+            const data = await response.json();
+
+            if (data.success && data.products.length > 0) {
+                gridContainer.innerHTML = data.products.slice(0, 3).map(p => `
+                    <div class="drop-card" onclick="window.location.href='product.html?id=${p.productId}'">
+                        <div class="drop-img-wrap">
+                            <span class="hype-tag" style="background:${p.stockStatus === 'out-of-stock' ? '#333' : 'var(--accent)'}">
+                                ${p.stockStatus === 'out-of-stock' ? 'Sold Out' : 'New Drop'}
+                            </span>
+                            <img src="${p.images[0] || 'placeholder.jpg'}" alt="${p.name}">
+                        </div>
+                        <div class="drop-info">
+                            <div class="drop-name">${p.name}</div>
+                            <div class="drop-price">₹${Number(p.price).toLocaleString()}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } catch (err) {
+            console.error("Drop Feed Error:", err);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        checkLoginStatus();
+        updateCartCount();
+        checkIndependenceSale();
+        renderDropFeed();
+    });
 </script>
 
 </body>

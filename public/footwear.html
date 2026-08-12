@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Premium Footwear | One4Sports</title>
+    <title>Independence Day Sale - Premium Footwear | One4Sports</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script>
@@ -13,7 +13,7 @@
     }
 </script>
     <style>
- /* BASE THEME (DARK MODE - Default) */
+     /* BASE THEME (DARK MODE - Default) */
 :root { 
     --bg-color: #050505; 
     --text-main: #ffffff;
@@ -52,10 +52,19 @@
             display: flex; 
             flex-direction: column; 
             overflow-x: hidden; 
-            background-image: radial-gradient(circle at top right, rgba(255, 42, 42, 0.05), transparent 40%);
+            background-image: radial-gradient(circle at top right, rgba(255, 153, 51, 0.08), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(19, 136, 8, 0.05), transparent 40%);
         }
 
-        /* GLASSMORPHIC HEADER (Matches Index) */
+        /* TRICOLOR TOP ACCENT GLOW */
+        .tricolor-glow {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, #FF9933, #FFFFFF, #138808);
+            z-index: 10000;
+        }
+
+        /* GLASSMORPHIC HEADER */
         .rj-header-wrapper { 
             background: var(--nav-bg); 
             backdrop-filter: blur(16px);
@@ -67,9 +76,32 @@
             z-index: 9999; 
         }
         
-        .rj-navbar { display: flex; align-items: center; justify-content: space-between; padding: 15px 5%; max-width: 1400px; margin: 0 auto; position: relative; }
-        .brand-logo { text-decoration: none; font-size: 28px; font-weight: 900; color: var(--text-main); letter-spacing: -1px; text-transform: uppercase; }
-        .brand-logo span { color: var(--accent); }
+        .rj-navbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 1%; max-width: 1400px; margin: 0 auto; position: relative; }
+        
+        .brand-logo { 
+            text-decoration: none; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            gap: 4px;
+            z-index: 10000;
+        }
+
+        .brand-img { 
+            height: 75px; 
+            width: auto;
+            object-fit: contain;
+        }
+
+        .brand-text {
+            font-size: 10px; 
+            font-weight: 600;
+            color: var(--text-main);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            line-height: 0;
+        }
         
         .rj-links { display: flex; gap: 40px; align-items: center; }
         .rj-links a { text-decoration: none; color: var(--text-main); font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; position: relative; }
@@ -86,10 +118,40 @@
         .cart-badge { position:absolute; top:-10px; right:-12px; background:var(--accent); color:white; font-size:12px; height:20px; min-width:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; box-shadow: 0 0 10px var(--accent-glow); }
         .rj-menu-toggle { display: none; background: none; border: none; font-size: 24px; color: var(--text-main); cursor: pointer; }
 
-        /* SHOP LAYOUT */
-        .page-header { padding: 40px 5% 20px; max-width: 1400px; margin: 0 auto; width: 100%; border-bottom: 1px solid var(--border-color); }
-        .page-title { font-size: 42px; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 10px; }
-        .page-subtitle { color: var(--text-muted); font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
+        /* SALE BANNER HEADER */
+        .sale-banner-header {
+            background: linear-gradient(135deg, rgba(255,153,51,0.2) 0%, rgba(5,5,5,0.95) 50%, rgba(19,136,8,0.2) 100%);
+            border-bottom: 1px solid rgba(255,153,51,0.3);
+            padding: 40px 5%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sale-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 153, 51, 0.15);
+            border: 1px solid #FF9933;
+            color: #FF9933;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(255,153,51,0.2);
+        }
+
+        .page-title { font-size: clamp(36px, 6vw, 54px); font-weight: 900; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 10px; }
+        .page-title span {
+            background: linear-gradient(90deg, #FF9933, #ffffff, #138808);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .page-subtitle { color: var(--text-muted); font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; max-width: 600px; margin: 0 auto; }
 
         .layout { display: flex; max-width: 1400px; margin: 40px auto; padding: 0 5%; gap: 40px; flex: 1; width: 100%; }
         
@@ -101,7 +163,6 @@
         .filter-label { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; font-size: 15px; cursor: pointer; transition: 0.2s; text-transform: capitalize; font-weight: 600; color: var(--text-muted); }
         .filter-label:hover, .filter-label:has(input:checked) { color: var(--text-main); }
         
-        /* Custom Checkbox */
         .filter-label input[type="checkbox"] { appearance: none; width: 20px; height: 20px; border: 2px solid var(--border-color); border-radius: 4px; background: transparent; cursor: pointer; position: relative; transition: 0.2s; }
         .filter-label input[type="checkbox"]:checked { background: var(--accent); border-color: var(--accent); }
         .filter-label input[type="checkbox"]:checked::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; font-size: 12px; color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
@@ -115,27 +176,30 @@
         
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
         .card { background: var(--card-bg); border-radius: 20px; overflow: hidden; cursor: pointer; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; border: 1px solid var(--border-color); display: flex; flex-direction: column; }
-        .card:hover { border-color: var(--accent); box-shadow: 0 10px 30px rgba(255, 42, 42, 0.1); transform: translateY(-5px); }
+        .card:hover { border-color: #FF9933; box-shadow: 0 10px 30px rgba(255, 153, 51, 0.15); transform: translateY(-5px); }
         
         .img-wrapper { position: relative; width: 100%; padding-top: 100%; overflow: hidden; background: #1a1a1a; }
         .img-wrapper img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0.9; }
         .card:hover .img-wrapper img { transform: scale(1.08); opacity: 1; }
         
         .info { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; }
-        .brand { font-size: 12px; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+        .brand { font-size: 12px; font-weight: 900; color: #FF9933; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
         .name { font-size: 18px; margin-bottom: 15px; font-weight: 800; color: var(--text-main); line-height: 1.3; }
-        .price { font-size: 22px; font-weight: 900; color: var(--text-main); margin-top: auto; }
         
-        .quick-add-btn { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-color); padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 20px; width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 14px; text-transform: uppercase; }
-        .quick-add-btn:hover { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+        .price-row { display: flex; align-items: baseline; gap: 12px; margin-top: auto; margin-bottom: 15px; }
+        .current-price { font-size: 22px; font-weight: 900; color: #FF9933; }
+        .original-price { font-size: 14px; font-weight: 700; color: var(--text-muted); text-decoration: line-through; }
+        
+        .quick-add-btn { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-color); padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 14px; text-transform: uppercase; }
+        .quick-add-btn:hover { background: #FF9933; color: white; border-color: #FF9933; box-shadow: 0 0 15px rgba(255,153,51,0.4); }
         
         .badge { position: absolute; top: 15px; left: 15px; padding: 6px 12px; font-size: 11px; font-weight: 900; border-radius: 50px; z-index: 10; letter-spacing: 1px; text-transform: uppercase; backdrop-filter: blur(5px); }
         .sold-out-badge { background: rgba(0,0,0,0.8); color: white; border: 1px solid #333; }
-        .premium-badge { background: rgba(255, 42, 42, 0.9); color: white; border: 1px solid var(--accent); }
+        .sale-tag { background: linear-gradient(135deg, #FF9933, #E10600); color: white; border: 1px solid #FF9933; box-shadow: 0 4px 15px rgba(225,6,0,0.3); }
         
         .loading-text { grid-column: 1 / -1; text-align: center; padding: 80px 20px; color: var(--text-muted); font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* BRUTALIST FOOTER (Matches Index) */
+        /* FOOTER */
         .rj-footer { border-top: 1px solid var(--border-color); padding: 80px 5% 40px; margin-top: auto; width: 100%; background: #000; }
         .rj-footer-content { max-width: 1400px; width: 100%; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 60px; }
         .huge-logo { font-size: clamp(40px, 6vw, 80px); font-weight: 900; letter-spacing: -2px; line-height: 1; margin-bottom: 20px; text-transform: uppercase; }
@@ -148,8 +212,8 @@
         .social-btn:hover { background: var(--accent); border-color: var(--accent); transform: translateY(-3px); }
         .rj-footer-bottom { text-align: center; padding-top: 40px; margin-top: 60px; border-top: 1px solid var(--border-color); color: #52525b; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Custom Toast Notification */
-        #toast { visibility: hidden; min-width: 250px; background: var(--card-bg); border: 1px solid var(--accent); color: white; text-align: center; border-radius: 12px; padding: 16px; position: fixed; z-index: 10000; left: 50%; bottom: -50px; transform: translateX(-50%); font-weight: 800; opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(255,42,42,0.2); }
+        /* Toast Notification */
+        #toast { visibility: hidden; min-width: 250px; background: var(--card-bg); border: 1px solid #FF9933; color: white; text-align: center; border-radius: 12px; padding: 16px; position: fixed; z-index: 10000; left: 50%; bottom: -50px; transform: translateX(-50%); font-weight: 800; opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(255,153,51,0.2); }
         #toast.show { visibility: visible; opacity: 1; bottom: 40px; }
 
         @media (max-width: 992px) {
@@ -170,57 +234,20 @@
             .sidebar { display: none; width: 100%; position: static; margin-bottom: 10px; }
             .sidebar.active { display: block; }
             
-            .page-title { font-size: 32px; }
             .grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
             .info { padding: 15px; }
             .name { font-size: 15px; }
-            .price { font-size: 18px; }
             .quick-add-btn { font-size: 12px; padding: 12px; }
         }
         
         @media (max-width: 480px) {
             .grid { grid-template-columns: 1fr; }
         }
-        /* Modern Left-Aligned Brand Block */
-.brand-logo { 
-    text-decoration: none; 
-    display: flex; 
-    flex-direction: column; /* Stacks text under the logo */
-    align-items: center; 
-    justify-content: center;
-    gap: 4px;
-    z-index: 10000;
-}
-
-.brand-img { 
-    height: 75px; /* Larger for better visibility */
-    width: auto;
-    object-fit: contain;
-    justify-content:start
-}
-
-.brand-text {
-    font-size: 10px; /* Bolder text */
-    font-weight: 600;
-    color: var(--text-main);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    line-height: 0;
-}
-
-/* Ensure the navbar keeps the logo in the corner */
-.rj-navbar { 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    padding: 10px 1%; 
-    max-width: 1400px; 
-    margin: 0 auto; 
-}
-
     </style>
 </head>
 <body>
+
+<div class="tricolor-glow"></div>
 
 <header class="rj-header-wrapper">
     <div class="rj-navbar">
@@ -250,9 +277,10 @@
     </div>
 </header>
 
-<div class="page-header">
-    <div class="page-subtitle">The Collection</div>
-    <h1 class="page-title">Performance Footwear</h1>
+<div class="sale-banner-header">
+    <div class="sale-badge-pill"><i class="fas fa-flag"></i> Independence Day Special Drop</div>
+    <h1 class="page-title">Footwear <span>@ ₹750 Flat</span></h1>
+    <div class="page-subtitle">Honor freedom with absolute premium performance footwear. Every pair fixed at ₹750 until August 15 midnight!</div>
 </div>
 
 <div class="layout">
@@ -264,8 +292,7 @@
         <h3>Filter By</h3>
         <div class="filter-group">
             <div class="filter-title">Brands</div>
-            <div id="dynamic-brand-filters">
-                </div>
+            <div id="dynamic-brand-filters"></div>
         </div>
         <div class="filter-group">
             <div class="filter-title">Availability</div>
@@ -280,7 +307,7 @@
             <div class="product-count" id="product-count">0 Drops Found</div>
         </div>
         <div class="grid" id="product-grid">
-            <div class="loading-text"><i class="fas fa-circle-notch fa-spin" style="margin-right: 10px; color: var(--accent);"></i> Accessing Database...</div>
+            <div class="loading-text"><i class="fas fa-circle-notch fa-spin" style="margin-right: 10px; color: #FF9933;"></i> Accessing Database...</div>
         </div>
     </main>
 </div>
@@ -291,8 +318,7 @@
             <div class="huge-logo">One4<span>Sports</span></div>
             <p style="max-width: 300px; margin-bottom: 25px;">Equipping champions with premium, high-performance sports gear built for glory.</p>
             <div class="social-links">
-                <a href="https://www.instagram.com/one4sports?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" class="social-btn"><i class="fab fa-instagram"></i></a>
-               
+                <a href="https://www.instagram.com/one4sports" class="social-btn"><i class="fab fa-instagram"></i></a>
                 <a href="https://t.me/one4sports" target="_blank" class="social-btn"><i class="fab fa-telegram-plane"></i></a>
             </div>
         </div>
@@ -318,7 +344,15 @@
 <script>
     let allProducts = [];
 
-    // Custom Toast function
+    // Check if Independence Day Sale is currently active (Until August 15 Midnight)
+    function isSaleActive() {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        // Expiry: August 15, 23:59:59
+        const saleExpiry = new Date(currentYear, 7, 15, 23, 59, 59);
+        return now <= saleExpiry;
+    }
+
     function showToast(message) {
         const toast = document.getElementById("toast");
         toast.innerHTML = `<i class="fas fa-check-circle" style="color: #10b981; margin-right: 8px;"></i> ${message}`;
@@ -326,11 +360,9 @@
         setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
     }
 
-    // Consolidated Add to Cart Function
     function addToCart(event, productId, name, price, image) {
         event.stopPropagation(); 
         
-        // Gatekeeper logic
         if (!localStorage.getItem('rj_loggedInUser')) {
             window.location.href = 'signin.html?redirect=footwear.html';
             return; 
@@ -349,7 +381,6 @@
         updateCartCount();
         showToast("Item added to cart!");
         
-        // Button animation
         const btn = event.currentTarget;
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-check"></i> Secured';
@@ -372,26 +403,23 @@
         document.getElementById('sidebar').classList.toggle('active');
     }
 
-    // Backend Fetch Logic
     async function loadProducts() {
-    const grid = document.getElementById('product-grid');
-    try {
-        // Use { cache: "no-store" } to force fresh data from your MongoDB
-        const res = await fetch('/api/products', { cache: "no-store" });
-        const data = await res.json();
-        
-        if(data.success) {
-            // Filter products for this specific page (e.g., 'Footwear')
-            allProducts = data.products.filter(p => p.category === 'Footwear');
-            renderBrandFilters(); 
-            applyFilters(); 
-        } else {
-            showError("Failed to fetch database records.");
+        const grid = document.getElementById('product-grid');
+        try {
+            const res = await fetch('/api/products', { cache: "no-store" });
+            const data = await res.json();
+            
+            if(data.success) {
+                allProducts = data.products.filter(p => p.category === 'Footwear');
+                renderBrandFilters(); 
+                applyFilters(); 
+            } else {
+                showError("Failed to fetch database records.");
+            }
+        } catch (err) {
+            showError("Backend disconnected.");
         }
-    } catch (err) {
-        showError("Backend disconnected.");
     }
-}
 
     function renderBrandFilters() {
         const container = document.getElementById('dynamic-brand-filters');
@@ -417,6 +445,7 @@
         
         const selectedBrands = Array.from(document.querySelectorAll('.brand-filter:checked')).map(cb => cb.value.toUpperCase());
         const excludeSoldOut = document.getElementById('instock-filter').checked;
+        const saleOn = isSaleActive();
 
         const filteredProducts = allProducts.filter(p => {
             const productBrand = (p.brand || (p.name ? p.name.split(' ')[0] : 'Brand')).toUpperCase();
@@ -433,24 +462,30 @@
         }
 
         grid.innerHTML = filteredProducts.map(p => {
-            // Fallback for dark mode images
             const imgUrl = p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/400x400/111111/ffffff?text=Image+Missing';
             const brandName = p.brand || (p.name ? p.name.split(' ')[0] : 'Brand');
             const safeName = p.name.replace(/'/g, "\\'"); 
             const isSoldOut = p.stock === 0 || p.isOutOfStock;
             
+            // Apply flat ₹750 price if sale is active, else use standard product price
+            const originalPrice = Number(p.price);
+            const effectivePrice = saleOn ? 750 : originalPrice;
+            
             return `
             <div class="card" onclick="window.location.href='product.html?id=${p.productId}'">
                 <div class="img-wrapper">
-                    ${isSoldOut ? `<div class="badge sold-out-badge">SOLD OUT</div>` : `<div class="badge premium-badge">NEW DROP</div>`}
+                    ${isSoldOut ? `<div class="badge sold-out-badge">SOLD OUT</div>` : (saleOn ? `<div class="badge sale-tag">FLAT ₹750</div>` : `<div class="badge sale-tag">NEW DROP</div>`)}
                     <img src="${imgUrl}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/400x400/111111/ffffff?text=Image+Missing'">
                 </div>
                 <div class="info">
                     <div class="brand">${brandName}</div>
                     <div class="name">${p.name}</div>
-                    <div class="price">₹${Number(p.price).toLocaleString()}</div>
-                    <button class="quick-add-btn" onclick="addToCart(event, '${p.productId}', '${safeName}', ${p.price}, '${imgUrl}')" ${isSoldOut ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
-                        <i class="fas fa-shopping-cart"></i> ${isSoldOut ? 'Out of Stock' : 'Add to Cart'}
+                    <div class="price-row">
+                        <span class="current-price">₹${effectivePrice.toLocaleString()}</span>
+                        ${saleOn && originalPrice > 750 ? `<span class="original-price">₹${originalPrice.toLocaleString()}</span>` : ''}
+                    </div>
+                    <button class="quick-add-btn" onclick="addToCart(event, '${p.productId}', '${safeName}', ${effectivePrice}, '${imgUrl}')" ${isSoldOut ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
+                        <i class="fas fa-shopping-cart"></i> ${isSoldOut ? 'Out of Stock' : (saleOn ? 'Grab @ ₹750' : 'Add to Cart')}
                     </button>
                 </div>
             </div>
@@ -462,7 +497,6 @@
         document.getElementById('product-grid').innerHTML = `<div class='loading-text'><i class='fas fa-exclamation-triangle' style='color: var(--accent); margin-right: 10px;'></i> ${msg}</div>`;
     }
 
-    // Consolidated Auth & Mobile Menu logic
     function checkLoginStatus() {
         const userName = localStorage.getItem('rj_loggedInUser');
         const authBtn = document.getElementById('auth-btn');
@@ -500,48 +534,12 @@
         });
     }
 
-    // SINGLE Initialization Event
     window.addEventListener('DOMContentLoaded', () => {
-  
-
-
         checkLoginStatus();
         updateCartCount();
         loadProducts();
-   });
-// In your category page script
-async function renderCategoryProducts(categoryName) {
-    try {
-        // Use cache: 'no-store' to ensure you get the latest edited status
-        const response = await fetch('/api/products', { cache: "no-store" });
-        const data = await response.json();
-
-        if (data.success) {
-            // Filter by category
-            const filtered = data.products.filter(p => p.category === categoryName);
-            
-            const grid = document.getElementById('product-grid');
-            grid.innerHTML = filtered.map(p => `
-                <div class="product-card">
-                    <img src="${p.images[0]}" alt="${p.name}">
-                    <h3>${p.name}</h3>
-                    <!-- THIS IS THE CRITICAL PART: Dynamic status check -->
-                    <p class="status-badge ${p.stockStatus === 'in-stock' ? 'available' : 'out-of-stock'}">
-                        ${p.stockStatus === 'in-stock' ? 'Available' : 'Sold Out'}
-                    </p>
-                    <a href="product.html?id=${p.productId}">View Product</a>
-                </div>
-            `).join('');
-        }
-    } catch (err) {
-        console.error("Failed to load category products:", err);
-    }
-}
+    });
 </script>
-
-    
-       
-    
 
 </body>
 </html>
