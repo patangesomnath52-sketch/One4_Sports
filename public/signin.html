@@ -270,7 +270,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
-    const adminEmails = ["@gmail.com", "@gmail.com"];
+    const adminEmails = ["@gmail.com"];
 
     // UI Helpers
     const showToast = (message) => {
@@ -293,36 +293,36 @@
 
     // 2. SHARED ROUTING & SAVING LOGIC
     const handleSuccessfulLogin = async (user) => {
-    const email = user.email;
-    const name = user.displayName || email.split('@')[0];
+        const email = user.email;
+        const name = user.displayName || email.split('@')[0];
 
-    // 1. Sync/Register User with Backend (to ensure they have a Referral Code)
-    try {
-        await fetch('/api/register-user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                email: email,
-                name: name,
-                referredBy: localStorage.getItem('rj_referredBy') // Pass the referral code from URL
-            })
-        });
-    } catch (err) {
-        console.error("User sync failed, continuing anyway...");
-    }
+        // 1. Sync/Register User with Backend
+        try {
+            await fetch('/api/register-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    email: email,
+                    name: name,
+                    referredBy: localStorage.getItem('rj_referredBy')
+                })
+            });
+        } catch (err) {
+            console.error("User sync failed, continuing anyway...");
+        }
 
-    // 2. Save Session
-    localStorage.setItem('rj_loggedInUser', name);
-    localStorage.setItem('rj_userEmail', email);
+        // 2. Save Session
+        localStorage.setItem('rj_loggedInUser', name);
+        localStorage.setItem('rj_userEmail', email);
 
-    // 3. Routing
-    if (adminEmails.includes(email)) {
-        window.location.href = 'admin.html';
-    } else {
-        const params = new URLSearchParams(window.location.search);
-        window.location.href = params.get('redirect') || 'index.html';
-    }
-};
+        // 3. Routing
+        if (adminEmails.includes(email)) {
+            window.location.href = 'admin.html';
+        } else {
+            const params = new URLSearchParams(window.location.search);
+            window.location.href = params.get('redirect') || 'index.html';
+        }
+    };
 
     // 3. EMAIL/PASSWORD LOGIN
     document.getElementById('email-form').addEventListener('submit', async (e) => {
@@ -335,7 +335,6 @@
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             handleSuccessfulLogin(userCredential.user);
         } catch (error) {
-            // Friendly error messages mapping
             let errorMsg = "Failed to sign in.";
             if(error.code === 'auth/invalid-credential') errorMsg = "Incorrect email or password.";
             if(error.code === 'auth/too-many-requests') errorMsg = "Too many attempts. Try again later.";
@@ -357,22 +356,7 @@
             }
             toggleLoading('google-btn', false);
         }
-        
-        // Add this to your signup.html or wherever you handle registration
-function generateReferralCode(name) {
-    return name.substring(0,3).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
-}
-
-
-
-// Save these to your database for the user:
-// { name: userName, referralCode: referralCode, referredBy: referredBy, points: 0 }
-// Example of what to do in your signup route:
-const newCode = email.substring(0, 3).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
-await User.create({ email, referralCode: newCode, points: 0 });
-window.location.href = 'index.html'; // Redirect to home
     };
-
 </script>
 </body>
 </html>
