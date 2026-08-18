@@ -260,75 +260,6 @@
             .category-grid { grid-template-columns: 1fr; }
             .category-card { height: 400px; }
         }
-
-        .drop-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 30px;
-            padding: 20px 5%;
-        }
-
-        .drop-card {
-            background: #0d0d0d;
-            border-radius: 24px;
-            padding: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-            animation: fadeInUp 0.6s ease forwards;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .drop-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-color: var(--accent);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-
-        .drop-img-wrap {
-            position: relative;
-            border-radius: 18px;
-            overflow: hidden;
-            height: 350px;
-        }
-
-        .drop-img-wrap img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-        }
-
-        .drop-card:hover .drop-img-wrap img { transform: scale(1.1); }
-
-        .hype-tag {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: var(--accent);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 900;
-            text-transform: uppercase;
-            z-index: 2;
-        }
-
-        .drop-info { padding: 20px 10px; }
-        .drop-name { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
-        .drop-price { color: var(--accent); font-weight: 800; font-size: 18px; }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .drop-card:nth-child(1) { animation-delay: 0.1s; }
-        .drop-card:nth-child(2) { animation-delay: 0.2s; }
-        .drop-card:nth-child(3) { animation-delay: 0.3s; }
   </style>
 </head>
 <body>
@@ -404,8 +335,6 @@
         </div>
     </div>
     
-    <div class="drop-grid" id="drop-grid"></div>
-
     <div class="category-grid" style="margin-top: 60px;">
         <a href="cricket.html" class="category-card">
             <img src="https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=800&auto=format&fit=crop" alt="Cricket Gear">
@@ -558,40 +487,10 @@
         }
     }
     
-    async function renderDropFeed() {
-        const gridContainer = document.getElementById('drop-grid');
-        if (!gridContainer) return;
-
-        try {
-            const response = await fetch('/api/products', { cache: "no-store" });
-            const data = await response.json();
-
-            if (data.success && data.products.length > 0) {
-                gridContainer.innerHTML = data.products.slice(0, 3).map(p => `
-                    <div class="drop-card" onclick="window.location.href='product.html?id=${p.productId}'">
-                        <div class="drop-img-wrap">
-                            <span class="hype-tag" style="background:${p.stockStatus === 'out-of-stock' ? '#333' : 'var(--accent)'}">
-                                ${p.stockStatus === 'out-of-stock' ? 'Sold Out' : 'New Drop'}
-                            </span>
-                            <img src="${p.images[0] || 'placeholder.jpg'}" alt="${p.name}">
-                        </div>
-                        <div class="drop-info">
-                            <div class="drop-name">${p.name}</div>
-                            <div class="drop-price">₹${Number(p.price).toLocaleString()}</div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        } catch (err) {
-            console.error("Drop Feed Error:", err);
-        }
-    }
-
     window.addEventListener('DOMContentLoaded', () => {
         checkLoginStatus();
         updateCartCount();
         checkIndependenceSale();
-        renderDropFeed();
     });
 </script>
 
