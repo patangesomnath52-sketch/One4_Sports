@@ -38,17 +38,18 @@ mongoose.connect(MONGO_URI)
 const productSchema = new mongoose.Schema({
     productId: { type: String, unique: true, required: true },
     name: String,
-    description: String,   // <-- added description field
+    description: String,
     price: Number,
     category: String,
     images: [String],
-    // We'll store sizes as an array of objects { size: "UK 7", status: "Available" }
-    // But we also accept 'availableSizes' from frontend (array of strings) and convert
     sizes: [{
         size: String,
         status: { type: String, default: 'Available' }
     }],
-    stockStatus: { type: String, default: 'in-stock' }
+    stockStatus: { type: String, default: 'in-stock' },
+    
+    // NEW FIELD ADDED: For tracking display order
+    sequence: { type: Number, default: 0 } 
 });
 const Product = mongoose.model('Product', productSchema);
 
@@ -66,7 +67,6 @@ const User = mongoose.model('User', new mongoose.Schema({
     points: { type: Number, default: 0 }
 }));
 
-// ===== REVIEW MODEL (ONLY ONCE!) =====
 const reviewSchema = new mongoose.Schema({
     productId: { type: String, required: true, index: true },
     userName: { type: String, required: true },
@@ -79,18 +79,21 @@ const reviewSchema = new mongoose.Schema({
 });
 const Review = mongoose.model('Review', reviewSchema);
 
+
 // ===== ROUTES =====
 
-// PRODUCTS
+// 1. GET PRODUCTS - Updated to sort by sequence
 app.get('/api/products', async (req, res) => {
     try {
-        const products = await Product.find({});
+        // Now sorts products by sequence in ascending order (0, 1, 2...)
+        const products = await Product.find({}).sort({ sequence: 1 });
         res.json({ success: true, products });
     } catch (e) {
         res.status(500).json({ success: false });
     }
 });
 
+// 2. GET SINGLE PRODUCT
 app.get('/api/products/:id', async (req, res) => {
     try {
         const product = await Product.findOne({ productId: req.params.id });
@@ -101,17 +104,15 @@ app.get('/api/products/:id', async (req, res) => {
     }
 });
 
-// ADD / UPDATE PRODUCT (handles both 'sizes' array of objects and 'availableSizes' array of strings)
+// 3. ADD / UPDATE PRODUCT
 app.post('/api/products/add', async (req, res) => {
     try {
         const { productId, name, description, price, category, stockStatus, sizes, availableSizes, images } = req.body;
 
-        // Build the sizes array: if 'sizes' provided (array of objects) use that; else convert 'availableSizes' (strings) to objects
         let finalSizes = [];
         if (sizes && Array.isArray(sizes) && sizes.length > 0) {
-            finalSizes = sizes; // assume already { size, status }
+            finalSizes = sizes;
         } else if (availableSizes && Array.isArray(availableSizes) && availableSizes.length > 0) {
-            // Convert string array to { size, status: 'Available' }
             finalSizes = availableSizes.map(s => ({ size: s, status: 'Available' }));
         }
 
@@ -137,6 +138,46 @@ app.post('/api/products/add', async (req, res) => {
     }
 });
 
+// 4. REORDER PRODUCTS (NEW ROUTE) - Fixes the 404 Error
+app.post('/api/products/reorder', async (req, res) => {
+    try {
+        const { orderedIds } = req.body;
+
+        if (!orderedIds || !Array.isArray(orderedIds)) {
+            return res.status(400).json({ success: false, message: "Invalid sequence data" });
+        }
+
+        // Loop through the incoming array of IDs and update their 'sequence' number
+        const updatePromises = orderedIds.map((id, index) => {
+            return Product.updateOne(
+                { productId: id }, 
+                { $set: { sequence: index } }
+            );
+        });
+
+        // Execute all updates simultaneously
+        await Promise.all(updatePromises);
+
+        res.json({ success: true, message: "Sequence updated successfully!" });
+    } catch (error) {
+        console.error("Error updating sequence:", error);
+        res.status(500).json({ success: false, message: "Server error while saving sequence." });
+    }
+});
+
+
+// DELETE PRODUCT
+app.delete('/api/products/:productId', async (req, res) => {
+    try {
+        const result = await Product.findOneAndDelete({ productId: req.params.productId });
+        if (!result) return res.status(404).json({ success: false, message: 'Product not found' });
+        res.json({ success: true, message: 'Product deleted' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+
 // ORDERS
 app.get('/api/orders', async (req, res) => {
     try {
@@ -156,7 +197,6 @@ app.post('/api/orders', async (req, res) => {
     }
 });
 
-// Update order status (PATCH)
 app.patch('/api/orders/:orderId/status', async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -177,7 +217,7 @@ app.patch('/api/orders/:orderId/status', async (req, res) => {
 app.post('/api/add-referral-points', async (req, res) => {
     const { referrerCode, points } = req.body;
     try {
-        await User.findOneAndUpdate({ referralCode }, { $inc: { points: points } });
+        await User.findOneAndUpdate({ referralCode: referrerCode }, { $inc: { points: points } });
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: "Could not update points" });
