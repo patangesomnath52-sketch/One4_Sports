@@ -74,8 +74,9 @@
         .btn-action:hover { background: var(--accent); color: white; transform: translateY(-2px); }
         .btn-action.secondary { background: var(--text-muted); color: var(--bg-color); }
         .btn-action.secondary:hover { background: var(--accent); color: white; }
+        .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
         .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
-        .product-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
+        .product-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; }
         .product-img { width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid var(--border-color); }
         .product-details { padding: 25px; flex: 1; display: flex; flex-direction: column; }
         .btn-delete { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid transparent; padding: 15px; border-radius: 12px; width: 100%; font-weight: 800; cursor: pointer; margin-top: auto; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; font-size: 14px; transition: 0.3s; }
@@ -90,6 +91,11 @@
         .image-card { position: relative; width: 80px; height: 80px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
         .image-card img { width: 100%; height: 100%; object-fit: cover; }
         .delete-img { position: absolute; top: 4px; right: 4px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; }
+        
+        /* Sequence Controls CSS */
+        .sequence-controls { display: flex; gap: 8px; margin-bottom: 15px; }
+        .sequence-btn { flex: 1; padding: 10px; font-size: 12px; border-radius: 8px; }
+
         @media (max-width: 768px) {
             .form-grid { grid-template-columns: 1fr; }
             .form-group.full-width { grid-column: span 1; }
@@ -155,7 +161,13 @@
 
             <!-- INVENTORY -->
             <div id="sec-inventory" class="admin-section">
-                <div class="section-header"><h2>Inventory Grid</h2></div>
+                <div class="section-header">
+                    <h2>Inventory Grid</h2>
+                    <!-- Added: Save Sequence Button -->
+                    <button class="btn-action" style="width: auto; padding: 12px 24px; font-size: 14px; background: var(--success); color: white;" onclick="saveInventorySequence()" id="save-seq-btn">
+                        <i class="fas fa-save"></i> Save Display Order
+                    </button>
+                </div>
                 <div class="inventory-grid" id="inventory-list"></div>
             </div>
 
@@ -350,8 +362,10 @@ async function updateOrderStatus(orderId, newStatus) {
 }
 
 // ================================================================
-// 3. INVENTORY
+// 3. INVENTORY & SEQUENCE LOGIC
 // ================================================================
+window._inventoryProducts = []; // Array to hold loaded sequence
+
 async function fetchInventory() {
     const inventoryBox = document.getElementById('inventory-list');
     inventoryBox.innerHTML = '<div style="color: var(--text-muted);">Loading inventory...</div>';
@@ -359,23 +373,87 @@ async function fetchInventory() {
         const res = await fetch('/api/products');
         const data = await res.json();
         if(data.success && data.products.length > 0) {
-            inventoryBox.innerHTML = data.products.map(p => {
-                const imgUrl = p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/400x300/111111/ffffff?text=No+Image';
-                const isSoldOut = p.stockStatus === 'out-of-stock';
-                return `
-                <div class="product-card">
-                    <img src="${imgUrl}" class="product-img" alt="${p.name}">
-                    <div class="product-details">
-                        <div style="color: ${isSoldOut ? 'var(--danger)' : 'var(--success)'}; font-weight: bold; font-size: 12px; margin-bottom: 8px;">${isSoldOut ? 'SOLD OUT' : 'IN STOCK'}</div>
-                        <div style="font-weight: 900; font-size: 18px; margin-bottom: 8px;">${p.name}</div>
-                        <div style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">Category: ${p.category}</div>
-                        <div style="color: var(--accent); font-weight: 900; font-size: 22px; margin-bottom: 15px;">₹${Number(p.price).toLocaleString()}</div>
-                        <button class="btn-delete" onclick="deleteProduct('${p.productId}')"><i class="fas fa-trash-alt"></i> Delete</button>
-                    </div>
-                </div>`;
-            }).join('');
-        } else { inventoryBox.innerHTML = '<div>No products found.</div>'; }
+            window._inventoryProducts = data.products;
+            renderInventoryGrid();
+        } else { 
+            inventoryBox.innerHTML = '<div>No products found.</div>'; 
+            window._inventoryProducts = [];
+        }
     } catch (err) { inventoryBox.innerHTML = '<div style="color:red;">Error connecting to server.</div>'; }
+}
+
+function renderInventoryGrid() {
+    const inventoryBox = document.getElementById('inventory-list');
+    inventoryBox.innerHTML = window._inventoryProducts.map((p, index) => {
+        const imgUrl = p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/400x300/111111/ffffff?text=No+Image';
+        const isSoldOut = p.stockStatus === 'out-of-stock';
+        
+        return `
+        <div class="product-card">
+            <img src="${imgUrl}" class="product-img" alt="${p.name}">
+            <div class="product-details">
+                <div style="color: ${isSoldOut ? 'var(--danger)' : 'var(--success)'}; font-weight: bold; font-size: 12px; margin-bottom: 8px;">${isSoldOut ? 'SOLD OUT' : 'IN STOCK'}</div>
+                <div style="font-weight: 900; font-size: 18px; margin-bottom: 8px;">${p.name}</div>
+                <div style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">Category: ${p.category}</div>
+                <div style="color: var(--accent); font-weight: 900; font-size: 22px; margin-bottom: 15px;">₹${Number(p.price).toLocaleString()}</div>
+                
+                <!-- NEW: Sequence Adjustment Controls -->
+                <div class="sequence-controls">
+                    <button class="btn-action secondary sequence-btn" onclick="moveProduct(${index}, -1)" ${index === 0 ? 'disabled' : ''}>
+                        <i class="fas fa-arrow-left"></i> Move Up
+                    </button>
+                    <button class="btn-action secondary sequence-btn" onclick="moveProduct(${index}, 1)" ${index === window._inventoryProducts.length - 1 ? 'disabled' : ''}>
+                        Move Down <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <button class="btn-delete" onclick="deleteProduct('${p.productId}')"><i class="fas fa-trash-alt"></i> Delete</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// Shifts product within the client-side array
+window.moveProduct = function(index, direction) {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= window._inventoryProducts.length) return;
+    
+    // Swap items
+    const temp = window._inventoryProducts[index];
+    window._inventoryProducts[index] = window._inventoryProducts[newIndex];
+    window._inventoryProducts[newIndex] = temp;
+    
+    renderInventoryGrid();
+};
+
+// Saves the newly arranged array sequence to the backend
+async function saveInventorySequence() {
+    const btn = document.getElementById('save-seq-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    btn.disabled = true;
+
+    // Create an ordered array of product IDs based on current grid
+    const orderedIds = window._inventoryProducts.map(p => p.productId);
+
+    try {
+        const res = await fetch('/api/products/reorder', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderedIds })
+        });
+        const data = await res.json();
+        if(data.success) {
+            showToast("Product sequence updated!");
+        } else {
+            showToast("Failed to save sequence", true);
+        }
+    } catch(err) {
+        showToast("Connection Error", true);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
 }
 
 async function deleteProduct(productId) {
